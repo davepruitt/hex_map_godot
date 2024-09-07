@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://bumgasrkg2l7p"]
+
+[ext_resource type="Script" path="res://hex_grid.gd" id="1_byfya"]
+[ext_resource type="PackedScene" uid="uid://r8nfx0vsi5ah" path="res://hex_cell.tscn" id="2_ud45i"]
+
+[node name="HexGrid" type="Node3D"]
+script = ExtResource("1_byfya")
+width = 5
+height = 5
+hex_cell_prefab = ExtResource("2_ud45i")

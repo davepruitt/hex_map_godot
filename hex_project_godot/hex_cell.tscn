@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://r8nfx0vsi5ah"]
+
+[ext_resource type="Script" path="res://hex_cell.gd" id="1_8wrvn"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_84ow1"]
+size = Vector2(1, 1)
+
+[node name="HexCell" type="Node3D" node_paths=PackedStringArray("position_label")]
+script = ExtResource("1_8wrvn")
+position_label = NodePath("PositionLabel")
+
+[node name="Visualization" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_84ow1")
+
+[node name="PositionLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+text = "HELLO"
