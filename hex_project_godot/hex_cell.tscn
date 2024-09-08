@@ -1,12 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://r8nfx0vsi5ah"]
+[gd_scene load_steps=4 format=3 uid="uid://r8nfx0vsi5ah"]
 
 [ext_resource type="Script" path="res://hex_cell.gd" id="1_8wrvn"]
 [ext_resource type="PackedScene" uid="uid://dl7pxuw5hmncj" path="res://hex_mesh.tscn" id="2_0eih7"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wl51u"]
+albedo_color = Color(0, 0, 0, 1)
 
 [node name="HexCell" type="Node3D" node_paths=PackedStringArray("position_label")]
 script = ExtResource("1_8wrvn")
 position_label = NodePath("PositionLabel")
 hex_mesh = ExtResource("2_0eih7")
+hex_material = SubResource("StandardMaterial3D_wl51u")
 
 [node name="Visualization" type="MeshInstance3D" parent="."]
 

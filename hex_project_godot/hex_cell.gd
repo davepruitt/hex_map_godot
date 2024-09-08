@@ -22,10 +22,22 @@ const CORNERS = [
 
 @export var position_label: Label3D
 @export var hex_mesh: PackedScene
+@export var hex_material: StandardMaterial3D
 
 #endregion
 
+#region Public data members
+
+var hex_coordinates: HexCoordinates
+var hex_color: Color
+
+#endregion
+
+#region OnReady data members
+
 @onready var visualization = $Visualization
+
+#endregion
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -42,10 +54,13 @@ func _create_mesh () -> void:
 	for i in range(0, 6):
 		_add_triangle(surface_tool, Vector3.ZERO, CORNERS[i + 1], CORNERS[i])
 	
-	#surface_tool.generate_normals()
+	surface_tool.generate_normals()
 	visualization.mesh = surface_tool.commit()
+	visualization.create_trimesh_collision()
+	visualization.material_override = hex_material
 	
 func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3) -> void:
+	st.set_color(hex_color)
 	st.add_vertex(v1)
 	st.add_vertex(v2)
 	st.add_vertex(v3)

@@ -8,3 +8,5 @@ script = ExtResource("1_byfya")
 width = 5
 height = 5
 hex_cell_prefab = ExtResource("2_ud45i")
+default_hex_color = Color(0, 0, 1, 1)
+touched_hex_color = Color(1, 0, 1, 1)

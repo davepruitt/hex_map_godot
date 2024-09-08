@@ -8,6 +8,9 @@ extends Node3D
 
 @export var hex_cell_prefab: PackedScene
 
+@export var default_hex_color: Color
+@export var touched_hex_color: Color
+
 #endregion
 
 #region Private variables
@@ -33,6 +36,14 @@ func _process(delta: float) -> void:
 	
 #endregion
 
+#region Public methods
+
+func touch_cell(position: Vector3) -> void:
+	var inverse_transform_point = position * global_transform
+	var coordinates: HexCoordinates = HexCoordinates.FromPosition(inverse_transform_point)
+
+#endregion
+
 #region Private methods
 
 func _create_cell(z: int, x: int) -> void:
@@ -44,8 +55,10 @@ func _create_cell(z: int, x: int) -> void:
 	)
 	
 	var hex_cell = hex_cell_prefab.instantiate() as HexCell
+	hex_cell.hex_color = default_hex_color
 	hex_cell.position = hex_position
-	hex_cell.position_label.text = "(" + str(z) + "," + str(x) + ")"
+	hex_cell.hex_coordinates = HexCoordinates.FromOffsetCoordinates(x, z)
+	hex_cell.position_label.text = str(hex_cell.hex_coordinates)
 	
 	_hex_cells.append(hex_cell)
 	add_child(hex_cell)
