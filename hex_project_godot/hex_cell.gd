@@ -23,6 +23,7 @@ const CORNERS = [
 @export var position_label: Label3D
 @export var hex_mesh: PackedScene
 @export var hex_material: StandardMaterial3D
+@export var hex_shader_material: ShaderMaterial
 
 #endregion
 
@@ -46,6 +47,10 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+	
+func regenerate_mesh (c: Color) -> void:
+	hex_color = c
+	_create_mesh()
 
 func _create_mesh () -> void:
 	var surface_tool = SurfaceTool.new();
@@ -57,7 +62,7 @@ func _create_mesh () -> void:
 	surface_tool.generate_normals()
 	visualization.mesh = surface_tool.commit()
 	visualization.create_trimesh_collision()
-	visualization.material_override = hex_material
+	visualization.material_override = hex_shader_material
 	
 func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3) -> void:
 	st.set_color(hex_color)

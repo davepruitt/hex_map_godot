@@ -9,4 +9,9 @@ script = ExtResource("1_ipy05")
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.9, 0)
 
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
+light_energy = 10.0
+omni_range = 1000.0
+
 [node name="HexGrid" parent="." instance=ExtResource("1_e2r5f")]
