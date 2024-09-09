@@ -97,7 +97,7 @@ func _create_mesh () -> void:
 	#Iterate over each of the 6 triangles within the hex
 	for i in range(0, 6):
 		#Add this triangle to the mesh
-		_add_triangle_from_direction(surface_tool, i)
+		_triangulate_hex(surface_tool, i)
 	
 	#Generate the normals for the mesh
 	surface_tool.generate_normals()
@@ -128,49 +128,39 @@ func _add_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vect
 	_add_triangle(st, v1, v2, v3, c1, c2, c3)
 	_add_triangle(st, v2, v4, v3, c2, c4, c3)	
 	
-func _add_triangle_from_direction (st: SurfaceTool, direction: HexDirectionsClass.HexDirections) -> void:
+func _triangulate_hex (st: SurfaceTool, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
 	var center = Vector3.ZERO
 	var p1 = center + get_first_solid_corner(direction)
 	var p2 = center + get_second_solid_corner(direction)
 	
-	var bridge = get_bridge(direction)
-	var p3 = p1 + bridge
-	var p4 = p2 + bridge
-	
-	var p5 = center + get_first_corner(direction)
-	var p6 = center + get_second_corner(direction)
-	
-	#Get the previous neighbor
-	var previous_direction = HexDirectionsClass.previous(direction)
-	var previous_cell = get_neighbor(previous_direction)
-	if (previous_cell == null):
-		previous_cell = self
-	
-	#Get the neighbor cell in the specified direction
-	var neighbor_cell = get_neighbor(direction)
-	if (neighbor_cell == null):
-		neighbor_cell = self
-		
-	#Get the next neighbor
-	var next_direction = HexDirectionsClass.next(direction)
-	var next_cell = get_neighbor(next_direction)
-	if (next_cell == null):
-		next_cell = self
-		
-	#Determine the edge color
-	var p1_color = hex_color
-	var p2_color = hex_color
-	var bridge_color = (hex_color + neighbor_cell.hex_color) * 0.5
-	
-	var p5_color = (hex_color + previous_cell.hex_color + neighbor_cell.hex_color) / 3.0
-	var p6_color = (hex_color + neighbor_cell.hex_color + next_cell.hex_color) / 3.0
-	
 	#Add the triangle
 	_add_triangle(st, center, p2, p1, hex_color, hex_color, hex_color)
-	_add_quad(st, p1, p2, p3, p4, p1_color, p2_color, bridge_color, bridge_color)
-	_add_triangle(st, p1, p3, p5, p1_color, bridge_color, p5_color)
-	_add_triangle(st, p2, p6, p4, p2_color, p6_color, bridge_color)
+	
+	#Add a bridge on the NE side
+	if (direction <= HexDirectionsClass.HexDirections.SE):
+		_triangulate_connection(st, direction, p1, p2)
+	
+func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.HexDirections, v1: Vector3, v2: Vector3) -> void:
+	#Get the neighboring cell in the specified direction
+	var neighbor_cell = get_neighbor(direction)
+	
+	#If the neighboring cell is null, then fail out of the function
+	if (neighbor_cell == null):
+		return
+	
+	var bridge = get_bridge(direction)
+	var v3 = v1 + bridge
+	var v4 = v2 + bridge
+	
+	_add_quad(st, v1, v2, v3, v4, hex_color, hex_color, neighbor_cell.hex_color, neighbor_cell.hex_color)
+	
+	#Get the next neighbor of the cell
+	var next_direction = HexDirectionsClass.next(direction)
+	var next_neighbor = get_neighbor(next_direction)
+	if (direction <= HexDirectionsClass.HexDirections.E) and (next_neighbor != null):
+		var v2_next = v2 + get_bridge(next_direction)
+		_add_triangle(st, v2, v2_next, v4, hex_color, next_neighbor.hex_color, neighbor_cell.hex_color)
 
 #endregion
 
@@ -189,6 +179,6 @@ static func get_second_solid_corner (direction: HexDirectionsClass.HexDirections
 	return CORNERS[int(direction) + 1] * SOLID_FACTOR
 
 static func get_bridge (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return (CORNERS[int(direction)] + CORNERS[int(direction) + 1]) * 0.5 * BLEND_FACTOR
+	return (CORNERS[int(direction)] + CORNERS[int(direction) + 1]) * BLEND_FACTOR
 
 #endregion
