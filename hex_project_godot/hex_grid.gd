@@ -22,6 +22,10 @@ extends Node3D
 ## This is a list that contains each HexCell object in the grid
 var _hex_cells = []
 
+var _hex_colors : Array[Color] = [Color.YELLOW, Color.GREEN, Color.BLUE, Color.WHITE]
+
+var _rng = RandomNumberGenerator.new()
+
 #endregion
 
 #region Method overrides
@@ -40,6 +44,9 @@ func _ready() -> void:
 			
 			#Increment i
 			i += 1
+			
+	for j in range(0, len(_hex_cells)):
+		_hex_cells[j].regenerate_mesh_no_changes()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -110,7 +117,9 @@ func _create_cell(z: int, x: int, i: int) -> void:
 				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - width + 1])
 	
 	#Set the color of the hex cell
-	hex_cell.hex_color = default_hex_color
+	var idx = _rng.randi_range(0, 3)
+	hex_cell.hex_color = _hex_colors[idx]
+	#hex_cell.hex_color = default_hex_color
 	
 	#Set the position of the hex cell in the scene
 	hex_cell.position = hex_position

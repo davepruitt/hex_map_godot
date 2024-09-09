@@ -16,6 +16,10 @@ const CORNERS = [
 	Vector3(0, 0, OUTER_RADIUS),
 ]
 
+const SOLID_FACTOR: float = 0.75
+
+const BLEND_FACTOR: float = 1.0 - SOLID_FACTOR
+
 #endregion
 
 #region Exported variables
@@ -76,6 +80,9 @@ func regenerate_mesh (c: Color) -> void:
 	#Regenerate the hex mesh
 	_create_mesh()
 	
+func regenerate_mesh_no_changes () -> void:
+	_create_mesh()
+	
 #endregion
 
 #region Private methods
@@ -117,11 +124,22 @@ func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: 
 	st.set_color(c3)
 	st.add_vertex(v3)
 	
+func _add_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3, c1: Color, c2: Color, c3: Color, c4: Color) -> void:
+	_add_triangle(st, v1, v2, v3, c1, c2, c3)
+	_add_triangle(st, v2, v4, v3, c2, c4, c3)	
+	
 func _add_triangle_from_direction (st: SurfaceTool, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
 	var center = Vector3.ZERO
-	var p1 = center + get_first_corner(direction)
-	var p2 = center + get_second_corner(direction)
+	var p1 = center + get_first_solid_corner(direction)
+	var p2 = center + get_second_solid_corner(direction)
+	
+	var bridge = get_bridge(direction)
+	var p3 = p1 + bridge
+	var p4 = p2 + bridge
+	
+	var p5 = center + get_first_corner(direction)
+	var p6 = center + get_second_corner(direction)
 	
 	#Get the previous neighbor
 	var previous_direction = HexDirectionsClass.previous(direction)
@@ -141,11 +159,18 @@ func _add_triangle_from_direction (st: SurfaceTool, direction: HexDirectionsClas
 		next_cell = self
 		
 	#Determine the edge color
-	var p1_color = (hex_color + previous_cell.hex_color + neighbor_cell.hex_color) / 3.0
-	var p2_color = (hex_color + neighbor_cell.hex_color + next_cell.hex_color) / 3.0
+	var p1_color = hex_color
+	var p2_color = hex_color
+	var bridge_color = (hex_color + neighbor_cell.hex_color) * 0.5
+	
+	var p5_color = (hex_color + previous_cell.hex_color + neighbor_cell.hex_color) / 3.0
+	var p6_color = (hex_color + neighbor_cell.hex_color + next_cell.hex_color) / 3.0
 	
 	#Add the triangle
-	_add_triangle(st, center, p2, p1, hex_color, p2_color, p1_color)
+	_add_triangle(st, center, p2, p1, hex_color, hex_color, hex_color)
+	_add_quad(st, p1, p2, p3, p4, p1_color, p2_color, bridge_color, bridge_color)
+	_add_triangle(st, p1, p3, p5, p1_color, bridge_color, p5_color)
+	_add_triangle(st, p2, p6, p4, p2_color, p6_color, bridge_color)
 
 #endregion
 
@@ -156,5 +181,14 @@ static func get_first_corner (direction: HexDirectionsClass.HexDirections) -> Ve
 	
 static func get_second_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
 	return CORNERS[int(direction) + 1]	
+	
+static func get_first_solid_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
+	return CORNERS[int(direction)] * SOLID_FACTOR
+	
+static func get_second_solid_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
+	return CORNERS[int(direction) + 1] * SOLID_FACTOR
+
+static func get_bridge (direction: HexDirectionsClass.HexDirections) -> Vector3:
+	return (CORNERS[int(direction)] + CORNERS[int(direction) + 1]) * 0.5 * BLEND_FACTOR
 
 #endregion
