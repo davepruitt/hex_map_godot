@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=4 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://hex_grid.tscn" id="1_e2r5f"]
 [ext_resource type="Script" path="res://main.gd" id="1_ipy05"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_jp0eq"]
+resource_name = "ButtonGroup1"
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ipy05")
@@ -15,3 +18,29 @@ light_energy = 10.0
 omni_range = 1000.0
 
 [node name="HexGrid" parent="." instance=ExtResource("1_e2r5f")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HFlowContainer" type="HFlowContainer" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CheckBox" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_jp0eq")
+text = "Yellow"
+
+[node name="CheckBox2" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_jp0eq")
+text = "Green"
+
+[node name="CheckBox3" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_jp0eq")
+text = "Blue"
+
+[node name="CheckBox4" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_jp0eq")
+text = "White"

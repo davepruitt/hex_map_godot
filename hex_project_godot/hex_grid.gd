@@ -38,14 +38,14 @@ func _process(delta: float) -> void:
 
 #region Public methods
 
-func touch_cell(position: Vector3) -> void:
+func color_cell(position: Vector3, color_to_use: Color) -> void:
 	var inverse_transform_point = position * global_transform
 	var coordinates: HexCoordinates = HexCoordinates.FromPosition(inverse_transform_point)
 	print_debug(str(coordinates))
 	
 	var index = coordinates.X + coordinates.Z * width + coordinates.Z / 2.0
 	var cell = _hex_cells[index] as HexCell
-	cell.regenerate_mesh(touched_hex_color)
+	cell.regenerate_mesh(color_to_use)
 
 #endregion
 
