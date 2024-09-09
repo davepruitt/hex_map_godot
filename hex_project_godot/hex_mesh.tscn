@@ -1,9 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://dl7pxuw5hmncj"]
-
-[ext_resource type="Script" path="res://hex_mesh.gd" id="1_w76b0"]
-
-[sub_resource type="ImmediateMesh" id="ImmediateMesh_pe625"]
-
-[node name="HexMesh" type="MeshInstance3D"]
-mesh = SubResource("ImmediateMesh_pe625")
-script = ExtResource("1_w76b0")
