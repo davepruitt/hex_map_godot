@@ -50,6 +50,7 @@ offset_left = 10.0
 offset_top = 152.0
 offset_right = 38.0
 offset_bottom = 262.0
+max_value = 5.0
 
 [node name="ElevationLabel" type="Label" parent="CanvasLayer"]
 offset_left = 42.0

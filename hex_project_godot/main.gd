@@ -33,7 +33,7 @@ var active_elevation: int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	RenderingServer.set_debug_generate_wireframes(true)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -50,6 +50,17 @@ func _input(event: InputEvent) -> void:
 			scene_camera.position.y += camera_speed
 		elif event.keycode == KEY_X:
 			scene_camera.position.y -= camera_speed
+		elif event.keycode == KEY_W:
+			scene_camera.rotate_x(camera_speed)
+		elif event.keycode == KEY_S:
+			scene_camera.rotate_x(-camera_speed)
+		elif event.keycode == KEY_A:
+			scene_camera.rotate_y(camera_speed)
+		elif event.keycode == KEY_D:
+			scene_camera.rotate_y(-camera_speed)
+		elif event.keycode == KEY_P:
+			var vp = get_viewport()
+			vp.debug_draw = (vp.debug_draw + 1) % 5
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			var RAY_LENGTH = 1000

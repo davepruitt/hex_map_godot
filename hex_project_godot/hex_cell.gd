@@ -97,6 +97,9 @@ func _create_mesh () -> void:
 	#Generate the normals for the mesh
 	surface_tool.generate_normals()
 	
+	#Generate the tangents for the mesh
+	surface_tool.generate_tangents()
+	
 	#Commit the mesh
 	visualization.mesh = surface_tool.commit()
 	
@@ -119,6 +122,7 @@ func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: 
 	st.set_color(c3)
 	st.add_vertex(v3)
 	
+	
 func _add_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3, c1: Color, c2: Color, c3: Color, c4: Color) -> void:
 	_add_triangle(st, v1, v2, v3, c1, c2, c3)
 	_add_triangle(st, v2, v4, v3, c2, c4, c3)	
@@ -126,8 +130,8 @@ func _add_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vect
 func _triangulate_hex (st: SurfaceTool, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
 	var center = Vector3.ZERO
-	var p1 = center + get_first_solid_corner(direction)
-	var p2 = center + get_second_solid_corner(direction)
+	var p1 = center + HexMetrics.get_first_solid_corner(direction)
+	var p2 = center + HexMetrics.get_second_solid_corner(direction)
 	
 	#Add the triangle
 	_add_triangle(st, center, p2, p1, hex_color, hex_color, hex_color)
@@ -144,40 +148,40 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 	if (neighbor_cell == null):
 		return
 	
-	var bridge = get_bridge(direction)
+	var bridge = HexMetrics.get_bridge(direction)
 	var v3 = v1 + bridge
 	var v4 = v2 + bridge
 	
 	v3.y = neighbor_cell.elevation * HexMetrics.ELEVATION_STEP
 	v4.y = v3.y
 	
-	_add_quad(st, v1, v2, v3, v4, hex_color, hex_color, neighbor_cell.hex_color, neighbor_cell.hex_color)
+	_triangulate_edge_terraces(st, v1, v2, self, v3, v4, neighbor_cell)
 	
 	#Get the next neighbor of the cell
 	var next_direction = HexDirectionsClass.next(direction)
 	var next_neighbor = get_neighbor(next_direction)
 	if (direction <= HexDirectionsClass.HexDirections.E) and (next_neighbor != null):
-		var v5 = v2 + get_bridge(next_direction)
+		var v5 = v2 + HexMetrics.get_bridge(next_direction)
 		v5.y = next_neighbor.elevation * HexMetrics.ELEVATION_STEP
 		_add_triangle(st, v2, v5, v4, hex_color, next_neighbor.hex_color, neighbor_cell.hex_color)
+
+func _triangulate_edge_terraces (st: SurfaceTool, 
+	begin_left: Vector3, begin_right: Vector3, begin_cell: HexCell,
+	end_left: Vector3, end_right: Vector3, end_cell: HexCell):
+	
+	#var v3 = HexMetrics.terrace_lerp(begin_left, end_left, 1)
+	#var v4 = HexMetrics.terrace_lerp(begin_right, end_right, 1)
+	#var c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, 1)
+	
+	_add_quad(st, 
+		begin_left, begin_right, 
+		end_left, end_right, 
+		begin_cell.hex_color, begin_cell.hex_color, 
+		end_cell.hex_color, end_cell.hex_color)
 
 #endregion
 
 #region Public static methods
 
-static func get_first_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return HexMetrics.CORNERS[int(direction)]
-	
-static func get_second_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return HexMetrics.CORNERS[int(direction) + 1]	
-	
-static func get_first_solid_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return HexMetrics.CORNERS[int(direction)] * HexMetrics.SOLID_FACTOR
-	
-static func get_second_solid_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return HexMetrics.CORNERS[int(direction) + 1] * HexMetrics.SOLID_FACTOR
-
-static func get_bridge (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return (HexMetrics.CORNERS[int(direction)] + HexMetrics.CORNERS[int(direction) + 1]) * HexMetrics.BLEND_FACTOR
 
 #endregion
