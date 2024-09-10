@@ -15,6 +15,8 @@ extends Node3D
 
 var camera_speed: float = 0.1
 
+var active_color: Color = Color.WHITE
+
 #endregion
 
 #region OnReady public data members
@@ -22,12 +24,9 @@ var camera_speed: float = 0.1
 @onready var scene_camera := $Camera3D
 @onready var hex_grid := $HexGrid
 
-@onready var check_box_1 := $CanvasLayer/HFlowContainer/CheckBox
-@onready var check_box_2 := $CanvasLayer/HFlowContainer/CheckBox2
-@onready var check_box_3 := $CanvasLayer/HFlowContainer/CheckBox3
-@onready var check_box_4 := $CanvasLayer/HFlowContainer/CheckBox4
-
 #endregion
+
+#region Overrides
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -61,14 +60,34 @@ func _input(event: InputEvent) -> void:
 
 			var result = space_state.intersect_ray(query)
 			if result:
-				var color_to_use = Color.WHITE
-				if check_box_1.button_pressed:
-					color_to_use = color_1
-				elif check_box_2.button_pressed:
-					color_to_use = color_2
-				elif check_box_3.button_pressed:
-					color_to_use = color_3
-				elif check_box_4.button_pressed:
-					color_to_use = color_4
-				
-				hex_grid.color_cell(result.position, color_to_use)
+				var cell = hex_grid.get_cell(result.position)
+				_edit_cell(cell)
+
+#endregion
+
+#region GUI event handlers
+
+func _on_check_box_color_yellow_pressed() -> void:
+	active_color = color_1
+
+
+func _on_check_box_color_green_pressed() -> void:
+	active_color = color_2
+
+
+func _on_check_box_color_blue_pressed() -> void:
+	active_color = color_3
+
+
+func _on_check_box_color_white_pressed() -> void:
+	active_color = color_4
+
+#endregion
+
+#region Private methods
+
+func _edit_cell (cell: HexCell):
+	cell.hex_color = active_color
+	hex_grid.refresh()
+
+#endregion

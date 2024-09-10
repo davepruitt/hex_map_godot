@@ -45,9 +45,7 @@ func _ready() -> void:
 			#Increment i
 			i += 1
 			
-	for j in range(0, len(_hex_cells)):
-		_hex_cells[j].regenerate_mesh_no_changes()
-
+	refresh()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -57,15 +55,12 @@ func _process(delta: float) -> void:
 
 #region Public methods
 
-func color_cell(position: Vector3, color_to_use: Color) -> void:
+func get_cell (position: Vector3) -> HexCell:
 	#Convert the global position to a position within the hex grid
 	var inverse_transform_point = position * global_transform
 	
 	#Convert the position in the hex grid to a set of coordinates within the hex grid
 	var coordinates: HexCoordinates = HexCoordinates.FromPosition(inverse_transform_point)
-	
-	#Output the coordinates for debugging purposes
-	print_debug(str(coordinates))
 	
 	#Find the index into the _hex_cells list for which hex object we want
 	var index = coordinates.X + coordinates.Z * width + coordinates.Z / 2.0
@@ -73,8 +68,12 @@ func color_cell(position: Vector3, color_to_use: Color) -> void:
 	#Get the selected hex cell object
 	var cell = _hex_cells[index] as HexCell
 	
-	#Regenerate the selected hex cell's mesh using the specified color
-	cell.regenerate_mesh(color_to_use)
+	#Return the cell
+	return cell
+	
+func refresh () -> void:
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i].generate_mesh()
 
 #endregion
 
@@ -83,9 +82,9 @@ func color_cell(position: Vector3, color_to_use: Color) -> void:
 func _create_cell(z: int, x: int, i: int) -> void:
 	#Create a Vector3 to store the new hex's position
 	var hex_position = Vector3(
-		(x + z * 0.5 - (z / 2)) * (HexCell.INNER_RADIUS * 2.0), 
+		(x + z * 0.5 - (z / 2)) * (HexMetrics.INNER_RADIUS * 2.0), 
 		0.0, 
-		z * (HexCell.OUTER_RADIUS * 1.5)
+		z * (HexMetrics.OUTER_RADIUS * 1.5)
 	)
 	
 	#Instantiate a hex cell object

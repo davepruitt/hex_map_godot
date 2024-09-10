@@ -1,27 +1,6 @@
 class_name HexCell
 extends Node3D
 
-#region Constants
-
-const OUTER_RADIUS: float = 1.0
-const INNER_RADIUS: float = OUTER_RADIUS * 0.866025404
-
-const CORNERS = [
-	Vector3(0, 0, OUTER_RADIUS),
-	Vector3(INNER_RADIUS, 0, 0.5 * OUTER_RADIUS),
-	Vector3(INNER_RADIUS, 0, -0.5 * OUTER_RADIUS),
-	Vector3(0, 0, -OUTER_RADIUS),
-	Vector3(-INNER_RADIUS, 0, -0.5 * OUTER_RADIUS),
-	Vector3(-INNER_RADIUS, 0, 0.5 * OUTER_RADIUS),
-	Vector3(0, 0, OUTER_RADIUS),
-]
-
-const SOLID_FACTOR: float = 0.75
-
-const BLEND_FACTOR: float = 1.0 - SOLID_FACTOR
-
-#endregion
-
 #region Exported variables
 
 ## This is a Label3D node that will be used to display the hex cell's position within the hex grid
@@ -46,6 +25,9 @@ var hex_color: Color
 ## This is an array of all neighbors of this hex cell
 var hex_neighbors: Array[HexCell] = [null, null, null, null, null, null]
 
+## This is the elevation of the hex cell
+var elevation: int = 0
+
 #endregion
 
 #region Overrides
@@ -61,6 +43,16 @@ func _process(delta: float) -> void:
 #endregion
 
 #region Public methods
+
+func generate_mesh () -> void:
+	_create_mesh()
+	
+func generate_mesh_with_color (c: Color) -> void:
+	#Set the color used for each vertex in the hex mesh
+	hex_color = c
+	
+	#Regenerate the hex mesh
+	_create_mesh()	
 	
 func get_neighbor (direction: HexDirectionsClass.HexDirections) -> HexCell:
 	return hex_neighbors[int(direction)]
@@ -72,17 +64,7 @@ func set_neighbor (direction: HexDirectionsClass.HexDirections, cell: HexCell) -
 	#Set this cell as a neighbor of the other cell
 	var opposite_direction = HexDirectionsClass.opposite(direction)
 	cell.hex_neighbors[int(opposite_direction)] = self
-	
-func regenerate_mesh (c: Color) -> void:
-	#Set the color used for each vertex in the hex mesh
-	hex_color = c
-	
-	#Regenerate the hex mesh
-	_create_mesh()
-	
-func regenerate_mesh_no_changes () -> void:
-	_create_mesh()
-	
+
 #endregion
 
 #region Private methods
@@ -167,18 +149,18 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 #region Public static methods
 
 static func get_first_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return CORNERS[int(direction)]
+	return HexMetrics.CORNERS[int(direction)]
 	
 static func get_second_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return CORNERS[int(direction) + 1]	
+	return HexMetrics.CORNERS[int(direction) + 1]	
 	
 static func get_first_solid_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return CORNERS[int(direction)] * SOLID_FACTOR
+	return HexMetrics.CORNERS[int(direction)] * HexMetrics.SOLID_FACTOR
 	
 static func get_second_solid_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return CORNERS[int(direction) + 1] * SOLID_FACTOR
+	return HexMetrics.CORNERS[int(direction) + 1] * HexMetrics.SOLID_FACTOR
 
 static func get_bridge (direction: HexDirectionsClass.HexDirections) -> Vector3:
-	return (CORNERS[int(direction)] + CORNERS[int(direction) + 1]) * BLEND_FACTOR
+	return (HexMetrics.CORNERS[int(direction)] + HexMetrics.CORNERS[int(direction) + 1]) * HexMetrics.BLEND_FACTOR
 
 #endregion

@@ -25,22 +25,27 @@ omni_range = 1000.0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="CheckBox" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Yellow"
 
-[node name="CheckBox2" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Green"
 
-[node name="CheckBox3" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Blue"
 
-[node name="CheckBox4" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "White"
+
+[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
+[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
+[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
+[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
