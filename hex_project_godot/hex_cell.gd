@@ -29,10 +29,8 @@ var elevation: int:
 	get:
 		return _elevation
 	set(value):
-		_elevation = value
-		var pos: Vector3 = self.position
-		pos.y = _elevation * HexMetrics.ELEVATION_STEP
-		self.position = pos
+		_elevation = value		
+		position_label.position.y = _elevation * HexMetrics.ELEVATION_STEP
 
 #endregion
 
@@ -89,9 +87,9 @@ func _create_mesh () -> void:
 	#Begin creating the mesh
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES);
 	
-	#Iterate over each of the 6 triangles within the hex
+	#Iterate over each of the 6 directions from the center of the hex
 	for i in range(0, 6):
-		#Add this triangle to the mesh
+		#Form the mesh for this direction of the hex
 		_triangulate_hex(surface_tool, i)
 	
 	#Generate the normals for the mesh
@@ -133,10 +131,14 @@ func _triangulate_hex (st: SurfaceTool, direction: HexDirectionsClass.HexDirecti
 	var p1 = center + HexMetrics.get_first_solid_corner(direction)
 	var p2 = center + HexMetrics.get_second_solid_corner(direction)
 	
+	center.y = _elevation * HexMetrics.ELEVATION_STEP
+	p1.y = _elevation * HexMetrics.ELEVATION_STEP
+	p2.y = _elevation * HexMetrics.ELEVATION_STEP
+	
 	#Add the triangle
 	_add_triangle(st, center, p2, p1, hex_color, hex_color, hex_color)
 	
-	#Add a bridge on the NE side
+	#Add connections to other hex cells
 	if (direction <= HexDirectionsClass.HexDirections.SE):
 		_triangulate_connection(st, direction, p1, p2)
 	
@@ -163,6 +165,7 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 	if (direction <= HexDirectionsClass.HexDirections.E) and (next_neighbor != null):
 		var v5 = v2 + HexMetrics.get_bridge(next_direction)
 		v5.y = next_neighbor.elevation * HexMetrics.ELEVATION_STEP
+		
 		_add_triangle(st, v2, v5, v4, hex_color, next_neighbor.hex_color, neighbor_cell.hex_color)
 
 func _triangulate_edge_terraces (st: SurfaceTool, 

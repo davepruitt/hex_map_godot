@@ -47,6 +47,7 @@ func _ready() -> void:
 			
 	refresh()
 
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
@@ -119,6 +120,14 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	var idx = _rng.randi_range(0, 3)
 	hex_cell.hex_color = _hex_colors[idx]
 	#hex_cell.hex_color = default_hex_color
+	
+	#Set the initial elevation of the hex cell
+	if (hex_cell.hex_color == Color.BLUE):
+		hex_cell.elevation = 0
+	elif (hex_cell.hex_color == Color.WHITE):
+		hex_cell.elevation = 2
+	else:
+		hex_cell.elevation = 1
 	
 	#Set the position of the hex cell in the scene
 	hex_cell.position = hex_position
