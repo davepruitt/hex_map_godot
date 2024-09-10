@@ -10,7 +10,7 @@ resource_name = "ButtonGroup1"
 script = ExtResource("1_ipy05")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.9, 0)
+transform = Transform3D(1, 0, 0, 0, 0.362275, 0.932071, 0, -0.932071, 0.362275, 0, 0.9, 0)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
@@ -45,7 +45,21 @@ layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "White"
 
+[node name="ElevationSlider" type="VSlider" parent="CanvasLayer"]
+offset_left = 10.0
+offset_top = 152.0
+offset_right = 38.0
+offset_bottom = 262.0
+
+[node name="ElevationLabel" type="Label" parent="CanvasLayer"]
+offset_left = 42.0
+offset_top = 241.0
+offset_right = 52.0
+offset_bottom = 264.0
+text = "0"
+
 [connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
 [connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
 [connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
 [connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
+[connection signal="value_changed" from="CanvasLayer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]

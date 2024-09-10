@@ -16,6 +16,7 @@ extends Node3D
 var camera_speed: float = 0.1
 
 var active_color: Color = Color.WHITE
+var active_elevation: int = 0
 
 #endregion
 
@@ -23,6 +24,8 @@ var active_color: Color = Color.WHITE
 
 @onready var scene_camera := $Camera3D
 @onready var hex_grid := $HexGrid
+
+@onready var elevation_label := $CanvasLayer/ElevationLabel
 
 #endregion
 
@@ -82,12 +85,18 @@ func _on_check_box_color_blue_pressed() -> void:
 func _on_check_box_color_white_pressed() -> void:
 	active_color = color_4
 
+
+func _on_elevation_slider_value_changed(value: float) -> void:
+	active_elevation = int(value)
+	elevation_label.text = str(active_elevation)
+
 #endregion
 
 #region Private methods
 
 func _edit_cell (cell: HexCell):
 	cell.hex_color = active_color
+	cell.elevation = active_elevation
 	hex_grid.refresh()
 
 #endregion

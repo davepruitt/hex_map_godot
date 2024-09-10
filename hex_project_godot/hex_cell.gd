@@ -25,8 +25,21 @@ var hex_color: Color
 ## This is an array of all neighbors of this hex cell
 var hex_neighbors: Array[HexCell] = [null, null, null, null, null, null]
 
+var elevation: int:
+	get:
+		return _elevation
+	set(value):
+		_elevation = value
+		var pos: Vector3 = self.position
+		pos.y = _elevation # * HexMetrics.ELEVATION_STEP
+		self.position = pos
+
+#endregion
+
+#region Private data members
+
 ## This is the elevation of the hex cell
-var elevation: int = 0
+var _elevation: int = 0
 
 #endregion
 
