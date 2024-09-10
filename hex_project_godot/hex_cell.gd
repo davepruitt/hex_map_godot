@@ -31,7 +31,7 @@ var elevation: int:
 	set(value):
 		_elevation = value
 		var pos: Vector3 = self.position
-		pos.y = _elevation # * HexMetrics.ELEVATION_STEP
+		pos.y = _elevation * HexMetrics.ELEVATION_STEP
 		self.position = pos
 
 #endregion
@@ -148,14 +148,18 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 	var v3 = v1 + bridge
 	var v4 = v2 + bridge
 	
+	v3.y = neighbor_cell.elevation * HexMetrics.ELEVATION_STEP
+	v4.y = v3.y
+	
 	_add_quad(st, v1, v2, v3, v4, hex_color, hex_color, neighbor_cell.hex_color, neighbor_cell.hex_color)
 	
 	#Get the next neighbor of the cell
 	var next_direction = HexDirectionsClass.next(direction)
 	var next_neighbor = get_neighbor(next_direction)
 	if (direction <= HexDirectionsClass.HexDirections.E) and (next_neighbor != null):
-		var v2_next = v2 + get_bridge(next_direction)
-		_add_triangle(st, v2, v2_next, v4, hex_color, next_neighbor.hex_color, neighbor_cell.hex_color)
+		var v5 = v2 + get_bridge(next_direction)
+		v5.y = next_neighbor.elevation * HexMetrics.ELEVATION_STEP
+		_add_triangle(st, v2, v5, v4, hex_color, next_neighbor.hex_color, neighbor_cell.hex_color)
 
 #endregion
 

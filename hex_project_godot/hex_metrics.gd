@@ -19,6 +19,6 @@ const SOLID_FACTOR: float = 0.75
 
 const BLEND_FACTOR: float = 1.0 - SOLID_FACTOR
 
-const ELEVATION_STEP: float = 5.0
+const ELEVATION_STEP: float = 1.0
 
 #endregion
