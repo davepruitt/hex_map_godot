@@ -76,8 +76,11 @@ func set_neighbor (direction: HexDirectionsClass.HexDirections, cell: HexCell) -
 	var opposite_direction = HexDirectionsClass.opposite(direction)
 	cell.hex_neighbors[int(opposite_direction)] = self
 
-func get_edge_type (direction: HexDirectionsClass.HexDirections) -> Enums.HexEdgeType:
+func get_edge_type_from_direction (direction: HexDirectionsClass.HexDirections) -> Enums.HexEdgeType:
 	return HexMetrics.get_edge_type(_elevation, hex_neighbors[int(direction)].elevation)
+
+func get_edge_type_from_other_cell (other_cell: HexCell) -> Enums.HexEdgeType:
+	return HexMetrics.get_edge_type(_elevation, other_cell.elevation)
 
 #endregion
 
@@ -160,7 +163,7 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 	v3.y = neighbor_cell.elevation * HexMetrics.ELEVATION_STEP
 	v4.y = v3.y
 	
-	if (get_edge_type(direction) == Enums.HexEdgeType.Slope):
+	if (get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
 		_triangulate_edge_terraces(st, v1, v2, self, v3, v4, neighbor_cell)
 	else:
 		_add_quad(st, v1, v2, v3, v4, hex_color, hex_color, neighbor_cell.hex_color, neighbor_cell.hex_color)
@@ -221,8 +224,55 @@ func _triangulate_corner (st: SurfaceTool,
 	left: Vector3, left_cell: HexCell,
 	right: Vector3, right_cell: HexCell) -> void:
 	
-	#_add_triangle(st, bottom, left, right, bottom_cell.hex_color, left_cell.hex_color, right_cell.hex_color)
+	#Get the edge types
+	var left_edge_type: Enums.HexEdgeType = bottom_cell.get_edge_type_from_other_cell(left_cell)
+	var right_edge_type: Enums.HexEdgeType = bottom_cell.get_edge_type_from_other_cell(right_cell)
+	
+	if left_edge_type == Enums.HexEdgeType.Slope:
+		if right_edge_type == Enums.HexEdgeType.Slope:
+			_triangulate_corner_terraces(st, bottom, bottom_cell, left, left_cell, right, right_cell)
+			return
+		
+		if right_edge_type == Enums.HexEdgeType.Flat:
+			_triangulate_corner_terraces(st, left, left_cell, right, right_cell, bottom, bottom_cell)
+			return
+	
+	if right_edge_type == Enums.HexEdgeType.Slope:
+		if left_edge_type == Enums.HexEdgeType.Flat:
+			_triangulate_corner_terraces(st, right, right_cell, bottom, bottom_cell, left, left_cell)
+			return
+	
 	_add_triangle(st, bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
+
+func _triangulate_corner_terraces (st: SurfaceTool, 
+	begin: Vector3, begin_cell: HexCell,
+	left: Vector3, left_cell: HexCell,
+	right: Vector3, right_cell: HexCell) -> void:
+	
+	var v3: Vector3 = HexMetrics.terrace_lerp(begin, left, 1)
+	var v4: Vector3 = HexMetrics.terrace_lerp(begin, right, 1)
+	var c3: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, 1)
+	var c4: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, right_cell.hex_color, 1)
+	
+	#The bottom triangle
+	_add_triangle(st, begin, v4, v3, begin_cell.hex_color, c4, c3)
+	
+	#The steps inbetween
+	for i in range(2, HexMetrics.TERRACE_STEPS):
+		var v1: Vector3 = v3
+		var v2: Vector3 = v4
+		var c1: Color = c3
+		var c2: Color = c4
+		
+		v3 = HexMetrics.terrace_lerp(begin, left, i)
+		v4 = HexMetrics.terrace_lerp(begin, right, i)
+		c3 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, i)
+		c4 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, right_cell.hex_color, i)
+		
+		_add_quad(st, v1, v2, v3, v4, c1, c2, c3, c4)
+	
+	#The top quad
+	_add_quad(st, v3, v4, left, right, c3, c4, left_cell.hex_color, right_cell.hex_color)
 
 #endregion
 
