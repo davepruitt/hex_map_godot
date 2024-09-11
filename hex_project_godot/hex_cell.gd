@@ -76,6 +76,9 @@ func set_neighbor (direction: HexDirectionsClass.HexDirections, cell: HexCell) -
 	var opposite_direction = HexDirectionsClass.opposite(direction)
 	cell.hex_neighbors[int(opposite_direction)] = self
 
+func get_edge_type (direction: HexDirectionsClass.HexDirections) -> Enums.HexEdgeType:
+	return HexMetrics.get_edge_type(_elevation, hex_neighbors[int(direction)].elevation)
+
 #endregion
 
 #region Private methods
@@ -157,7 +160,10 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 	v3.y = neighbor_cell.elevation * HexMetrics.ELEVATION_STEP
 	v4.y = v3.y
 	
-	_triangulate_edge_terraces(st, v1, v2, self, v3, v4, neighbor_cell)
+	if (get_edge_type(direction) == Enums.HexEdgeType.Slope):
+		_triangulate_edge_terraces(st, v1, v2, self, v3, v4, neighbor_cell)
+	else:
+		_add_quad(st, v1, v2, v3, v4, hex_color, hex_color, neighbor_cell.hex_color, neighbor_cell.hex_color)
 	
 	#Get the next neighbor of the cell
 	var next_direction = HexDirectionsClass.next(direction)

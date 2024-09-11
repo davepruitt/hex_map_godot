@@ -63,5 +63,16 @@ static func terrace_lerp (a: Vector3, b: Vector3, step: int) -> Vector3:
 static func terrace_color_lerp (a: Color, b: Color, step: int) -> Color:
 	var h = step * HORIZONTAL_TERRACE_STEP_SIZE
 	return a.lerp(b, h)
+	
+static func get_edge_type (elevation1: int, elevation2: int) -> Enums.HexEdgeType:
+	if (elevation1 == elevation2):
+		return Enums.HexEdgeType.Flat
+	
+	var delta: int = elevation2 - elevation1
+	if (delta == 1) or (delta == -1):
+		return Enums.HexEdgeType.Slope
+	
+	return Enums.HexEdgeType.Cliff
+	
 
 #endregion
