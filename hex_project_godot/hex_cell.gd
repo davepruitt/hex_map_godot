@@ -172,7 +172,16 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 		var v5 = v2 + HexMetrics.get_bridge(next_direction)
 		v5.y = next_neighbor.elevation * HexMetrics.ELEVATION_STEP
 		
-		_add_triangle(st, v2, v5, v4, hex_color, next_neighbor.hex_color, neighbor_cell.hex_color)
+		if (_elevation <= neighbor_cell.elevation):
+			if (_elevation <= next_neighbor.elevation):
+				_triangulate_corner(st, v2, self, v4, neighbor_cell, v5, next_neighbor)
+			else:
+				_triangulate_corner(st, v5, next_neighbor, v2, self, v4, neighbor_cell)
+		elif (neighbor_cell.elevation <= next_neighbor.elevation):
+			_triangulate_corner(st, v4, neighbor_cell, v5, next_neighbor, v2, self)
+		else:
+			_triangulate_corner(st, v5, next_neighbor, v2, self, v4, neighbor_cell)
+		#_add_triangle(st, v2, v5, v4, hex_color, next_neighbor.hex_color, neighbor_cell.hex_color)
 
 func _triangulate_edge_terraces (st: SurfaceTool, 
 	begin_left: Vector3, begin_right: Vector3, begin_cell: HexCell,
@@ -206,6 +215,14 @@ func _triangulate_edge_terraces (st: SurfaceTool,
 		end_left, end_right,
 		c2, c2,
 		end_cell.hex_color, end_cell.hex_color)
+
+func _triangulate_corner (st: SurfaceTool, 
+	bottom: Vector3, bottom_cell: HexCell, 
+	left: Vector3, left_cell: HexCell,
+	right: Vector3, right_cell: HexCell) -> void:
+	
+	#_add_triangle(st, bottom, left, right, bottom_cell.hex_color, left_cell.hex_color, right_cell.hex_color)
+	_add_triangle(st, bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
 
 #endregion
 
