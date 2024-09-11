@@ -231,31 +231,22 @@ func _triangulate_corner (st: SurfaceTool,
 	if left_edge_type == Enums.HexEdgeType.Slope:
 		if right_edge_type == Enums.HexEdgeType.Slope:
 			_triangulate_corner_terraces(st, bottom, bottom_cell, left, left_cell, right, right_cell)
-			return
-		
-		if right_edge_type == Enums.HexEdgeType.Flat:
+		elif right_edge_type == Enums.HexEdgeType.Flat:
 			_triangulate_corner_terraces(st, left, left_cell, right, right_cell, bottom, bottom_cell)
-			return
-			
-		_triangulate_corner_terrace_cliff(st, bottom, bottom_cell, left, left_cell, right, right_cell)
-		return
-	
-	if right_edge_type == Enums.HexEdgeType.Slope:
+		else:
+			_triangulate_corner_terrace_cliff(st, bottom, bottom_cell, left, left_cell, right, right_cell)	
+	elif right_edge_type == Enums.HexEdgeType.Slope:
 		if left_edge_type == Enums.HexEdgeType.Flat:
 			_triangulate_corner_terraces(st, right, right_cell, bottom, bottom_cell, left, left_cell)
-			return
-			
-		_triangulate_corner_cliff_terrace(st, bottom, bottom_cell, left, left_cell, right, right_cell)
-		return
-		
-	if left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope:
+		else:
+			_triangulate_corner_cliff_terrace(st, bottom, bottom_cell, left, left_cell, right, right_cell)
+	elif left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope:
 		if left_cell.elevation < right_cell.elevation:
 			_triangulate_corner_cliff_terrace(st, right, right_cell, bottom, bottom_cell, left, left_cell)
 		else:
 			_triangulate_corner_terrace_cliff(st, left, left_cell, right, right_cell, bottom, bottom_cell)
-		return
-	
-	_add_triangle(st, bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
+	else:
+		_add_triangle(st, bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
 
 func _triangulate_corner_terraces (st: SurfaceTool, 
 	begin: Vector3, begin_cell: HexCell,
