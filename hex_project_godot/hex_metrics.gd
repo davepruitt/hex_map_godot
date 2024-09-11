@@ -25,9 +25,9 @@ const TERRACES_PER_SLOPE: int = 2
 
 const TERRACE_STEPS: int = TERRACES_PER_SLOPE * 2 + 1
 
-const HORIZONTAL_TERRACE_STEP_SIZE: float = 1.0 / TERRACE_STEPS
+const HORIZONTAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACE_STEPS)
 
-const VERTICAL_TERRACE_STEP_SIZE: float = 1.0 / (TERRACES_PER_SLOPE + 1)
+const VERTICAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACES_PER_SLOPE + 1)
 
 #endregion
 
@@ -53,7 +53,9 @@ static func terrace_lerp (a: Vector3, b: Vector3, step: int) -> Vector3:
 	a.x += (b.x - a.x) * h
 	a.z += (b.z - a.z) * h
 	
-	var v = ((step + 1) / 2.0) * VERTICAL_TERRACE_STEP_SIZE
+	#It is important for the first part of this equation to be integer
+	#division, otherwise this does not work properly
+	var v = ((step + 1) / 2) * VERTICAL_TERRACE_STEP_SIZE
 	a.y += (b.y - a.y) * v
 	
 	return a

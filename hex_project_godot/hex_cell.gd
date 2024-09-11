@@ -172,14 +172,33 @@ func _triangulate_edge_terraces (st: SurfaceTool,
 	begin_left: Vector3, begin_right: Vector3, begin_cell: HexCell,
 	end_left: Vector3, end_right: Vector3, end_cell: HexCell):
 	
-	#var v3 = HexMetrics.terrace_lerp(begin_left, end_left, 1)
-	#var v4 = HexMetrics.terrace_lerp(begin_right, end_right, 1)
-	#var c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, 1)
+	var v3 = HexMetrics.terrace_lerp(begin_left, end_left, 1)
+	var v4 = HexMetrics.terrace_lerp(begin_right, end_right, 1)
+	var c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, 1)
 	
 	_add_quad(st, 
 		begin_left, begin_right, 
-		end_left, end_right, 
+		v3, v4, 
 		begin_cell.hex_color, begin_cell.hex_color, 
+		c2, c2)
+		
+	for i in range(2, HexMetrics.TERRACE_STEPS):
+		var v1 = v3
+		var v2 = v4
+		var c1 = c2
+		
+		v3 = HexMetrics.terrace_lerp(begin_left, end_left, i)
+		v4 = HexMetrics.terrace_lerp(begin_right, end_right, i)
+		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, i)
+		
+		_add_quad(st,
+			v1, v2, v3, v4,
+			c1, c1, c2, c2)
+		
+	_add_quad(st,
+		v3, v4,
+		end_left, end_right,
+		c2, c2,
 		end_cell.hex_color, end_cell.hex_color)
 
 #endregion
