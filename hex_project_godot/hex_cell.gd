@@ -333,8 +333,8 @@ func _triangulate_boundary_triangle (st: SurfaceTool,
 		v2 = HexMetrics.terrace_lerp(begin, left, i)
 		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, i)
 		
-		_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
-	
+		_add_triangle(st, v1, boundary, v2, c1, boundary_color, c2)
+		
 	_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
 
 #endregion
