@@ -236,11 +236,24 @@ func _triangulate_corner (st: SurfaceTool,
 		if right_edge_type == Enums.HexEdgeType.Flat:
 			_triangulate_corner_terraces(st, left, left_cell, right, right_cell, bottom, bottom_cell)
 			return
+			
+		_triangulate_corner_terrace_cliff(st, bottom, bottom_cell, left, left_cell, right, right_cell)
+		return
 	
 	if right_edge_type == Enums.HexEdgeType.Slope:
 		if left_edge_type == Enums.HexEdgeType.Flat:
 			_triangulate_corner_terraces(st, right, right_cell, bottom, bottom_cell, left, left_cell)
 			return
+			
+		_triangulate_corner_cliff_terrace(st, bottom, bottom_cell, left, left_cell, right, right_cell)
+		return
+		
+	if left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope:
+		if left_cell.elevation < right_cell.elevation:
+			_triangulate_corner_cliff_terrace(st, right, right_cell, bottom, bottom_cell, left, left_cell)
+		else:
+			_triangulate_corner_terrace_cliff(st, left, left_cell, right, right_cell, bottom, bottom_cell)
+		return
 	
 	_add_triangle(st, bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
 
@@ -273,6 +286,65 @@ func _triangulate_corner_terraces (st: SurfaceTool,
 	
 	#The top quad
 	_add_quad(st, v3, v4, left, right, c3, c4, left_cell.hex_color, right_cell.hex_color)
+
+func _triangulate_corner_terrace_cliff (st: SurfaceTool, 
+	begin: Vector3, begin_cell: HexCell,
+	left: Vector3, left_cell: HexCell,
+	right: Vector3, right_cell: HexCell) -> void:
+	
+	var b: float = 1.0 / (right_cell.elevation - begin_cell.elevation)
+	if b < 0:
+		b = -b
+	
+	var boundary: Vector3 = begin.lerp(right, b)
+	var boundary_color: Color = begin_cell.hex_color.lerp(right_cell.hex_color, b)
+	
+	_triangulate_boundary_triangle(st, begin, begin_cell, left, left_cell, boundary, boundary_color)
+	
+	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
+		_triangulate_boundary_triangle(st, left, left_cell, right, right_cell, boundary, boundary_color)
+	else:
+		_add_triangle(st, left, boundary, right, left_cell.hex_color, boundary_color, right_cell.hex_color)
+
+func _triangulate_corner_cliff_terrace (st: SurfaceTool, 
+	begin: Vector3, begin_cell: HexCell,
+	left: Vector3, left_cell: HexCell,
+	right: Vector3, right_cell: HexCell) -> void:
+	
+	var b: float = 1.0 / (left_cell.elevation - begin_cell.elevation)
+	if b < 0:
+		b = -b
+	
+	var boundary: Vector3 = begin.lerp(left, b)
+	var boundary_color: Color = begin_cell.hex_color.lerp(left_cell.hex_color, b)
+	
+	_triangulate_boundary_triangle(st, right, right_cell, begin, begin_cell, boundary, boundary_color)
+	
+	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
+		_triangulate_boundary_triangle(st, left, left_cell, right, right_cell, boundary, boundary_color)
+	else:
+		_add_triangle(st, left, boundary, right, left_cell.hex_color, boundary_color, right_cell.hex_color)
+
+func _triangulate_boundary_triangle (st: SurfaceTool,
+	begin: Vector3, begin_cell: HexCell,
+	left: Vector3, left_cell: HexCell,
+	boundary: Vector3, boundary_color: Color) -> void:
+	
+	var v2: Vector3 = HexMetrics.terrace_lerp(begin, left, 1)
+	var c2: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, 1)
+	
+	_add_triangle(st, begin, boundary, v2, begin_cell.hex_color, boundary_color, c2)
+	
+	for i in range(2, HexMetrics.TERRACE_STEPS):
+		var v1: Vector3 = v2
+		var c1: Color = c2
+		
+		v2 = HexMetrics.terrace_lerp(begin, left, i)
+		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, i)
+		
+		_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
+	
+	_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
 
 #endregion
 
