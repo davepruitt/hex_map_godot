@@ -338,8 +338,3 @@ func _triangulate_boundary_triangle (st: SurfaceTool,
 	_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
 
 #endregion
-
-#region Public static methods
-
-
-#endregion
