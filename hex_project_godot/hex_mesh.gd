@@ -60,9 +60,9 @@ func _triangulate_hex_in_direction (st: SurfaceTool, cell: HexCell, direction: H
 	var p1 = center + HexMetrics.get_first_solid_corner(direction)
 	var p2 = center + HexMetrics.get_second_solid_corner(direction)
 	
-	center.y = cell.elevation * HexMetrics.ELEVATION_STEP
-	p1.y = cell.elevation * HexMetrics.ELEVATION_STEP
-	p2.y = cell.elevation * HexMetrics.ELEVATION_STEP
+	center.y = cell.position.y
+	p1.y = cell.position.y
+	p2.y = cell.position.y
 	
 	#Add the triangle
 	_add_triangle(st, center, p2, p1, cell.hex_color, cell.hex_color, cell.hex_color)
@@ -103,7 +103,7 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 	var v3 = v1 + bridge
 	var v4 = v2 + bridge
 	
-	v3.y = neighbor_cell.elevation * HexMetrics.ELEVATION_STEP
+	v3.y = neighbor_cell.position.y #neighbor_cell.elevation * HexMetrics.ELEVATION_STEP
 	v4.y = v3.y
 	
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
@@ -117,7 +117,7 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 	var next_neighbor = cell.get_neighbor(next_direction)
 	if (direction <= HexDirectionsClass.HexDirections.E) and (next_neighbor != null):
 		var v5 = v2 + HexMetrics.get_bridge(next_direction)
-		v5.y = next_neighbor.elevation * HexMetrics.ELEVATION_STEP
+		v5.y = next_neighbor.position.y #next_neighbor.elevation * HexMetrics.ELEVATION_STEP
 		
 		if (cell.elevation <= neighbor_cell.elevation):
 			if (cell.elevation <= next_neighbor.elevation):
