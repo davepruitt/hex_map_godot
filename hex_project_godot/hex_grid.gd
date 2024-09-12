@@ -105,6 +105,9 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	#Instantiate a hex cell object
 	var hex_cell = hex_cell_prefab.instantiate() as HexCell
 	
+	#Add this hex cell as a child of the scene
+	add_child(hex_cell)
+	
 	#Set the west neighbor of the hex cell
 	if (x > 0):
 		hex_cell.set_neighbor(HexDirectionsClass.HexDirections.W, _hex_cells[i - 1])
@@ -130,22 +133,22 @@ func _create_cell(z: int, x: int, i: int) -> void:
 				#Set the south-east neighbor of the hex cell
 				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - width + 1])
 	
-	#Set the color of the hex cell
-	#var idx = _rng.randi_range(0, 3)
-	#hex_cell.hex_color = _hex_colors[idx]
-	hex_cell.hex_color = default_hex_color
-	
-	#Set the initial elevation of the hex cell
-	hex_cell.elevation = 0
-	#if (hex_cell.hex_color == Color.BLUE):
-		#hex_cell.elevation = 0
-	#elif (hex_cell.hex_color == Color.WHITE):
-		#hex_cell.elevation = 2
-	#else:
-		#hex_cell.elevation = 1
-	
 	#Set the position of the hex cell in the scene
 	hex_cell.position = hex_position
+	
+	#Set the color of the hex cell
+	var idx = _rng.randi_range(0, 3)
+	hex_cell.hex_color = _hex_colors[idx]
+	#hex_cell.hex_color = default_hex_color
+	
+	#Set the initial elevation of the hex cell
+	#hex_cell.elevation = 0
+	if (hex_cell.hex_color == Color.BLUE):
+		hex_cell.elevation = 0
+	elif (hex_cell.hex_color == Color.WHITE):
+		hex_cell.elevation = 2
+	else:
+		hex_cell.elevation = 1
 	
 	#Set the coordinates of the hex cell within the grid
 	hex_cell.hex_coordinates = HexCoordinates.FromOffsetCoordinates(x, z)
@@ -155,8 +158,6 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	
 	#Add this hex cell to the list of hex cells in the grid
 	_hex_cells.append(hex_cell)
-	
-	#Add this hex cell as a child of the scene
-	add_child(hex_cell)
+
 
 #endregion

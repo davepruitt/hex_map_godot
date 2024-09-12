@@ -285,7 +285,7 @@ func _perturb (pos: Vector3) -> Vector3:
 	var sample: Vector4 = HexMetrics.sample_noise(pos * HexMetrics.CELL_PERTURB_POSITION_MULTIPLIER)
 	
 	pos.x += (sample.x * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
-	pos.y += (sample.y * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
+	#pos.y += (sample.y * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
 	pos.z += (sample.z * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
 	
 	return pos

@@ -23,8 +23,18 @@ var elevation: int:
 	get:
 		return _elevation
 	set(value):
-		_elevation = value		
-		position_label.position.y = _elevation * HexMetrics.ELEVATION_STEP
+		#Set the elevation value for this cell
+		_elevation = value
+		
+		#Set the position of the cell
+		position.y = _elevation * HexMetrics.ELEVATION_STEP
+		
+		var noise_sample: Vector4 = HexMetrics.sample_noise(position * HexMetrics.CELL_PERTURB_POSITION_MULTIPLIER)
+		var perturbation_amount: float = ((noise_sample.y * 2.0 - 1.0) * HexMetrics.ELEVATION_PERTURB_STRENGTH)
+		position.y += perturbation_amount
+		
+		#Set the y-axis position of the "position label" for the cell
+		position_label.position.y = 0.01 + abs(perturbation_amount)
 
 #endregion
 
