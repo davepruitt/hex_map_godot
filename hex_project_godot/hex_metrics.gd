@@ -29,9 +29,49 @@ const HORIZONTAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACE_STEPS)
 
 const VERTICAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACES_PER_SLOPE + 1)
 
+const CELL_PERTURB_STRENGTH: float = 0.05
+
+const NOISE_SCALE = 1.0
+
+#endregion
+
+#region Static variables
+
+static var noise_generator: Array[FastNoiseLite] = [
+	FastNoiseLite.new(), 
+	FastNoiseLite.new(), 
+	FastNoiseLite.new(), 
+	FastNoiseLite.new()
+]
+
 #endregion
 
 #region Static Methods
+
+static func initialize_noise_generator () -> void:
+	for i in range(0, len(noise_generator)):
+		noise_generator[i].noise_type = FastNoiseLite.TYPE_PERLIN
+		noise_generator[i].seed = i
+		noise_generator[i].frequency = 0.025
+		noise_generator[i].fractal_type = FastNoiseLite.FRACTAL_FBM
+		noise_generator[i].fractal_octaves = 2
+		noise_generator[i].fractal_lacunarity = 2
+		noise_generator[i].fractal_gain = 0.5
+		noise_generator[i].fractal_weighted_strength = 0.0
+		
+	
+static func sample_noise (position: Vector3) -> Vector4:
+	var sample: Vector4 = Vector4.ZERO
+	for i in range(0, len(noise_generator)):
+		var s_i: float = noise_generator[i].get_noise_2d(
+			position.x * NOISE_SCALE, 
+			position.z * NOISE_SCALE
+		)
+		sample[i] = s_i
+	
+	print_debug("Position " + str(position) + ", noise: " + str(sample))
+	
+	return sample
 
 static func get_first_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
 	return HexMetrics.CORNERS[int(direction)]

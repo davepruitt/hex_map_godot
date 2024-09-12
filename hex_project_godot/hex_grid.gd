@@ -15,16 +15,21 @@ extends Node3D
 ## This is the default color for each hex in the grid
 @export var default_hex_color: Color
 
+## This is the default ShaderMaterial that will be used for the hex cell's mesh
+@export var hex_shader_material: ShaderMaterial
+
 #endregion
 
 #region Private variables
 
 ## This is a list that contains each HexCell object in the grid
-var _hex_cells = []
+var _hex_cells: Array[HexCell] = []
 
 var _hex_colors : Array[Color] = [Color.YELLOW, Color.GREEN, Color.BLUE, Color.WHITE]
 
 var _rng = RandomNumberGenerator.new()
+
+var _hex_mesh: HexMesh = HexMesh.new()
 
 #endregion
 
@@ -32,8 +37,14 @@ var _rng = RandomNumberGenerator.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	#Set the seed of the random number generator
+	_rng.set_seed(1)
+	
 	#Create an empty list of hex cells
 	var hex_cells = []
+	
+	#Initialize the Perlin noise
+	HexMetrics.initialize_noise_generator()
 	
 	#Iterate over the height and width of the hex grid
 	var i = 0
@@ -44,9 +55,13 @@ func _ready() -> void:
 			
 			#Increment i
 			i += 1
-			
+	
+	#Add the hex mesh as a child of this node
+	add_child(_hex_mesh)
+	
+	#Refresh the hex mesh
 	refresh()
-
+	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -73,8 +88,7 @@ func get_cell (position: Vector3) -> HexCell:
 	return cell
 	
 func refresh () -> void:
-	for i in range(0, len(_hex_cells)):
-		_hex_cells[i].generate_mesh()
+	_hex_mesh.triangulate_cells(_hex_cells, hex_shader_material)
 
 #endregion
 
@@ -122,6 +136,7 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	#hex_cell.hex_color = default_hex_color
 	
 	#Set the initial elevation of the hex cell
+	#hex_cell.elevation = 0
 	if (hex_cell.hex_color == Color.BLUE):
 		hex_cell.elevation = 0
 	elif (hex_cell.hex_color == Color.WHITE):
