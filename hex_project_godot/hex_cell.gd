@@ -92,6 +92,7 @@ func _create_mesh () -> void:
 	
 	#Begin creating the mesh
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES);
+	surface_tool.set_smooth_group(-1)
 	
 	#Iterate over each of the 6 directions from the center of the hex
 	for i in range(0, 6):
