@@ -29,7 +29,9 @@ const HORIZONTAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACE_STEPS)
 
 const VERTICAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACES_PER_SLOPE + 1)
 
-const CELL_PERTURB_STRENGTH: float = 0.05
+const CELL_PERTURB_STRENGTH: float = 0.1
+
+const CELL_PERTURB_POSITION_MULTIPLIER: float = 10.0
 
 const NOISE_SCALE = 1.0
 
@@ -68,8 +70,6 @@ static func sample_noise (position: Vector3) -> Vector4:
 			position.z * NOISE_SCALE
 		)
 		sample[i] = s_i
-	
-	print_debug("Position " + str(position) + ", noise: " + str(sample))
 	
 	return sample
 

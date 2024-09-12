@@ -74,15 +74,18 @@ func _triangulate_hex_in_direction (st: SurfaceTool, cell: HexCell, direction: H
 func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: Color, c2: Color, c3: Color) -> void:
 	#Set the color for the vertex, and then add the vertex
 	st.set_color(c1)
-	st.add_vertex(v1)
+	st.add_vertex(_perturb(v1))
+	#st.add_vertex(v1)
 	
 	#Set the color for the vertex, and then add the vertex
 	st.set_color(c2)
-	st.add_vertex(v2)
+	st.add_vertex(_perturb(v2))
+	#st.add_vertex(v2)
 	
 	#Set the color for the vertex, and then add the vertex
 	st.set_color(c3)
-	st.add_vertex(v3)
+	st.add_vertex(_perturb(v3))
+	#st.add_vertex(v3)
 
 func _add_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3, c1: Color, c2: Color, c3: Color, c4: Color) -> void:
 	_add_triangle(st, v1, v2, v3, c1, c2, c3)
@@ -276,5 +279,15 @@ func _triangulate_boundary_triangle (st: SurfaceTool,
 		_add_triangle(st, v1, boundary, v2, c1, boundary_color, c2)
 		
 	_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
+
+func _perturb (pos: Vector3) -> Vector3:
+	#Get a 4D noise sample
+	var sample: Vector4 = HexMetrics.sample_noise(pos * HexMetrics.CELL_PERTURB_POSITION_MULTIPLIER)
+	
+	pos.x += (sample.x * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
+	pos.y += (sample.y * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
+	pos.z += (sample.z * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
+	
+	return pos
 
 #endregion
