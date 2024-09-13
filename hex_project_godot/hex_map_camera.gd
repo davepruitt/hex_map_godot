@@ -3,13 +3,13 @@ extends Node3D
 
 #region Exported data members
 
-@export var stick_min_zoom : float = 1.0
-@export var stick_max_zoom : float = 10.0
-@export var swivel_min_zoom : float = -90
-@export var swivel_max_zoom : float = -45
+@export var stick_min_zoom : float = 2.0
+@export var stick_max_zoom : float = 8.0
+@export var swivel_min_zoom : float = -45
+@export var swivel_max_zoom : float = -90
 @export var movement_speed_min_zoom : float = 40
 @export var movement_speed_max_zoom : float = 10
-@export var rotation_speed : float = 1.8
+@export var rotation_speed : float = 180
 
 
 @export var hex_grid : HexGrid
@@ -67,10 +67,17 @@ func _adjust_zoom (zoom_delta: float) -> void:
 	_stick.position = Vector3(0.0, 0.0, distance)
 	
 	var angle: float = lerpf(swivel_min_zoom, swivel_max_zoom, _zoom)
-	_swivel.rotation = Vector3(angle, 0.0, 0.0)
+	_swivel.rotation_degrees = Vector3(angle, 0.0, 0.0)
 
 func _adjust_position (x_delta: float, z_delta: float, time_delta: float) -> void:
+	
+	print_debug("rotation = " + str(self.rotation))
+	print_debug("rotation (deg) = " + str(self.rotation_degrees))
+	
 	var direction: Vector3 = Vector3(x_delta, 0.0, z_delta).normalized()
+	
+	print_debug("Direction: " + str(direction))
+	
 	var damping: float = maxf(absf(x_delta), absf(z_delta))
 	var distance: float = _movement_speed * damping * time_delta
 	position += direction * distance
@@ -92,7 +99,7 @@ func _adjust_rotation (rotation_delta: float, time_delta: float) -> void:
 	elif (_rotation_angle >= 360.0):
 		_rotation_angle -= 360.0
 	
-	self.rotation = Vector3(0.0, _rotation_angle, 0.0)
+	self.rotation_degrees = Vector3(0.0, _rotation_angle, 0.0)
 	
 
 #endregion

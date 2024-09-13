@@ -19,7 +19,7 @@ hex_grid = NodePath("../HexGrid")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
 
 [node name="Stick" type="Node3D" parent="HexMapCamera/Swivel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
 
 [node name="MainCamera" type="Camera3D" parent="HexMapCamera/Swivel/Stick"]
 
