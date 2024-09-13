@@ -10,8 +10,6 @@ shader = ExtResource("3_e7bgw")
 
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
-width = 7
-height = 7
 hex_cell_prefab = ExtResource("2_ud45i")
 default_hex_color = Color(1, 1, 1, 1)
 hex_shader_material = SubResource("ShaderMaterial_gegpu")

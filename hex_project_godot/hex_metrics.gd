@@ -33,9 +33,13 @@ const CELL_PERTURB_STRENGTH: float = 0.1
 
 const CELL_PERTURB_POSITION_MULTIPLIER: float = 100.0
 
-const NOISE_SCALE = 1.0
+const NOISE_SCALE: float = 1.0
 
 const ELEVATION_PERTURB_STRENGTH: float = 0.015
+
+const CHUNK_SIZE_X: int = 5
+
+const CHUNK_SIZE_Z: int = 5
 
 #endregion
 

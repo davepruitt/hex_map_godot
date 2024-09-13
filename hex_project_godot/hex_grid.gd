@@ -3,11 +3,11 @@ extends Node3D
 
 #region Exported variables
 
-## This is the width of the hex grid (in number of hexes)
-@export var width: int = 0
+## This is the number of chunks in the x-direction of the hex grid
+@export var chunk_count_x: int = 4
 
-## This is the height of the hex grid (in number of hexes)
-@export var height: int = 0
+## This is the number of chunks in the y-direction of the hex grid
+@export var chunk_count_z: int = 3
 
 ## This is the scene that will be used for each hex cell in the grid
 @export var hex_cell_prefab: PackedScene
@@ -31,6 +31,10 @@ var _rng = RandomNumberGenerator.new()
 
 var _hex_mesh: HexMesh = HexMesh.new()
 
+var _cell_count_x: int = 0
+
+var _cell_count_z: int = 0
+
 #endregion
 
 #region Method overrides
@@ -46,21 +50,11 @@ func _ready() -> void:
 	#Initialize the Perlin noise
 	HexMetrics.initialize_noise_generator()
 	
-	#Iterate over the height and width of the hex grid
-	var i = 0
-	for z in range(0, height):
-		for x in range(0, width):
-			#Create the hex cell at this position in the grid
-			_create_cell(z, x, i)
-			
-			#Increment i
-			i += 1
+	#Calculate the cell count in the x and z directions
+	_cell_count_x = chunk_count_x * HexMetrics.CHUNK_SIZE_X
+	_cell_count_z = chunk_count_z * HexMetrics.CHUNK_SIZE_Z
 	
-	#Add the hex mesh as a child of this node
-	add_child(_hex_mesh)
-	
-	#Refresh the hex mesh
-	refresh()
+	_create_cells()
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -79,7 +73,7 @@ func get_cell (position: Vector3) -> HexCell:
 	var coordinates: HexCoordinates = HexCoordinates.FromPosition(inverse_transform_point)
 	
 	#Find the index into the _hex_cells list for which hex object we want
-	var index = coordinates.X + coordinates.Z * width + coordinates.Z / 2.0
+	var index = coordinates.X + coordinates.Z * _cell_count_x + coordinates.Z / 2.0
 	
 	#Get the selected hex cell object
 	var cell = _hex_cells[index] as HexCell
@@ -93,6 +87,23 @@ func refresh () -> void:
 #endregion
 
 #region Private methods
+
+func _create_cells () -> void:
+	#Iterate over the height and width of the hex grid
+	var i = 0
+	for z in range(0, _cell_count_z):
+		for x in range(0, _cell_count_x):
+			#Create the hex cell at this position in the grid
+			_create_cell(z, x, i)
+			
+			#Increment i
+			i += 1
+	
+	#Add the hex mesh as a child of this node
+	add_child(_hex_mesh)
+	
+	#Refresh the hex mesh
+	refresh()
 
 func _create_cell(z: int, x: int, i: int) -> void:
 	#Create a Vector3 to store the new hex's position
@@ -118,20 +129,20 @@ func _create_cell(z: int, x: int, i: int) -> void:
 			#If this is an even row...
 			
 			#Set the south-east neighbor of the hex cell
-			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - width])
+			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - _cell_count_x])
 			
 			if (x > 0):
 				#Set the south-west neighbor of the hex cell
-				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - width - 1])
+				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - _cell_count_x - 1])
 		else:
 			#If this is an odd row...
 			
 			#Set the south-west neighbor of the hex cell
-			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - width])
+			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - _cell_count_x])
 			
-			if (x < width - 1):
+			if (x < _cell_count_x - 1):
 				#Set the south-east neighbor of the hex cell
-				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - width + 1])
+				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - _cell_count_x + 1])
 	
 	#Set the position of the hex cell in the scene
 	hex_cell.position = hex_position
