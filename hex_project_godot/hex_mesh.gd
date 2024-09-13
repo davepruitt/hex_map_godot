@@ -57,19 +57,16 @@ func _triangulate_hex (st: SurfaceTool, cell: HexCell) -> void:
 func _triangulate_hex_in_direction (st: SurfaceTool, cell: HexCell, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
 	var center = cell.position
-	var p1 = center + HexMetrics.get_first_solid_corner(direction)
-	var p2 = center + HexMetrics.get_second_solid_corner(direction)
+	var edge_vertices: EdgeVertices = EdgeVertices.new(
+		center + HexMetrics.get_first_solid_corner(direction),
+		center + HexMetrics.get_second_solid_corner(direction)
+	)
 	
-	center.y = cell.position.y
-	p1.y = cell.position.y
-	p2.y = cell.position.y
-	
-	#Add the triangle
-	_add_triangle(st, center, p2, p1, cell.hex_color, cell.hex_color, cell.hex_color)
+	_triangulate_edge_fan(st, center, edge_vertices, cell.hex_color)
 	
 	#Add connections to other hex cells
 	if (direction <= HexDirectionsClass.HexDirections.SE):
-		_triangulate_connection(st, direction, cell, p1, p2)
+		_triangulate_connection(st, direction, cell, edge_vertices)
 
 func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: Color, c2: Color, c3: Color) -> void:
 	#Set the color for the vertex, and then add the vertex
@@ -91,7 +88,10 @@ func _add_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vect
 	_add_triangle(st, v1, v2, v3, c1, c2, c3)
 	_add_triangle(st, v2, v4, v3, c2, c4, c3)
 
-func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.HexDirections, cell: HexCell, v1: Vector3, v2: Vector3) -> void:
+func _triangulate_connection (st: SurfaceTool, 
+	direction: HexDirectionsClass.HexDirections, 
+	cell: HexCell, e1: EdgeVertices) -> void:
+	
 	#Get the neighboring cell in the specified direction
 	var neighbor_cell = cell.get_neighbor(direction)
 	
@@ -100,67 +100,53 @@ func _triangulate_connection (st: SurfaceTool, direction: HexDirectionsClass.Hex
 		return
 	
 	var bridge = HexMetrics.get_bridge(direction)
-	var v3 = v1 + bridge
-	var v4 = v2 + bridge
+	bridge.y = neighbor_cell.position.y - cell.position.y
 	
-	v3.y = neighbor_cell.position.y #neighbor_cell.elevation * HexMetrics.ELEVATION_STEP
-	v4.y = v3.y
+	var e2: EdgeVertices = EdgeVertices.new(
+		e1.v1 + bridge,
+		e1.v4 + bridge
+	)
 	
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
-		pass
-		_triangulate_edge_terraces(st, v1, v2, cell, v3, v4, neighbor_cell)
+		_triangulate_edge_terraces(st, e1, cell, e2, neighbor_cell)
 	else:
-		_add_quad(st, v1, v2, v3, v4, cell.hex_color, cell.hex_color, neighbor_cell.hex_color, neighbor_cell.hex_color)
+		_triangulate_edge_strip(st, e1, cell.hex_color, e2, neighbor_cell.hex_color)
 	
 	#Get the next neighbor of the cell
 	var next_direction = HexDirectionsClass.next(direction)
 	var next_neighbor = cell.get_neighbor(next_direction)
 	if (direction <= HexDirectionsClass.HexDirections.E) and (next_neighbor != null):
-		var v5 = v2 + HexMetrics.get_bridge(next_direction)
-		v5.y = next_neighbor.position.y #next_neighbor.elevation * HexMetrics.ELEVATION_STEP
+		var v5: Vector3 = e1.v4 + HexMetrics.get_bridge(next_direction)
+		v5.y = next_neighbor.position.y
 		
 		if (cell.elevation <= neighbor_cell.elevation):
 			if (cell.elevation <= next_neighbor.elevation):
-				_triangulate_corner(st, v2, cell, v4, neighbor_cell, v5, next_neighbor)
+				_triangulate_corner(st, e1.v4, cell, e2.v4, neighbor_cell, v5, next_neighbor)
 			else:
-				_triangulate_corner(st, v5, next_neighbor, v2, cell, v4, neighbor_cell)
+				_triangulate_corner(st, v5, next_neighbor, e1.v4, cell, e2.v4, neighbor_cell)
 		elif (neighbor_cell.elevation <= next_neighbor.elevation):
-			_triangulate_corner(st, v4, neighbor_cell, v5, next_neighbor, v2, cell)
+			_triangulate_corner(st, e2.v4, neighbor_cell, v5, next_neighbor, e1.v4, cell)
 		else:
-			_triangulate_corner(st, v5, next_neighbor, v2, cell, v4, neighbor_cell)
+			_triangulate_corner(st, v5, next_neighbor, e1.v4, cell, e2.v4, neighbor_cell)
 
 func _triangulate_edge_terraces (st: SurfaceTool,
-	begin_left: Vector3, begin_right: Vector3, begin_cell: HexCell,
-	end_left: Vector3, end_right: Vector3, end_cell: HexCell):
+	begin: EdgeVertices, begin_cell: HexCell,
+	end: EdgeVertices, end_cell: HexCell):
 	
-	var v3 = HexMetrics.terrace_lerp(begin_left, end_left, 1)
-	var v4 = HexMetrics.terrace_lerp(begin_right, end_right, 1)
+	var e2: EdgeVertices = EdgeVertices.terrace_lerp(begin, end, 1)
 	var c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, 1)
 	
-	_add_quad(st, 
-		begin_left, begin_right, 
-		v3, v4, 
-		begin_cell.hex_color, begin_cell.hex_color, 
-		c2, c2)
+	_triangulate_edge_strip(st, begin, begin_cell.hex_color, e2, c2)
 		
 	for i in range(2, HexMetrics.TERRACE_STEPS):
-		var v1 = v3
-		var v2 = v4
-		var c1 = c2
-		
-		v3 = HexMetrics.terrace_lerp(begin_left, end_left, i)
-		v4 = HexMetrics.terrace_lerp(begin_right, end_right, i)
+		var e1: EdgeVertices = e2
+		var c1: Color = c2
+		e2 = EdgeVertices.terrace_lerp(begin, end, i)
 		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, i)
 		
-		_add_quad(st,
-			v1, v2, v3, v4,
-			c1, c1, c2, c2)
-		
-	_add_quad(st,
-		v3, v4,
-		end_left, end_right,
-		c2, c2,
-		end_cell.hex_color, end_cell.hex_color)
+		_triangulate_edge_strip(st, e1, c1, e2, c2)
+	
+	_triangulate_edge_strip(st, e2, c2, end, end_cell.hex_color)
 
 func _triangulate_corner (st: SurfaceTool, 
 	bottom: Vector3, bottom_cell: HexCell, 
@@ -279,6 +265,20 @@ func _triangulate_boundary_triangle (st: SurfaceTool,
 		_add_triangle(st, v1, boundary, v2, c1, boundary_color, c2)
 		
 	_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
+
+func _triangulate_edge_fan (st: SurfaceTool,
+	center: Vector3, edge: EdgeVertices, color: Color) -> void:
+	
+	_add_triangle(st, center, edge.v2, edge.v1, color, color, color)
+	_add_triangle(st, center, edge.v3, edge.v2, color, color, color)
+	_add_triangle(st, center, edge.v4, edge.v3, color, color, color)
+
+func _triangulate_edge_strip (st: SurfaceTool,
+	e1: EdgeVertices, c1: Color, e2: EdgeVertices, c2: Color) -> void:
+	
+	_add_quad(st, e1.v1, e1.v2, e2.v1, e2.v2, c1, c1, c2, c2)
+	_add_quad(st, e1.v2, e1.v3, e2.v2, e2.v3, c1, c1, c2, c2)
+	_add_quad(st, e1.v3, e1.v4, e2.v3, e2.v4, c1, c1, c2, c2)
 
 func _perturb (pos: Vector3) -> Vector3:
 	#Get a 4D noise sample
