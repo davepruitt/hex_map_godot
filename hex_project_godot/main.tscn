@@ -1,13 +1,27 @@
-[gd_scene load_steps=4 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=5 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://hex_grid.tscn" id="1_e2r5f"]
 [ext_resource type="Script" path="res://main.gd" id="1_ipy05"]
+[ext_resource type="Script" path="res://hex_map_camera.gd" id="2_ckdob"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_jp0eq"]
 resource_name = "ButtonGroup1"
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ipy05")
+
+[node name="HexMapCamera" type="Node3D" parent="." node_paths=PackedStringArray("hex_grid")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 10)
+script = ExtResource("2_ckdob")
+hex_grid = NodePath("../HexGrid")
+
+[node name="Swivel" type="Node3D" parent="HexMapCamera"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+
+[node name="Stick" type="Node3D" parent="HexMapCamera/Swivel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+
+[node name="MainCamera" type="Camera3D" parent="HexMapCamera/Swivel/Stick"]
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.362275, 0.932071, 0, -0.932071, 0.362275, 0, 0.9, 0)
