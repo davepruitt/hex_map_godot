@@ -71,22 +71,36 @@ func _triangulate_hex_in_direction (st: SurfaceTool, cell: HexCell, direction: H
 func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: Color, c2: Color, c3: Color) -> void:
 	#Set the color for the vertex, and then add the vertex
 	st.set_color(c1)
+	st.add_vertex(v1)
+	
+	#Set the color for the vertex, and then add the vertex
+	st.set_color(c2)
+	st.add_vertex(v2)
+	
+	#Set the color for the vertex, and then add the vertex
+	st.set_color(c3)
+	st.add_vertex(v3)
+	
+func _add_perturbed_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: Color, c2: Color, c3: Color) -> void:
+	#Set the color for the vertex, and then add the vertex
+	st.set_color(c1)
 	st.add_vertex(_perturb(v1))
-	#st.add_vertex(v1)
 	
 	#Set the color for the vertex, and then add the vertex
 	st.set_color(c2)
 	st.add_vertex(_perturb(v2))
-	#st.add_vertex(v2)
 	
 	#Set the color for the vertex, and then add the vertex
 	st.set_color(c3)
 	st.add_vertex(_perturb(v3))
-	#st.add_vertex(v3)
 
 func _add_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3, c1: Color, c2: Color, c3: Color, c4: Color) -> void:
 	_add_triangle(st, v1, v2, v3, c1, c2, c3)
 	_add_triangle(st, v2, v4, v3, c2, c4, c3)
+	
+func _add_perturbed_quad (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3, c1: Color, c2: Color, c3: Color, c4: Color) -> void:
+	_add_perturbed_triangle(st, v1, v2, v3, c1, c2, c3)
+	_add_perturbed_triangle(st, v2, v4, v3, c2, c4, c3)
 
 func _triangulate_connection (st: SurfaceTool, 
 	direction: HexDirectionsClass.HexDirections, 
@@ -175,7 +189,7 @@ func _triangulate_corner (st: SurfaceTool,
 		else:
 			_triangulate_corner_terrace_cliff(st, left, left_cell, right, right_cell, bottom, bottom_cell)
 	else:
-		_add_triangle(st, bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
+		_add_perturbed_triangle(st, bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
 
 func _triangulate_corner_terraces (st: SurfaceTool, 
 	begin: Vector3, begin_cell: HexCell,
@@ -188,7 +202,7 @@ func _triangulate_corner_terraces (st: SurfaceTool,
 	var c4: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, right_cell.hex_color, 1)
 	
 	#The bottom triangle
-	_add_triangle(st, begin, v4, v3, begin_cell.hex_color, c4, c3)
+	_add_perturbed_triangle(st, begin, v4, v3, begin_cell.hex_color, c4, c3)
 	
 	#The steps inbetween
 	for i in range(2, HexMetrics.TERRACE_STEPS):
@@ -202,10 +216,10 @@ func _triangulate_corner_terraces (st: SurfaceTool,
 		c3 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, i)
 		c4 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, right_cell.hex_color, i)
 		
-		_add_quad(st, v1, v2, v3, v4, c1, c2, c3, c4)
+		_add_perturbed_quad(st, v1, v2, v3, v4, c1, c2, c3, c4)
 	
 	#The top quad
-	_add_quad(st, v3, v4, left, right, c3, c4, left_cell.hex_color, right_cell.hex_color)
+	_add_perturbed_quad(st, v3, v4, left, right, c3, c4, left_cell.hex_color, right_cell.hex_color)
 	
 func _triangulate_corner_terrace_cliff (st: SurfaceTool, 
 	begin: Vector3, begin_cell: HexCell,
@@ -216,7 +230,7 @@ func _triangulate_corner_terrace_cliff (st: SurfaceTool,
 	if b < 0:
 		b = -b
 	
-	var boundary: Vector3 = begin.lerp(right, b)
+	var boundary: Vector3 = _perturb(begin).lerp(_perturb(right), b)
 	var boundary_color: Color = begin_cell.hex_color.lerp(right_cell.hex_color, b)
 	
 	_triangulate_boundary_triangle(st, begin, begin_cell, left, left_cell, boundary, boundary_color)
@@ -224,7 +238,8 @@ func _triangulate_corner_terrace_cliff (st: SurfaceTool,
 	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
 		_triangulate_boundary_triangle(st, left, left_cell, right, right_cell, boundary, boundary_color)
 	else:
-		_add_triangle(st, left, boundary, right, left_cell.hex_color, boundary_color, right_cell.hex_color)
+		_add_triangle(st, _perturb(left), boundary, _perturb(right), 
+			left_cell.hex_color, boundary_color, right_cell.hex_color)
 
 func _triangulate_corner_cliff_terrace (st: SurfaceTool, 
 	begin: Vector3, begin_cell: HexCell,
@@ -235,7 +250,7 @@ func _triangulate_corner_cliff_terrace (st: SurfaceTool,
 	if b < 0:
 		b = -b
 	
-	var boundary: Vector3 = begin.lerp(left, b)
+	var boundary: Vector3 = _perturb(begin).lerp(_perturb(left), b)
 	var boundary_color: Color = begin_cell.hex_color.lerp(left_cell.hex_color, b)
 	
 	_triangulate_boundary_triangle(st, right, right_cell, begin, begin_cell, boundary, boundary_color)
@@ -243,42 +258,43 @@ func _triangulate_corner_cliff_terrace (st: SurfaceTool,
 	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
 		_triangulate_boundary_triangle(st, left, left_cell, right, right_cell, boundary, boundary_color)
 	else:
-		_add_triangle(st, left, boundary, right, left_cell.hex_color, boundary_color, right_cell.hex_color)
+		_add_triangle(st, _perturb(left), boundary, _perturb(right), 
+			left_cell.hex_color, boundary_color, right_cell.hex_color)
 
 func _triangulate_boundary_triangle (st: SurfaceTool,
 	begin: Vector3, begin_cell: HexCell,
 	left: Vector3, left_cell: HexCell,
 	boundary: Vector3, boundary_color: Color) -> void:
 	
-	var v2: Vector3 = HexMetrics.terrace_lerp(begin, left, 1)
+	var v2: Vector3 = _perturb(HexMetrics.terrace_lerp(begin, left, 1))
 	var c2: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, 1)
 	
-	_add_triangle(st, begin, boundary, v2, begin_cell.hex_color, boundary_color, c2)
+	_add_triangle(st, _perturb(begin), boundary, v2, begin_cell.hex_color, boundary_color, c2)
 	
 	for i in range(2, HexMetrics.TERRACE_STEPS):
 		var v1: Vector3 = v2
 		var c1: Color = c2
 		
-		v2 = HexMetrics.terrace_lerp(begin, left, i)
+		v2 = _perturb(HexMetrics.terrace_lerp(begin, left, i))
 		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, i)
 		
 		_add_triangle(st, v1, boundary, v2, c1, boundary_color, c2)
 		
-	_add_triangle(st, v2, boundary, left, c2, boundary_color, left_cell.hex_color)
+	_add_triangle(st, v2, boundary, _perturb(left), c2, boundary_color, left_cell.hex_color)
 
 func _triangulate_edge_fan (st: SurfaceTool,
 	center: Vector3, edge: EdgeVertices, color: Color) -> void:
 	
-	_add_triangle(st, center, edge.v2, edge.v1, color, color, color)
-	_add_triangle(st, center, edge.v3, edge.v2, color, color, color)
-	_add_triangle(st, center, edge.v4, edge.v3, color, color, color)
+	_add_perturbed_triangle(st, center, edge.v2, edge.v1, color, color, color)
+	_add_perturbed_triangle(st, center, edge.v3, edge.v2, color, color, color)
+	_add_perturbed_triangle(st, center, edge.v4, edge.v3, color, color, color)
 
 func _triangulate_edge_strip (st: SurfaceTool,
 	e1: EdgeVertices, c1: Color, e2: EdgeVertices, c2: Color) -> void:
 	
-	_add_quad(st, e1.v1, e1.v2, e2.v1, e2.v2, c1, c1, c2, c2)
-	_add_quad(st, e1.v2, e1.v3, e2.v2, e2.v3, c1, c1, c2, c2)
-	_add_quad(st, e1.v3, e1.v4, e2.v3, e2.v4, c1, c1, c2, c2)
+	_add_perturbed_quad(st, e1.v1, e1.v2, e2.v1, e2.v2, c1, c1, c2, c2)
+	_add_perturbed_quad(st, e1.v2, e1.v3, e2.v2, e2.v3, c1, c1, c2, c2)
+	_add_perturbed_quad(st, e1.v3, e1.v4, e2.v3, e2.v4, c1, c1, c2, c2)
 
 func _perturb (pos: Vector3) -> Vector3:
 	#Get a 4D noise sample
