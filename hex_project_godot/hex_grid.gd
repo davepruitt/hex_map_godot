@@ -56,12 +56,16 @@ func _ready() -> void:
 	_create_cells()
 	
 	for i in range(0, len(_hex_grid_chunks)):
-		_hex_grid_chunks[i].refresh(hex_shader_material)
+		_hex_grid_chunks[i].set_mesh_material(hex_shader_material)
+		_hex_grid_chunks[i].refresh()
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	for i in range(0, len(_hex_grid_chunks)):
+		var current_chunk: HexGridChunk = _hex_grid_chunks[i]
+		if (current_chunk.update_needed):
+			current_chunk.refresh()
 	
 #endregion
 
@@ -78,8 +82,7 @@ func get_cell (position: Vector3) -> HexCell:
 	var index = coordinates.X + coordinates.Z * _cell_count_x + coordinates.Z / 2.0
 	
 	#Get the selected hex cell object
-	#var cell = _hex_cells[index] as HexCell
-	var cell: HexCell = null
+	var cell = _hex_cells[index] as HexCell
 	
 	#Return the cell
 	return cell

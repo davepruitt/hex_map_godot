@@ -8,6 +8,14 @@ var _hex_cells: Array[HexCell] = []
 
 var _hex_mesh: HexMesh = HexMesh.new()
 
+var _hex_shader_material: ShaderMaterial
+
+#endregion
+
+#region Public data members
+
+var update_needed: bool = false
+
 #endregion
 
 #region Method overrides
@@ -26,10 +34,27 @@ func _process(delta: float) -> void:
 #region Public methods
 
 func add_cell (index: int, cell: HexCell) -> void:
-	_hex_cells.append(cell)
-	add_child(cell)
+	#Set the hex chunk reference on the hex cell object
+	cell.hex_chunk = self
 	
-func refresh (hex_shader_material: ShaderMaterial) -> void:
-	_hex_mesh.triangulate_cells(_hex_cells, hex_shader_material)
+	#Append the cell to the list of cells in this chunk
+	_hex_cells.append(cell)
+	
+	#Add the hex cell as a child of the chunk
+	add_child(cell)
+
+func set_mesh_material (mat: ShaderMaterial) -> void:
+	_hex_shader_material = mat
+
+func request_refresh () -> void:
+	#Set the "update needed" flag
+	update_needed = true
+
+func refresh () -> void:
+	#Run the triangulation of the mesh
+	_hex_mesh.triangulate_cells(_hex_cells, _hex_shader_material)
+	
+	#Reset the "update needed" flag
+	update_needed = false
 
 #endregion

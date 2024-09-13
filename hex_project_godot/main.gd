@@ -108,6 +108,5 @@ func _on_elevation_slider_value_changed(value: float) -> void:
 func _edit_cell (cell: HexCell):
 	cell.hex_color = active_color
 	cell.elevation = active_elevation
-	hex_grid.refresh()
 
 #endregion
