@@ -57,6 +57,19 @@ var elevation: int:
 		#Set the y-axis position of the "position label" for the cell
 		position_label.position.y = 0.01 + abs(perturbation_amount)
 		
+		#Remove any illegal/invalid rivers due to the change in this cell's elevation
+		if (_has_outgoing_river):
+			var neighbor: HexCell = get_neighbor(_outgoing_river_direction)
+			if (neighbor):
+				if (_elevation < neighbor.elevation):
+					remove_outgoing_river()
+		
+		if (_has_incoming_river):
+			var neighbor: HexCell = get_neighbor(_incoming_river_direction)
+			if (neighbor):
+				if (_elevation > neighbor.elevation):
+					remove_incoming_river()
+		
 		#Refresh this hex's chunk
 		_refresh()
 		
@@ -189,7 +202,42 @@ func remove_incoming_river () -> void:
 func remove_river () -> void:
 	remove_outgoing_river()
 	remove_incoming_river()
+
+func set_outgoing_river (direction: HexDirectionsClass.HexDirections) -> void:
+	#Return immediately if we already have an outgoing river in the specified direction
+	if (_has_outgoing_river and _outgoing_river_direction == direction):
+		return
 	
+	#Get the neighbor in the specified direction
+	var neighbor: HexCell = get_neighbor(direction)
+	
+	#If no neighbor exists in the specified direction, or if the neighbor
+	#has a higher elevation than the current cell, then return immediately
+	if (not neighbor) or (_elevation < neighbor.elevation):
+		return
+	
+	#Remove any previously existing outgoing river
+	remove_outgoing_river()
+	
+	#If the new river overlaps an existing incoming river, then also remove
+	#the previously existing incoming river
+	if (_has_incoming_river) and (_incoming_river_direction == direction):
+		remove_incoming_river()
+	
+	#Set the outgoing river flag
+	_has_outgoing_river = true
+	
+	#Set the direction of the outgoing river
+	_outgoing_river_direction = direction
+	
+	#Refresh this cell
+	_refresh_self_only()
+	
+	#Set the incoming river of the neighbor cell
+	neighbor.remove_incoming_river()
+	neighbor._has_incoming_river = true
+	neighbor._incoming_river_direction = HexDirectionsClass.opposite(direction)
+	neighbor._refresh_self_only()
 
 #endregion
 
