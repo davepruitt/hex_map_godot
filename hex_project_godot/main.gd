@@ -42,6 +42,14 @@ var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 #endregion
 
+#region Private data members
+
+var _is_drag: bool = false
+var _drag_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
+var _previous_cell: HexCell = null
+
+#endregion
+
 #region Overrides
 
 # Called when the node enters the scene tree for the first time.
@@ -77,7 +85,18 @@ func _input(event: InputEvent) -> void:
 			var result = space_state.intersect_ray(query)
 			if result:
 				var cell = hex_grid.get_cell(result.position)
+				if (_previous_cell) and (_previous_cell != cell):
+					_validate_drag(cell)
+				else:
+					_is_drag = false
+				
 				_edit_cells(cell)
+				
+				_previous_cell = cell
+			else:
+				_previous_cell = null
+		else:
+			_previous_cell = null
 
 #endregion
 
@@ -195,8 +214,33 @@ func _edit_cell (cell: HexCell) -> void:
 		#Paint the terrain elevation value
 		if (paint_terrain_elevation_enabled):
 			cell.elevation = active_elevation
+			
+		#Edit rivers based on the current river editing selection
+		if (river_mode == Enums.OptionalToggle.No):
+			#Remove rivers if the river mode is "no"
+			cell.remove_river()
+		elif (river_mode == Enums.OptionalToggle.Yes):
+			#Place rivers if the river mode is set to "yes"
+			var opposite_direction = HexDirectionsClass.opposite(_drag_direction)
+			var other_cell: HexCell = cell.get_neighbor(opposite_direction)
+			if (other_cell):
+				other_cell.set_outgoing_river(_drag_direction)
 
 func _set_river_mode (mode: Enums.OptionalToggle) -> void:
 	river_mode = mode
+
+func _validate_drag (current_cell: HexCell) -> void:
+	var drag_direction = HexDirectionsClass.HexDirections.NE
+	while (drag_direction <= HexDirectionsClass.HexDirections.NW):
+		var previous_cell_neighbor: HexCell = _previous_cell.get_neighbor(_drag_direction)
+		if (current_cell == previous_cell_neighbor):
+			_is_drag = true
+			return
+		
+		#Increment the direction
+		drag_direction += 1
+	
+	#Set the is_drag flag to false if we reach this point in the code
+	_is_drag = false
 
 #endregion
