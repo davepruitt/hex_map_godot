@@ -46,7 +46,8 @@ var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 var _is_drag: bool = false
 var _drag_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
-var _previous_cell: HexCell = null
+var _mouse_down_cell: HexCell = null
+var _mouse_up_cell: HexCell = null
 
 #endregion
 
@@ -63,15 +64,14 @@ func _process(delta: float) -> void:
 	var left_right_movement = Input.get_axis("ui_left", "ui_right")
 	var up_down_movement = Input.get_axis("ui_up", "ui_down")
 	
-	#scene_camera.position.x += camera_speed * left_right_movement
-	#scene_camera.position.z += camera_speed * up_down_movement
 	
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_P:
 			var vp = get_viewport()
 			vp.debug_draw = (vp.debug_draw + 1) % 5
-	elif event is InputEventMouseButton and event.pressed:
+			
+	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			var RAY_LENGTH = 1000
 			var space_state = get_world_3d().direct_space_state
@@ -85,18 +85,22 @@ func _input(event: InputEvent) -> void:
 			var result = space_state.intersect_ray(query)
 			if result:
 				var cell = hex_grid.get_cell(result.position)
-				if (_previous_cell) and (_previous_cell != cell):
-					_validate_drag(cell)
+				
+				if event.pressed:
+					#Set the cell object that was initially pressed
+					_mouse_down_cell = cell
 				else:
-					_is_drag = false
-				
-				_edit_cells(cell)
-				
-				_previous_cell = cell
-			else:
-				_previous_cell = null
-		else:
-			_previous_cell = null
+					#Set the cell object that received the end of the press event
+					_mouse_up_cell = cell
+					
+					#Check to see if a drag event occurred
+					if (_mouse_down_cell and _mouse_up_cell and (_mouse_down_cell != _mouse_up_cell)):
+						_validate_drag()
+					else:
+						_is_drag = false
+					
+					#Edit the cells
+					_edit_cells(cell)
 
 #endregion
 
@@ -219,7 +223,7 @@ func _edit_cell (cell: HexCell) -> void:
 		if (river_mode == Enums.OptionalToggle.No):
 			#Remove rivers if the river mode is "no"
 			cell.remove_river()
-		elif (river_mode == Enums.OptionalToggle.Yes):
+		elif (_is_drag and river_mode == Enums.OptionalToggle.Yes):
 			#Place rivers if the river mode is set to "yes"
 			var opposite_direction = HexDirectionsClass.opposite(_drag_direction)
 			var other_cell: HexCell = cell.get_neighbor(opposite_direction)
@@ -228,19 +232,26 @@ func _edit_cell (cell: HexCell) -> void:
 
 func _set_river_mode (mode: Enums.OptionalToggle) -> void:
 	river_mode = mode
-
-func _validate_drag (current_cell: HexCell) -> void:
-	var drag_direction = HexDirectionsClass.HexDirections.NE
-	while (drag_direction <= HexDirectionsClass.HexDirections.NW):
-		var previous_cell_neighbor: HexCell = _previous_cell.get_neighbor(_drag_direction)
-		if (current_cell == previous_cell_neighbor):
+	
+func _validate_drag () -> void:
+	#Set the initial drag direction
+	_drag_direction = HexDirectionsClass.HexDirections.NE
+	
+	#Loop over each drag direction
+	while (_drag_direction <= HexDirectionsClass.HexDirections.NW):
+		#Check to see if the cells are neighbors in this direction
+		if (_mouse_down_cell.get_neighbor(_drag_direction) == _mouse_up_cell):
+			#If they are neighbors, then a drag occurred in this direction
 			_is_drag = true
+			
+			#Return immediately
 			return
 		
-		#Increment the direction
-		drag_direction += 1
+		#Increment the drag direction
+		_drag_direction += 1
 	
-	#Set the is_drag flag to false if we reach this point in the code
+	#If we reach this point in the code, then no drag occurred
 	_is_drag = false
+		
 
 #endregion
