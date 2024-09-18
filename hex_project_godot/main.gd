@@ -15,6 +15,9 @@ extends Node3D
 
 var camera_speed: float = 0.1
 
+var paint_terrain_color_enabled: bool = true
+var paint_terrain_elevation_enabled: bool = true
+
 var active_color: Color = Color.WHITE
 var active_elevation: int = 0
 
@@ -25,7 +28,10 @@ var active_elevation: int = 0
 #@onready var scene_camera := $Camera3D
 @onready var hex_grid := $HexGrid
 
-@onready var elevation_label := $CanvasLayer/ElevationLabel
+@onready var elevation_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer/ElevationValueLabel
+@onready var check_button_enable_color := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor
+@onready var check_button_enable_elevation := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
+@onready var scene_camera := $HexMapCamera/Swivel/Stick/MainCamera
 
 #endregion
 
@@ -34,7 +40,9 @@ var active_elevation: int = 0
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	RenderingServer.set_debug_generate_wireframes(true)
-
+	
+	check_button_enable_color.set_pressed_no_signal(paint_terrain_color_enabled)
+	check_button_enable_elevation.set_pressed_no_signal(paint_terrain_elevation_enabled)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -68,15 +76,15 @@ func _input(event: InputEvent) -> void:
 			var space_state = get_world_3d().direct_space_state
 			var mousepos = get_viewport().get_mouse_position()
 
-			#var origin = scene_camera.project_ray_origin(mousepos)
-			#var end = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
-			#var query = PhysicsRayQueryParameters3D.create(origin, end)
-			#query.collide_with_areas = true
+			var origin = scene_camera.project_ray_origin(mousepos)
+			var end = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
+			var query = PhysicsRayQueryParameters3D.create(origin, end)
+			query.collide_with_areas = true
 
-			#var result = space_state.intersect_ray(query)
-			#if result:
-			#	var cell = hex_grid.get_cell(result.position)
-			#	_edit_cell(cell)
+			var result = space_state.intersect_ray(query)
+			if result:
+				var cell = hex_grid.get_cell(result.position)
+				_edit_cell(cell)
 
 #endregion
 
@@ -102,12 +110,23 @@ func _on_elevation_slider_value_changed(value: float) -> void:
 	active_elevation = int(value)
 	elevation_label.text = str(active_elevation)
 
+
+func _on_check_button_enable_elevation_toggled(toggled_on: bool) -> void:
+	paint_terrain_elevation_enabled = toggled_on
+
+
+func _on_check_button_enable_color_toggled(toggled_on: bool) -> void:
+	paint_terrain_color_enabled = toggled_on
+
 #endregion
 
 #region Private methods
 
 func _edit_cell (cell: HexCell):
-	cell.hex_color = active_color
-	cell.elevation = active_elevation
+	if (paint_terrain_color_enabled):
+		cell.hex_color = active_color
+	
+	if (paint_terrain_elevation_enabled):
+		cell.elevation = active_elevation
 
 #endregion

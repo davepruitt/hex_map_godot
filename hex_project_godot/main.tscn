@@ -35,46 +35,72 @@ omni_range = 1000.0
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="HFlowContainer" type="HFlowContainer" parent="CanvasLayer"]
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer"]
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer"]
+layout_mode = 2
+
+[node name="CheckButton_EnableColor" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Paint Color"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Yellow"
 
-[node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Green"
 
-[node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Blue"
 
-[node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/HFlowContainer"]
+[node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "White"
 
-[node name="ElevationSlider" type="VSlider" parent="CanvasLayer"]
-offset_left = 10.0
-offset_top = 152.0
-offset_right = 38.0
-offset_bottom = 262.0
+[node name="CheckButton_EnableElevation" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Paint Elevation"
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 20
+
+[node name="ElevationSlider" type="HSlider" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+focus_mode = 0
 max_value = 5.0
 
-[node name="ElevationLabel" type="Label" parent="CanvasLayer"]
-offset_left = 42.0
-offset_top = 241.0
-offset_right = 52.0
-offset_bottom = 264.0
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="ElevationLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Elevation: "
+
+[node name="ElevationValueLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
 text = "0"
 
-[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
-[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
-[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
-[connection signal="pressed" from="CanvasLayer/HFlowContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
-[connection signal="value_changed" from="CanvasLayer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor" to="." method="_on_check_button_enable_color_toggled"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation" to="." method="_on_check_button_enable_elevation_toggled"]
+[connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
