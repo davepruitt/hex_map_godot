@@ -98,6 +98,9 @@ func get_cell (position: Vector3) -> HexCell:
 	#Return the cell
 	return cell
 	
+func show_ui (visible: bool) -> void:
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i].show_ui_label(visible)
 
 #endregion
 

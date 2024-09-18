@@ -97,6 +97,12 @@ func get_edge_type_from_direction (direction: HexDirectionsClass.HexDirections) 
 func get_edge_type_from_other_cell (other_cell: HexCell) -> Enums.HexEdgeType:
 	return HexMetrics.get_edge_type(_elevation, other_cell.elevation)
 
+func show_ui_label (should_show_ui: bool) -> void:
+	if (should_show_ui):
+		position_label.visible = true
+	else:
+		position_label.visible = false
+
 #endregion
 
 #region Private methods

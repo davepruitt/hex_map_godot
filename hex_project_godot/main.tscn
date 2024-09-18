@@ -44,6 +44,7 @@ layout_mode = 2
 
 [node name="CheckButton_EnableColor" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
+focus_mode = 0
 text = "Paint Color"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
@@ -52,21 +53,25 @@ size_flags_horizontal = 4
 
 [node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
+focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Yellow"
 
 [node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
+focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Green"
 
 [node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
+focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Blue"
 
 [node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
+focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "White"
 
@@ -82,6 +87,7 @@ layout_mode = 2
 
 [node name="CheckButton_EnableElevation" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
+focus_mode = 0
 text = "Paint Elevation"
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
@@ -146,6 +152,21 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer5"]
+layout_mode = 2
+
+[node name="CheckButton_ShowLabels" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+text = "Show Labels"
+
+[node name="MarginContainer6" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 10
+
 [connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor" to="." method="_on_check_button_enable_color_toggled"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
@@ -154,3 +175,4 @@ theme_override_constants/margin_bottom = 5
 [connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation" to="." method="_on_check_button_enable_elevation_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer2/BrushSizeSlider" to="." method="_on_brush_size_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_ShowLabels" to="." method="_on_check_button_show_labels_toggled"]

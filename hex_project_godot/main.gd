@@ -21,6 +21,7 @@ var paint_terrain_elevation_enabled: bool = true
 var active_color: Color = Color.WHITE
 var active_elevation: int = 0
 var active_brush_size: int = 0
+var active_show_labels: bool = true
 
 #endregion
 
@@ -34,6 +35,7 @@ var active_brush_size: int = 0
 @onready var check_button_enable_color := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor
 @onready var check_button_enable_elevation := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
 @onready var brush_size_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2/BrushSizeValueLabel
+@onready var check_button_show_labels := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_ShowLabels
 
 
 
@@ -45,8 +47,7 @@ var active_brush_size: int = 0
 func _ready() -> void:
 	RenderingServer.set_debug_generate_wireframes(true)
 	
-	check_button_enable_color.set_pressed_no_signal(paint_terrain_color_enabled)
-	check_button_enable_elevation.set_pressed_no_signal(paint_terrain_elevation_enabled)
+	_initialize_ui()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -58,22 +59,9 @@ func _process(delta: float) -> void:
 	
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
-		pass
-		#if event.keycode == KEY_Z:
-			#scene_camera.position.y += camera_speed
-		#elif event.keycode == KEY_X:
-			#scene_camera.position.y -= camera_speed
-		#elif event.keycode == KEY_W:
-			#scene_camera.rotate_x(camera_speed)
-		#elif event.keycode == KEY_S:
-			#scene_camera.rotate_x(-camera_speed)
-		#elif event.keycode == KEY_A:
-			#scene_camera.rotate_y(camera_speed)
-		#elif event.keycode == KEY_D:
-			#scene_camera.rotate_y(-camera_speed)
-		#elif event.keycode == KEY_P:
-			#var vp = get_viewport()
-			#vp.debug_draw = (vp.debug_draw + 1) % 5
+		if event.keycode == KEY_P:
+			var vp = get_viewport()
+			vp.debug_draw = (vp.debug_draw + 1) % 5
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			var RAY_LENGTH = 1000
@@ -127,9 +115,21 @@ func _on_brush_size_slider_value_changed(value: float) -> void:
 	active_brush_size = int(value)
 	brush_size_value_label.text = str(active_brush_size)
 
+func _on_check_button_show_labels_toggled(toggled_on: bool) -> void:
+	active_show_labels = toggled_on
+	show_ui(active_show_labels)
+
 #endregion
 
 #region Private methods
+
+func _initialize_ui () -> void:
+	check_button_show_labels.set_pressed_no_signal(active_show_labels)
+	check_button_enable_elevation.set_pressed_no_signal(paint_terrain_elevation_enabled)
+	check_button_enable_color.set_pressed_no_signal(paint_terrain_color_enabled)
+
+func show_ui (visible: bool) -> void:
+	hex_grid.show_ui(visible)
 
 func _edit_cells (center_cell: HexCell) -> void:
 	var center_x: int = center_cell.hex_coordinates.X
