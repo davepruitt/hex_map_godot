@@ -2,8 +2,11 @@ class_name HexMetrics
 
 #region Constants
 
+const OUTER_TO_INNER: float = 0.866025404
+const INNER_TO_OUTER: float = 1.0 / OUTER_TO_INNER
+
 const OUTER_RADIUS: float = 1.0
-const INNER_RADIUS: float = OUTER_RADIUS * 0.866025404
+const INNER_RADIUS: float = OUTER_RADIUS * OUTER_TO_INNER
 
 const CORNERS = [
 	Vector3(0, 0, OUTER_RADIUS),
@@ -122,5 +125,7 @@ static func get_edge_type (elevation1: int, elevation2: int) -> Enums.HexEdgeTyp
 	
 	return Enums.HexEdgeType.Cliff
 	
+static func get_solid_edge_middle (direction: HexDirectionsClass.HexDirections) -> Vector3:
+	return (CORNERS[int(direction)] + CORNERS[int(direction) + 1]) * (0.5 * SOLID_FACTOR)
 
 #endregion

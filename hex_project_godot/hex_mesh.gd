@@ -102,17 +102,29 @@ func _triangulate_with_river (st: SurfaceTool,
 	direction: HexDirectionsClass.HexDirections, cell: HexCell, 
 	center: Vector3, e: EdgeVertices) -> void:
 	
-	# To create a channel straight across the cell part, 
-	# we have to stretch the center into a line. 
-	# This line needs to have the same width as the channel. 
-	# We can find the left vertex by moving ¼ of the way from the center 
-	# to the first corner of the previous part.
-	# Likewise for the right vertex. In this case, we need the second corner of the next part.
-	
+	var center_l: Vector3 = Vector3.ZERO
+	var center_r: Vector3 = Vector3.ZERO
+	var opposite_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.opposite(direction)
 	var previous_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous(direction)
 	var next_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next(direction)
-	var center_l: Vector3 = center + HexMetrics.get_first_solid_corner(previous_direction) * 0.25
-	var center_r: Vector3 = center + HexMetrics.get_second_solid_corner(next_direction) * 0.25
+	var next2_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next2(direction)	
+	if (cell.has_river_through_edge(opposite_direction)):
+		center_l = center + HexMetrics.get_first_solid_corner(previous_direction) * 0.25
+		center_r = center + HexMetrics.get_second_solid_corner(next_direction) * 0.25
+	elif (cell.has_river_through_edge(next_direction)):
+		center_l = center
+		center_r = center.lerp(e.v5, 0.67)
+	elif (cell.has_river_through_edge(previous_direction)):
+		center_l = center.lerp(e.v1, 0.67)
+		center_r = center 
+	elif (cell.has_river_through_edge(next2_direction)):
+		center_l = center
+		center_r = center + HexMetrics.get_solid_edge_middle(next_direction) * (0.5 * HexMetrics.INNER_TO_OUTER)
+	else:
+		center_l = center + HexMetrics.get_solid_edge_middle(previous_direction) * (0.5 * HexMetrics.INNER_TO_OUTER)
+		center_r = center
+	
+	center = center_l.lerp(center_r, 0.5)
 	
 	#The middle line can be found by creating edge vertices between the center and edge.
 	var m: EdgeVertices = EdgeVertices.new(

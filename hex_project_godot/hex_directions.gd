@@ -26,4 +26,18 @@ static func next (direction: HexDirections) -> HexDirections:
 	else:
 		return direction + 1
 
+static func previous2 (direction: HexDirections) -> HexDirections:
+	direction -= 2
+	if (direction >= HexDirections.NE):
+		return direction
+	else:
+		return (direction + 6)
+
+static func next2 (direction: HexDirections) -> HexDirections:
+	direction += 2
+	if (direction <= HexDirections.NW):
+		return direction
+	else:
+		return (direction - 6)
+
 #endregion
