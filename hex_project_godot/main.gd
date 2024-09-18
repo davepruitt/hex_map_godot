@@ -23,6 +23,8 @@ var active_elevation: int = 0
 var active_brush_size: int = 0
 var active_show_labels: bool = true
 
+var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
+
 #endregion
 
 #region OnReady public data members
@@ -36,7 +38,6 @@ var active_show_labels: bool = true
 @onready var check_button_enable_elevation := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
 @onready var brush_size_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2/BrushSizeValueLabel
 @onready var check_button_show_labels := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_ShowLabels
-
 
 
 #endregion
@@ -115,9 +116,22 @@ func _on_brush_size_slider_value_changed(value: float) -> void:
 	active_brush_size = int(value)
 	brush_size_value_label.text = str(active_brush_size)
 
+
 func _on_check_button_show_labels_toggled(toggled_on: bool) -> void:
 	active_show_labels = toggled_on
 	show_ui(active_show_labels)
+
+
+func _on_check_box_rivers_ignore_pressed() -> void:
+	_set_river_mode(Enums.OptionalToggle.Ignore)
+
+
+func _on_check_box_rivers_yes_pressed() -> void:
+	_set_river_mode(Enums.OptionalToggle.Yes)
+
+
+func _on_check_box_rivers_no_pressed() -> void:
+	_set_river_mode(Enums.OptionalToggle.No)
 
 #endregion
 
@@ -181,5 +195,8 @@ func _edit_cell (cell: HexCell) -> void:
 		#Paint the terrain elevation value
 		if (paint_terrain_elevation_enabled):
 			cell.elevation = active_elevation
+
+func _set_river_mode (mode: Enums.OptionalToggle) -> void:
+	river_mode = mode
 
 #endregion
