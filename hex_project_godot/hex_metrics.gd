@@ -41,6 +41,8 @@ const CHUNK_SIZE_X: int = 5
 
 const CHUNK_SIZE_Z: int = 5
 
+const STREAM_BED_ELEVATION_OFFSET: float = -0.1
+
 #endregion
 
 #region Static variables

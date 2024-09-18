@@ -115,6 +115,11 @@ var has_river_beginning_or_end: bool:
 	get:
 		return (_has_incoming_river != _has_outgoing_river)
 
+## This property indicates the y-position of the stream bed for this hex cell
+var stream_bed_y: float:
+	get:
+		return ((_elevation + HexMetrics.STREAM_BED_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP)
+
 #endregion
 
 #region Overrides
