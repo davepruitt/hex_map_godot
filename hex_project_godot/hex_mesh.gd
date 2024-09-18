@@ -62,14 +62,78 @@ func _triangulate_hex_in_direction (st: SurfaceTool, cell: HexCell, direction: H
 		center + HexMetrics.get_second_solid_corner(direction)
 	)
 	
-	if (cell.has_river_through_edge(direction)):
-		edge_vertices.v3.y = cell.stream_bed_y
-	
-	_triangulate_edge_fan(st, center, edge_vertices, cell.hex_color)
+	if (cell.has_river):
+		if (cell.has_river_through_edge(direction)):
+			edge_vertices.v3.y = cell.stream_bed_y
+			
+			if (cell.has_river_beginning_or_end):
+				_triangulate_with_river_begin_or_end(st, direction, cell, center, edge_vertices)
+			else:
+				_triangulate_with_river(st, direction, cell, center, edge_vertices)
+	else:
+		_triangulate_edge_fan(st, center, edge_vertices, cell.hex_color)
 	
 	#Add connections to other hex cells
 	if (direction <= HexDirectionsClass.HexDirections.SE):
 		_triangulate_connection(st, direction, cell, edge_vertices)
+
+func _triangulate_with_river_begin_or_end (st: SurfaceTool,
+	direction: HexDirectionsClass.HexDirections, cell: HexCell,
+	center: Vector3, e: EdgeVertices) -> void:
+		
+	# In this case, we want to terminate the channel at the center, 
+	# but still use two steps to get there. So again we create a middle edge 
+	# between the center and edge. Because we do want to terminate the channel, 
+	# it is fine that it gets pinched.
+	
+	var m: EdgeVertices = EdgeVertices.new(
+		center.lerp(e.v1, 0.5),
+		center.lerp(e.v5, 0.5)
+	)
+	
+	#Set the middle vertex to the stream bed height. But the center should not be adjusted.
+	m.v3.y = e.v3.y
+	
+	#Triangulate with a single edge strip and a fan.
+	_triangulate_edge_strip(st, m, cell.hex_color, e, cell.hex_color)
+	_triangulate_edge_fan(st, center, m, cell.hex_color)
+
+func _triangulate_with_river (st: SurfaceTool, 
+	direction: HexDirectionsClass.HexDirections, cell: HexCell, 
+	center: Vector3, e: EdgeVertices) -> void:
+	
+	# To create a channel straight across the cell part, 
+	# we have to stretch the center into a line. 
+	# This line needs to have the same width as the channel. 
+	# We can find the left vertex by moving ¼ of the way from the center 
+	# to the first corner of the previous part.
+	# Likewise for the right vertex. In this case, we need the second corner of the next part.
+	
+	var previous_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous(direction)
+	var next_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next(direction)
+	var center_l: Vector3 = center + HexMetrics.get_first_solid_corner(previous_direction) * 0.25
+	var center_r: Vector3 = center + HexMetrics.get_second_solid_corner(next_direction) * 0.25
+	
+	#The middle line can be found by creating edge vertices between the center and edge.
+	var m: EdgeVertices = EdgeVertices.new(
+		center_l.lerp(e.v1, 0.5),
+		center_r.lerp(e.v5, 0.5),
+		1.0 / 6.0
+	)
+	
+	#Adjust the middle vertex of the middle edge, as well as the center, 
+	#so they become channel bottoms.
+	center.y = e.v3.y
+	m.v3.y = e.v3.y
+	
+	#Fill the space between the middle and edge lines.
+	_triangulate_edge_strip(st, m, cell.hex_color, e, cell.hex_color)
+	
+	#Second section of trapezoid
+	_add_perturbed_triangle(st, center_l, m.v2, m.v1, cell.hex_color, cell.hex_color, cell.hex_color)
+	_add_perturbed_quad(st, center_l, center, m.v2, m.v3, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
+	_add_perturbed_quad(st, center, center_r, m.v3, m.v4, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
+	_add_perturbed_triangle(st, center_r, m.v5, m.v4, cell.hex_color, cell.hex_color, cell.hex_color)
 
 func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: Color, c2: Color, c3: Color) -> void:
 	#Set the color for the vertex, and then add the vertex

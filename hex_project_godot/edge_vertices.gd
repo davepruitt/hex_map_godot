@@ -16,12 +16,13 @@ var v5: Vector3 = Vector3.ZERO
 
 #region Constructor
 
-func _init(corner1: Vector3, corner2: Vector3) -> void:
+func _init(corner1: Vector3, corner2: Vector3, outer_step: float = 0.25) -> void:
 	v1 = corner1
-	v2 = corner1.lerp(corner2, 0.25)
+	v2 = corner1.lerp(corner2, outer_step)
 	v3 = corner1.lerp(corner2, 0.5)
-	v4 = corner1.lerp(corner2, 0.75)
+	v4 = corner1.lerp(corner2, 1.0 - outer_step)
 	v5 = corner2
+
 
 #endregion
 
