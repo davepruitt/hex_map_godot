@@ -70,6 +70,16 @@ layout_mode = 2
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "White"
 
+[node name="MarginContainer3" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer3"]
+layout_mode = 2
+
 [node name="CheckButton_EnableElevation" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 text = "Paint Elevation"
@@ -97,6 +107,45 @@ text = "Elevation: "
 layout_mode = 2
 text = "0"
 
+[node name="MarginContainer4" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer4"]
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="BrushSizeSlider" type="HSlider" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer2"]
+layout_mode = 2
+focus_mode = 0
+max_value = 4.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="BrushSizeLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Brush Radius:"
+
+[node name="BrushSizeValueLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "0"
+
+[node name="MarginContainer5" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
 [connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor" to="." method="_on_check_button_enable_color_toggled"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
@@ -104,3 +153,4 @@ text = "0"
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation" to="." method="_on_check_button_enable_elevation_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
+[connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer2/BrushSizeSlider" to="." method="_on_brush_size_slider_value_changed"]

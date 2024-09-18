@@ -20,6 +20,7 @@ var paint_terrain_elevation_enabled: bool = true
 
 var active_color: Color = Color.WHITE
 var active_elevation: int = 0
+var active_brush_size: int = 0
 
 #endregion
 
@@ -27,11 +28,14 @@ var active_elevation: int = 0
 
 #@onready var scene_camera := $Camera3D
 @onready var hex_grid := $HexGrid
+@onready var scene_camera := $HexMapCamera/Swivel/Stick/MainCamera
 
 @onready var elevation_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer/ElevationValueLabel
 @onready var check_button_enable_color := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor
 @onready var check_button_enable_elevation := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
-@onready var scene_camera := $HexMapCamera/Swivel/Stick/MainCamera
+@onready var brush_size_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2/BrushSizeValueLabel
+
+
 
 #endregion
 
@@ -84,7 +88,7 @@ func _input(event: InputEvent) -> void:
 			var result = space_state.intersect_ray(query)
 			if result:
 				var cell = hex_grid.get_cell(result.position)
-				_edit_cell(cell)
+				_edit_cells(cell)
 
 #endregion
 
@@ -118,15 +122,64 @@ func _on_check_button_enable_elevation_toggled(toggled_on: bool) -> void:
 func _on_check_button_enable_color_toggled(toggled_on: bool) -> void:
 	paint_terrain_color_enabled = toggled_on
 
+
+func _on_brush_size_slider_value_changed(value: float) -> void:
+	active_brush_size = int(value)
+	brush_size_value_label.text = str(active_brush_size)
+
 #endregion
 
 #region Private methods
 
-func _edit_cell (cell: HexCell):
-	if (paint_terrain_color_enabled):
-		cell.hex_color = active_color
+func _edit_cells (center_cell: HexCell) -> void:
+	var center_x: int = center_cell.hex_coordinates.X
+	var center_z: int = center_cell.hex_coordinates.Z
 	
-	if (paint_terrain_elevation_enabled):
-		cell.elevation = active_elevation
+	#Bottom half of brush
+	var r: int = 0
+	var z: int = center_z - active_brush_size
+	while (z <= center_z):
+		#Set initial x
+		var x: int = center_x - r
+		while (x <= (center_x + active_brush_size)):
+			#Edit the cell
+			var hex_coordinates: HexCoordinates = HexCoordinates.new(x, z)
+			_edit_cell(hex_grid.get_cell_from_coordinates(hex_coordinates))
+			
+			#Increment x
+			x += 1
+		
+		#Increment z and r
+		z += 1
+		r += 1
+	
+	#Top half of brush
+	r = 0
+	z = center_z + active_brush_size
+	while (z > center_z):
+		#Set initial x
+		var x: int = center_x - active_brush_size
+		while (x <= (center_x + r)):
+			#Edit the cell
+			var hex_coordinates: HexCoordinates = HexCoordinates.new(x, z)
+			_edit_cell(hex_grid.get_cell_from_coordinates(hex_coordinates))
+			
+			#Increment x
+			x += 1
+		
+		#Decrement z and increment r
+		z -= 1
+		r += 1
+
+func _edit_cell (cell: HexCell) -> void:
+	#Make sure the cell is not null
+	if (cell):
+		#Paint the color
+		if (paint_terrain_color_enabled):
+			cell.hex_color = active_color
+		
+		#Paint the terrain elevation value
+		if (paint_terrain_elevation_enabled):
+			cell.elevation = active_elevation
 
 #endregion

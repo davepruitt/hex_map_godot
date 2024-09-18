@@ -71,6 +71,17 @@ func _process(delta: float) -> void:
 
 #region Public methods
 
+func get_cell_from_coordinates (coordinates: HexCoordinates) -> HexCell:
+	var z: int = coordinates.Z
+	if (z < 0) or (z >= _cell_count_z):
+		return null
+	
+	var x: int = coordinates.X + z / 2
+	if (x < 0) or (x >= _cell_count_x):
+		return null
+	
+	return _hex_cells[x + z * _cell_count_x]
+
 func get_cell (position: Vector3) -> HexCell:
 	#Convert the global position to a position within the hex grid
 	var inverse_transform_point = position * global_transform
