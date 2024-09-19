@@ -13,6 +13,7 @@ shader = ExtResource("3_e7bgw")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6crjs"]
 render_priority = 0
 shader = ExtResource("4_703fq")
+shader_parameter/base_color = Color(0.244129, 0.468967, 0.999601, 0.658824)
 shader_parameter/noise_texture = ExtResource("5_cm4mn")
 
 [node name="HexGrid" type="Node3D"]

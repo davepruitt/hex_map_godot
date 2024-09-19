@@ -1,19 +1,30 @@
 shader_type spatial;
 
+uniform vec4 base_color : source_color;
 uniform sampler2D noise_texture;
 
 void vertex()
 {
-	UV.x *= 0.0625;
-	UV.y -= TIME * 0.25f;
-	UV.y = fract(UV.y);
+	//empty
 }
 
 void fragment()
 {
-	vec4 texture_color = texture(noise_texture, UV);
-	vec4 c = COLOR * texture_color.r;
-	ALBEDO = vec3(c.r, c.g, c.b);
+	vec2 uv = UV;
+	uv.x = (uv.x * 0.0625) * (TIME * 0.005);
+	uv.y -= TIME * 0.25f;
+	uv.y = fract(uv.y);
+
+	vec2 uv2 = UV;
+	uv2.x = (uv2.x * 0.0625) + (TIME * 0.0052);
+	uv2.y -= TIME * 0.23;
+
+	vec4 noise = texture(noise_texture, uv);
+	vec4 noise2 = texture(noise_texture, uv2);
+	vec4 c = clamp(base_color + (noise.r * noise2.a), 0.0, 1.0);
+	ALBEDO = c.rgb;
+
+	//ALPHA = 0.5;
 	ALPHA = c.a;
 }
 

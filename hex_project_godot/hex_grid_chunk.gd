@@ -73,6 +73,7 @@ func _triangulate_cells () -> void:
 	#Begin creation of the rivers mesh
 	_rivers.begin()
 	_rivers.use_uv_coordinates = true
+	_rivers.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):

@@ -49,6 +49,7 @@ func end (mat: ShaderMaterial) -> void:
 	
 	#Set the material for the mesh
 	self.material_override = mat
+	
 
 func add_triangle (v1: Vector3, v2: Vector3, v3: Vector3, c1: Color, c2: Color, c3: Color) -> void:
 	#Set the color for the vertex, and then add the vertex
