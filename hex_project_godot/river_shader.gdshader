@@ -1,7 +1,8 @@
 shader_type spatial;
 
 void vertex() {
-	// Called for every vertex the material is visible on.
+	UV.y -= TIME;
+	UV.y = fract(UV.y);
 }
 
 void fragment() {
