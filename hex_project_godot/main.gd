@@ -7,7 +7,8 @@ extends Node3D
 @export var color_1 := Color.YELLOW
 @export var color_2 := Color.GREEN
 @export var color_3 := Color.BLUE
-@export var color_4 := Color.WHITE
+@export var color_4 := Color.ORANGE
+@export var color_5 := Color.WHITE
 
 #endregion
 
@@ -24,21 +25,34 @@ var active_brush_size: int = 0
 var active_show_labels: bool = true
 
 var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
+var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 #endregion
 
 #region OnReady public data members
 
-#@onready var scene_camera := $Camera3D
 @onready var hex_grid := $HexGrid
 @onready var scene_camera := $HexMapCamera/Swivel/Stick/MainCamera
 
 @onready var elevation_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer/ElevationValueLabel
-@onready var check_button_enable_color := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor
 @onready var check_button_enable_elevation := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
 @onready var brush_size_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2/BrushSizeValueLabel
 @onready var check_button_show_labels := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_ShowLabels
 
+@onready var check_button_color_none := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor
+@onready var check_button_color_yellow := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow
+@onready var check_button_color_green := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen
+@onready var check_button_color_blue := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorBlue
+@onready var check_button_color_orange := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorOrange
+@onready var check_button_color_white := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorWhite
+
+@onready var check_button_rivers_ignore := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversIgnore
+@onready var check_button_rivers_yes := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversYes
+@onready var check_button_rivers_no := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversNo
+
+@onready var check_button_roads_ignore := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsIgnore
+@onready var check_button_roads_yes := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsYes
+@onready var check_button_roads_no := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo
 
 #endregion
 
@@ -106,20 +120,33 @@ func _input(event: InputEvent) -> void:
 
 #region GUI event handlers
 
+func _on_check_box_no_color_pressed() -> void:
+	paint_terrain_color_enabled = false
+
+
 func _on_check_box_color_yellow_pressed() -> void:
+	paint_terrain_color_enabled = true
 	active_color = color_1
 
 
 func _on_check_box_color_green_pressed() -> void:
+	paint_terrain_color_enabled = true
 	active_color = color_2
 
 
 func _on_check_box_color_blue_pressed() -> void:
+	paint_terrain_color_enabled = true
 	active_color = color_3
 
 
-func _on_check_box_color_white_pressed() -> void:
+func _on_check_box_color_orange_pressed() -> void:
+	paint_terrain_color_enabled = true
 	active_color = color_4
+	
+
+func _on_check_box_color_white_pressed() -> void:
+	paint_terrain_color_enabled = true
+	active_color = color_5
 
 
 func _on_elevation_slider_value_changed(value: float) -> void:
@@ -129,10 +156,6 @@ func _on_elevation_slider_value_changed(value: float) -> void:
 
 func _on_check_button_enable_elevation_toggled(toggled_on: bool) -> void:
 	paint_terrain_elevation_enabled = toggled_on
-
-
-func _on_check_button_enable_color_toggled(toggled_on: bool) -> void:
-	paint_terrain_color_enabled = toggled_on
 
 
 func _on_brush_size_slider_value_changed(value: float) -> void:
@@ -156,6 +179,19 @@ func _on_check_box_rivers_yes_pressed() -> void:
 func _on_check_box_rivers_no_pressed() -> void:
 	_set_river_mode(Enums.OptionalToggle.No)
 
+
+func _on_check_box_roads_ignore_pressed() -> void:
+	_set_road_mode(Enums.OptionalToggle.Ignore)
+
+
+func _on_check_box_roads_yes_pressed() -> void:
+	_set_road_mode(Enums.OptionalToggle.Yes)
+
+
+func _on_check_box_roads_no_pressed() -> void:
+	_set_road_mode(Enums.OptionalToggle.No)
+
+
 #endregion
 
 #region Private methods
@@ -163,7 +199,34 @@ func _on_check_box_rivers_no_pressed() -> void:
 func _initialize_ui () -> void:
 	check_button_show_labels.set_pressed_no_signal(active_show_labels)
 	check_button_enable_elevation.set_pressed_no_signal(paint_terrain_elevation_enabled)
-	check_button_enable_color.set_pressed_no_signal(paint_terrain_color_enabled)
+	
+	if (paint_terrain_color_enabled):
+		if (active_color == Color.YELLOW):
+			check_button_color_yellow.set_pressed_no_signal(true)
+		elif (active_color == Color.GREEN):
+			check_button_color_green.set_pressed_no_signal(true)
+		elif (active_color == Color.BLUE):
+			check_button_color_blue.set_pressed_no_signal(true)
+		elif (active_color == Color.ORANGE):
+			check_button_color_orange.set_pressed_no_signal(true)
+		elif (active_color == Color.WHITE):
+			check_button_color_white.set_pressed_no_signal(true)
+	else:
+		check_button_color_none.set_pressed_no_signal(true)
+		
+	if (river_mode == Enums.OptionalToggle.Ignore):
+		check_button_rivers_ignore.set_pressed_no_signal(true)
+	elif (river_mode == Enums.OptionalToggle.Yes):
+		check_button_rivers_yes.set_pressed_no_signal(true)
+	elif (river_mode == Enums.OptionalToggle.No):
+		check_button_rivers_no.set_pressed_no_signal(true)
+		
+	if (road_mode == Enums.OptionalToggle.Ignore):
+		check_button_roads_ignore.set_pressed_no_signal(true)
+	elif (road_mode == Enums.OptionalToggle.Yes):
+		check_button_roads_yes.set_pressed_no_signal(true)
+	elif (road_mode == Enums.OptionalToggle.No):
+		check_button_roads_no.set_pressed_no_signal(true)
 
 func show_ui (visible: bool) -> void:
 	hex_grid.show_ui(visible)
@@ -219,19 +282,32 @@ func _edit_cell (cell: HexCell) -> void:
 		if (paint_terrain_elevation_enabled):
 			cell.elevation = active_elevation
 			
-		#Edit rivers based on the current river editing selection
+		#Remove rivers if the river mode is "no"
 		if (river_mode == Enums.OptionalToggle.No):
-			#Remove rivers if the river mode is "no"
 			cell.remove_river()
-		elif (_is_drag and river_mode == Enums.OptionalToggle.Yes):
-			#Place rivers if the river mode is set to "yes"
+			
+		#Remove roads if the road toggle is "no"
+		if (road_mode == Enums.OptionalToggle.No):
+			cell.remove_roads()
+		
+		#Check to see if a drag event was completed
+		if (_is_drag):
 			var opposite_direction = HexDirectionsClass.opposite(_drag_direction)
 			var other_cell: HexCell = cell.get_neighbor(opposite_direction)
 			if (other_cell):
-				other_cell.set_outgoing_river(_drag_direction)
+				#Place rivers if the river mode is set to "yes"
+				if (river_mode == Enums.OptionalToggle.Yes):
+					other_cell.set_outgoing_river(_drag_direction)
+					
+				#Place roads if the road mode is set to "yes"
+				if (road_mode == Enums.OptionalToggle.Yes):
+					other_cell.add_road(_drag_direction)
 
 func _set_river_mode (mode: Enums.OptionalToggle) -> void:
 	river_mode = mode
+	
+func _set_road_mode (mode: Enums.OptionalToggle) -> void:
+	road_mode = mode
 	
 func _validate_drag () -> void:
 	#Set the initial drag direction

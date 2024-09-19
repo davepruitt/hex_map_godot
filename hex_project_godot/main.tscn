@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=7 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://hex_grid.tscn" id="1_e2r5f"]
 [ext_resource type="Script" path="res://main.gd" id="1_ipy05"]
@@ -9,6 +9,9 @@ resource_name = "ButtonGroup1"
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_3jin2"]
 resource_name = "RiversButtonGroup"
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_gu8w8"]
+resource_name = "RoadsButtonGroup"
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ipy05")
@@ -26,9 +29,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
 
 [node name="MainCamera" type="Camera3D" parent="HexMapCamera/Swivel/Stick"]
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.362275, 0.932071, 0, -0.932071, 0.362275, 0, 0.9, 0)
-
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
 light_energy = 10.0
@@ -45,38 +45,62 @@ offset_bottom = 40.0
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer"]
 layout_mode = 2
 
-[node name="CheckButton_EnableColor" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer9" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
-focus_mode = 0
-text = "Paint Color"
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
+text = "Paint Color"
 
-[node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 3
+
+[node name="CheckBox_NoColor" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_jp0eq")
+text = "---"
+
+[node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Yellow"
 
-[node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
+[node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Green"
 
-[node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
+[node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Blue"
 
-[node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer"]
+[node name="CheckBox_ColorOrange" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_jp0eq")
+text = "Orange"
+
+[node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "White"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
 
 [node name="MarginContainer3" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -207,11 +231,49 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 10
 
-[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableColor" to="." method="_on_check_button_enable_color_toggled"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/VBoxContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer7"]
+layout_mode = 2
+
+[node name="RoadsSectionLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Roads"
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="CheckBox_RoadsIgnore" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_gu8w8")
+text = "---"
+
+[node name="CheckBox_RoadsYes" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_gu8w8")
+text = "Yes"
+
+[node name="CheckBox_RoadsNo" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_gu8w8")
+text = "No"
+
+[node name="MarginContainer8" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 10
+
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorOrange" to="." method="_on_check_box_color_orange_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation" to="." method="_on_check_button_enable_elevation_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer2/BrushSizeSlider" to="." method="_on_brush_size_slider_value_changed"]
@@ -219,3 +281,6 @@ theme_override_constants/margin_bottom = 10
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversIgnore" to="." method="_on_check_box_rivers_ignore_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversYes" to="." method="_on_check_box_rivers_yes_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversNo" to="." method="_on_check_box_rivers_no_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsIgnore" to="." method="_on_check_box_roads_ignore_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsYes" to="." method="_on_check_box_roads_yes_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo" to="." method="_on_check_box_roads_no_pressed"]
