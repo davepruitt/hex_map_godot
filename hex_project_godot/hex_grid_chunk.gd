@@ -82,7 +82,7 @@ func _triangulate_cells () -> void:
 	_terrain.end(_terrain_shader_material)
 	
 	#Finalize the creation of the rivers mesh
-	_rivers.end(_terrain_shader_material)
+	_rivers.end(_rivers_shader_material)
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex
