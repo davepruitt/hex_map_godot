@@ -23,6 +23,8 @@ var _incoming_river_direction: HexDirectionsClass.HexDirections = HexDirectionsC
 
 var _outgoing_river_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
 
+var _roads: Array[bool] = [false, false, false, false, false, false]
+
 #endregion
 
 #region Public data members
@@ -69,6 +71,13 @@ var elevation: int:
 			if (neighbor):
 				if (_elevation > neighbor.elevation):
 					remove_incoming_river()
+		
+		#Iterate over each road direction
+		for i in range(0, len(_roads)):
+			#Check to see if there is a large elevation difference
+			if (_roads[i]) and (get_elevation_difference(i) > 1):
+				#Clear out any roads if there is
+				set_road(i, false)
 		
 		#Refresh this hex's chunk
 		_refresh()
@@ -123,6 +132,10 @@ var stream_bed_y: float:
 var river_surface_y: float:
 	get:
 		return ((_elevation + HexMetrics.RIVER_SURFACE_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP)
+
+var has_roads: bool:
+	get:
+		return _roads.any(func(x): return x)
 
 #endregion
 
@@ -239,14 +252,50 @@ func set_outgoing_river (direction: HexDirectionsClass.HexDirections) -> void:
 	#Set the direction of the outgoing river
 	_outgoing_river_direction = direction
 	
-	#Refresh this cell
-	_refresh_self_only()
-	
 	#Set the incoming river of the neighbor cell
 	neighbor.remove_incoming_river()
 	neighbor._has_incoming_river = true
 	neighbor._incoming_river_direction = HexDirectionsClass.opposite(direction)
-	neighbor._refresh_self_only()
+	
+	#Clear out any road that exists in this direction
+	#This will also call the function to refresh the cell and its neighbors
+	set_road(int(direction), false)
+
+func has_road_through_edge (direction: HexDirectionsClass.HexDirections) -> bool:
+	return _roads[int(direction)]
+
+func add_road (direction: HexDirectionsClass.HexDirections) -> void:
+	if ((!_roads[int(direction)]) and 
+		(!has_river_through_edge(direction)) and 
+		(get_elevation_difference(direction) <= 1)):
+		
+		set_road(int(direction), true)
+
+func remove_roads () -> void:
+	#Iterate through all directions of roads
+	for i in range(0, len(_roads)):
+		#If a road exist in this direction...
+		if (_roads[i]):
+			set_road(i, false)
+
+func set_road (index: int, state: bool) -> void:
+	#Set it to false
+	_roads[index] = state
+	
+	#Remove the road from its neighbor as well
+	var opposite_direction: HexDirectionsClass.HexDirections = int(HexDirectionsClass.opposite(index))
+	hex_neighbors[index]._roads[int(opposite_direction)] = state
+	hex_neighbors[index]._refresh_self_only()
+	
+	#Refresh this cell
+	_refresh_self_only()
+
+func get_elevation_difference (direction: HexDirectionsClass.HexDirections) -> int:
+	var difference: int = _elevation - get_neighbor(direction).elevation
+	if (difference >= 0):
+		return difference
+	else:
+		return -difference
 
 #endregion
 
