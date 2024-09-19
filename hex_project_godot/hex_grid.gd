@@ -15,8 +15,11 @@ extends Node3D
 ## This is the default color for each hex in the grid
 @export var default_hex_color: Color
 
-## This is the default ShaderMaterial that will be used for the hex cell's mesh
-@export var hex_shader_material: ShaderMaterial
+## This is the default ShaderMaterial that will be used for the terrain in the hex grid
+@export var terrain_shader_material: ShaderMaterial
+
+## This is the default ShaderMaterial that will be used for the rivers in the hex grid
+@export var river_shader_material: ShaderMaterial
 
 #endregion
 
@@ -56,7 +59,8 @@ func _ready() -> void:
 	_create_cells()
 	
 	for i in range(0, len(_hex_grid_chunks)):
-		_hex_grid_chunks[i].set_mesh_material(hex_shader_material)
+		_hex_grid_chunks[i].set_terrain_mesh_material(terrain_shader_material)
+		_hex_grid_chunks[i].set_rivers_mesh_material(river_shader_material)
 		_hex_grid_chunks[i].refresh()
 	
 

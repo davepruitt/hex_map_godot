@@ -1,15 +1,21 @@
-[gd_scene load_steps=5 format=3 uid="uid://bumgasrkg2l7p"]
+[gd_scene load_steps=7 format=3 uid="uid://bumgasrkg2l7p"]
 
 [ext_resource type="Script" path="res://hex_grid.gd" id="1_byfya"]
 [ext_resource type="PackedScene" uid="uid://r8nfx0vsi5ah" path="res://hex_cell.tscn" id="2_ud45i"]
 [ext_resource type="Shader" path="res://hex_cell_shader.gdshader" id="3_e7bgw"]
+[ext_resource type="Shader" path="res://river_shader.gdshader" id="4_703fq"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_gegpu"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c0bb5"]
 render_priority = 0
 shader = ExtResource("3_e7bgw")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6crjs"]
+render_priority = 0
+shader = ExtResource("4_703fq")
 
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
 hex_cell_prefab = ExtResource("2_ud45i")
 default_hex_color = Color(1, 1, 1, 1)
-hex_shader_material = SubResource("ShaderMaterial_gegpu")
+terrain_shader_material = SubResource("ShaderMaterial_c0bb5")
+river_shader_material = SubResource("ShaderMaterial_6crjs")

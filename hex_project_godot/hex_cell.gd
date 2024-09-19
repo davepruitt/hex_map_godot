@@ -120,6 +120,10 @@ var stream_bed_y: float:
 	get:
 		return ((_elevation + HexMetrics.STREAM_BED_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP)
 
+var river_surface_y: float:
+	get:
+		return ((_elevation + HexMetrics.RIVER_SURFACE_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP)
+
 #endregion
 
 #region Overrides

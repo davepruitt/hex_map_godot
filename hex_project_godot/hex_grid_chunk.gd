@@ -7,9 +7,10 @@ extends Node3D
 var _hex_cells: Array[HexCell] = []
 
 var _terrain: HexMesh = HexMesh.new()
-var _river: HexMesh = HexMesh.new()
+var _rivers: HexMesh = HexMesh.new()
 
-var _hex_shader_material: ShaderMaterial
+var _terrain_shader_material: ShaderMaterial
+var _rivers_shader_material: ShaderMaterial
 
 #endregion
 
@@ -24,7 +25,7 @@ var update_needed: bool = false
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	add_child(_terrain)
-	
+	add_child(_rivers)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -44,8 +45,11 @@ func add_cell (index: int, cell: HexCell) -> void:
 	#Add the hex cell as a child of the chunk
 	add_child(cell)
 
-func set_mesh_material (mat: ShaderMaterial) -> void:
-	_hex_shader_material = mat
+func set_terrain_mesh_material (mat: ShaderMaterial) -> void:
+	_terrain_shader_material = mat
+	
+func set_rivers_mesh_material (mat: ShaderMaterial) -> void:
+	_rivers_shader_material = mat
 
 func request_refresh () -> void:
 	#Set the "update needed" flag
@@ -53,7 +57,7 @@ func request_refresh () -> void:
 
 func refresh () -> void:
 	#Run the triangulation of the mesh
-	_triangulate_cells(_hex_cells, _hex_shader_material)
+	_triangulate_cells()
 	
 	#Reset the "update needed" flag
 	update_needed = false
@@ -62,16 +66,23 @@ func refresh () -> void:
 
 #region Mesh triangulation methods
 
-func _triangulate_cells (cells: Array[HexCell], mat: ShaderMaterial) -> void:
+func _triangulate_cells () -> void:
 	#Begin creation of the terrain mesh
 	_terrain.begin()
 	
+	#Begin creation of the rivers mesh
+	_rivers.begin()
+	_rivers.use_uv_coordinates = true
+	
 	#Iterate over each hex cell and triangulate the mesh for that hex
-	for i in range(0, len(cells)):
-		_triangulate_hex(cells[i])
+	for i in range(0, len(_hex_cells)):
+		_triangulate_hex(_hex_cells[i])
 	
 	#Finalize the creation of the terrain mesh
-	_terrain.end(mat)
+	_terrain.end(_terrain_shader_material)
+	
+	#Finalize the creation of the rivers mesh
+	_rivers.end(_terrain_shader_material)
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex
@@ -173,6 +184,10 @@ func _triangulate_with_river (
 	_terrain.add_perturbed_quad(center_l, center, m.v2, m.v3, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
 	_terrain.add_perturbed_quad(center, center_r, m.v3, m.v4, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
 	_terrain.add_perturbed_triangle(center_r, m.v5, m.v4, cell.hex_color, cell.hex_color, cell.hex_color)
+	
+	#Form the river quads
+	_triangulate_river_quad(center_l, center_r, m.v2, m.v4, cell.river_surface_y)
+	_triangulate_river_quad(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y)
 
 func _triangulate_adjacent_to_river (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell,
@@ -398,6 +413,14 @@ func _triangulate_edge_strip (
 	_terrain.add_perturbed_quad(e1.v3, e1.v4, e2.v3, e2.v4, c1, c1, c2, c2)
 	_terrain.add_perturbed_quad(e1.v4, e1.v5, e2.v4, e2.v5, c1, c1, c2, c2)
 
-
+func _triangulate_river_quad (v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3, y: float) -> void:
+	v1.y = y
+	v2.y = y
+	v3.y = y
+	v4.y = y
+	
+	#This color will be unused
+	var c1: Color = Color.WHITE
+	_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 0, 1, 0, 1)
 
 #endregion
