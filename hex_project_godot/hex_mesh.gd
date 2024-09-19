@@ -70,6 +70,8 @@ func _triangulate_hex_in_direction (st: SurfaceTool, cell: HexCell, direction: H
 				_triangulate_with_river_begin_or_end(st, direction, cell, center, edge_vertices)
 			else:
 				_triangulate_with_river(st, direction, cell, center, edge_vertices)
+		else:
+			_triangulate_adjacent_to_river(st, direction, cell, center, edge_vertices)
 	else:
 		_triangulate_edge_fan(st, center, edge_vertices, cell.hex_color)
 	
@@ -146,6 +148,31 @@ func _triangulate_with_river (st: SurfaceTool,
 	_add_perturbed_quad(st, center_l, center, m.v2, m.v3, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
 	_add_perturbed_quad(st, center, center_r, m.v3, m.v4, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
 	_add_perturbed_triangle(st, center_r, m.v5, m.v4, cell.hex_color, cell.hex_color, cell.hex_color)
+
+func _triangulate_adjacent_to_river (st: SurfaceTool,
+	direction: HexDirectionsClass.HexDirections, cell: HexCell,
+	center: Vector3, e: EdgeVertices) -> void:
+	
+	var next_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next(direction)
+	var previous_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous(direction)
+	var previous2_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous2(direction)
+	var next2_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next2(direction)
+	
+	if (cell.has_river_through_edge(next_direction)):
+		if (cell.has_river_through_edge(previous_direction)):
+			center += HexMetrics.get_solid_edge_middle(direction) * (HexMetrics.INNER_TO_OUTER * 0.5)
+		elif (cell.has_river_through_edge(previous2_direction)):
+			center += HexMetrics.get_first_solid_corner(direction) * 0.25
+	elif (cell.has_river_through_edge(previous_direction) and cell.has_river_through_edge(next2_direction)):
+		center += HexMetrics.get_second_solid_corner(direction) * 0.25
+	
+	var m: EdgeVertices = EdgeVertices.new(
+		center.lerp(e.v1, 0.5),
+		center.lerp(e.v5, 0.5)
+	)
+	
+	_triangulate_edge_strip(st, m, cell.hex_color, e, cell.hex_color)
+	_triangulate_edge_fan(st, center, m, cell.hex_color)
 
 func _add_triangle (st: SurfaceTool, v1: Vector3, v2: Vector3, v3: Vector3, c1: Color, c2: Color, c3: Color) -> void:
 	#Set the color for the vertex, and then add the vertex
