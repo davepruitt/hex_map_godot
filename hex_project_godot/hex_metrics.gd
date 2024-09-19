@@ -128,4 +128,13 @@ static func get_edge_type (elevation1: int, elevation2: int) -> Enums.HexEdgeTyp
 static func get_solid_edge_middle (direction: HexDirectionsClass.HexDirections) -> Vector3:
 	return (CORNERS[int(direction)] + CORNERS[int(direction) + 1]) * (0.5 * SOLID_FACTOR)
 
+static func perturb (pos: Vector3) -> Vector3:
+	#Get a 4D noise sample
+	var sample: Vector4 = HexMetrics.sample_noise(pos * HexMetrics.CELL_PERTURB_POSITION_MULTIPLIER)
+	
+	pos.x += (sample.x * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
+	pos.z += (sample.z * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
+	
+	return pos
+
 #endregion
