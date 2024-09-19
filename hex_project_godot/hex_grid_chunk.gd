@@ -138,23 +138,23 @@ func _triangulate_with_river_begin_or_end (
 	
 	#Triangulate the river quads
 	var reversed: bool = cell.has_incoming_river
-	_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, reversed)
+	_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
 	
 	center.y = cell.river_surface_y
 	m.v2.y = cell.river_surface_y
 	m.v4.y = cell.river_surface_y
 	if (reversed):
-		var uv1: Vector2 = Vector2(0.5, 1.0)
-		var uv2: Vector2 = Vector2(1.0, 0.0)
-		var uv3: Vector2 = Vector2(0.0, 0.0)
+		var uv1: Vector2 = Vector2(0.5, 0.4)
+		var uv2: Vector2 = Vector2(1.0, 0.2)
+		var uv3: Vector2 = Vector2(0.0, 0.2)
 		
 		_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
 			Color.WHITE, Color.WHITE, Color.WHITE,
 			uv1, uv3, uv2)
 	else:
-		var uv1: Vector2 = Vector2(0.5, 0.0)
-		var uv2: Vector2 = Vector2(0.0, 1.0)
-		var uv3: Vector2 = Vector2(1.0, 1.0)
+		var uv1: Vector2 = Vector2(0.5, 0.4)
+		var uv2: Vector2 = Vector2(0.0, 0.6)
+		var uv3: Vector2 = Vector2(1.0, 0.6)
 		
 		_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
 			Color.WHITE, Color.WHITE, Color.WHITE,
@@ -211,8 +211,8 @@ func _triangulate_with_river (
 	
 	#Form the river quads
 	var reversed: bool = (cell.incoming_river_direction == direction)
-	_triangulate_river_quad_1(center_l, center_r, m.v2, m.v4, cell.river_surface_y, reversed)
-	_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, reversed)
+	_triangulate_river_quad_1(center_l, center_r, m.v2, m.v4, cell.river_surface_y, 0.4, reversed)
+	_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
 
 func _triangulate_adjacent_to_river (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell,
@@ -264,7 +264,7 @@ func _triangulate_connection (
 		var reversed: bool = (cell.has_incoming_river and (cell.incoming_river_direction == direction))
 		_triangulate_river_quad_2(e1.v2, e1.v4, e2.v2, e2.v4,
 			cell.river_surface_y, neighbor_cell.river_surface_y,
-			reversed)
+			0.8, reversed)
 	
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
 		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell)
@@ -445,14 +445,14 @@ func _triangulate_edge_strip (
 
 func _triangulate_river_quad_1 (v1: Vector3, v2: Vector3, 
 	v3: Vector3, v4: Vector3, 
-	y1: float, reversed: bool
+	y1: float, v: float, reversed: bool
 ) -> void:
 	
-	_triangulate_river_quad_2(v1, v2, v3, v4, y1, y1, reversed)
+	_triangulate_river_quad_2(v1, v2, v3, v4, y1, y1, v, reversed)
 
 func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3, 
 	v3: Vector3, v4: Vector3, 
-	y1: float, y2: float, reversed: bool
+	y1: float, y2: float, v: float, reversed: bool
 ) -> void:
 	v1.y = y1
 	v2.y = y1
@@ -462,8 +462,8 @@ func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3,
 	#This color will be unused
 	var c1: Color = Color.WHITE
 	if (reversed):
-		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 1, 0, 1, 0)
+		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 1, 0, 0.8 - v, 0.6 - v)
 	else:
-		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 0, 1, 0, 1)
+		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 0, 1, v, v + 0.2)
 
 #endregion
