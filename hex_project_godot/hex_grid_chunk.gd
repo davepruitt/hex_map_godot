@@ -499,6 +499,13 @@ func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3,
 func _triangulate_road_segment (v1: Vector3, v2: Vector3, v3: Vector3,
 	v4: Vector3, v5: Vector3, v6: Vector3) -> void:
 	
+	v1.y += 0.01;
+	v2.y += 0.01;
+	v3.y += 0.01;
+	v4.y += 0.01;
+	v5.y += 0.01;
+	v6.y += 0.01;
+	
 	_roads.add_perturbed_quad_with_uv(v1, v2, v4, v5, 
 		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
 		0, 1, 0, 0)
@@ -512,6 +519,12 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 	if (has_road_through_cell_edge):
 		var mC: Vector3 = mL.lerp(mR, 0.5)
 		_triangulate_road_segment(mL, mC, mR, e.v2, e.v3, e.v4)
+		
+		#Raise the road from the terrain slightly
+		center.y += 0.01;
+		mC.y += 0.01;
+		mL.y += 0.01;
+		mR.y += 0.01;
 		
 		#The colors will be ignored for roads
 		_roads.add_perturbed_triangle_with_uv(center, mC, mL, 
@@ -538,6 +551,11 @@ func _triangulate_without_river (direction: HexDirectionsClass.HexDirections,
 			cell.has_road_through_edge(direction))
 
 func _triangulate_road_edge (center: Vector3, mL: Vector3, mR: Vector3) -> void:
+	#Raise the road from the terrain slightly
+	center.y += 0.01;
+	mR.y += 0.01;
+	mL.y += 0.01;
+	
 	_roads.add_perturbed_triangle_with_uv(center, mR, mL,
 		Color.WHITE, Color.WHITE, Color.WHITE,
 		Vector2(1, 0), Vector2(0, 0), Vector2(0, 0))
