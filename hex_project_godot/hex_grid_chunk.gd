@@ -681,20 +681,28 @@ func _get_road_interpolators (direction: HexDirectionsClass.HexDirections,
 	return interpolators
 
 func _triangulate_water (direction: HexDirectionsClass.HexDirections, cell: HexCell, center: Vector3) -> void:
+	
 	center.y = cell.water_surface_y
+	
+	var neighbor: HexCell = cell.get_neighbor(direction)
+	if (neighbor != null) and (not neighbor.is_underwater):
+		_triangulate_shore_water(direction, cell, neighbor, center)
+	else:
+		_triangulate_open_water(direction, cell, neighbor, center)
+	
+
+
+func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
+	cell: HexCell, neighbor: HexCell, center: Vector3) -> void:
 	
 	var c1: Vector3 = center + HexMetrics.get_first_solid_corner(direction)
 	var c2: Vector3 = center + HexMetrics.get_second_solid_corner(direction)
-	
+
 	_water.add_perturbed_triangle(center, c2, c1, 
 		Color.WHITE, Color.WHITE, Color.WHITE,
 		)
 	
-	if (direction <= HexDirectionsClass.HexDirections.SE):
-		var neighbor: HexCell = cell.get_neighbor(direction)
-		if (neighbor == null) or (not neighbor.is_underwater):
-			return
-		
+	if (direction <= HexDirectionsClass.HexDirections.SE) and (neighbor != null):
 		var bridge: Vector3 = HexMetrics.get_bridge(direction)
 		var e1: Vector3 = c1 + bridge
 		var e2: Vector3 = c2 + bridge
@@ -710,7 +718,45 @@ func _triangulate_water (direction: HexDirectionsClass.HexDirections, cell: HexC
 			_water.add_perturbed_triangle(c2, 
 				c2 + HexMetrics.get_bridge(HexDirectionsClass.next(direction)), 
 				e2, Color.WHITE, Color.WHITE, Color.WHITE)
+
+func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
+	cell: HexCell, neighbor: HexCell, center: Vector3) -> void:
 	
+	var e1: EdgeVertices = EdgeVertices.new(
+		center + HexMetrics.get_first_solid_corner(direction),
+		center + HexMetrics.get_second_solid_corner(direction)
+	)
+	
+	_water.add_perturbed_triangle(center, e1.v2, e1.v1,
+		Color.WHITE, Color.WHITE, Color.WHITE)
+	_water.add_perturbed_triangle(center, e1.v3, e1.v2,
+		Color.WHITE, Color.WHITE, Color.WHITE)
+	_water.add_perturbed_triangle(center, e1.v4, e1.v3,
+		Color.WHITE, Color.WHITE, Color.WHITE)
+	_water.add_perturbed_triangle(center, e1.v5, e1.v4,
+		Color.WHITE, Color.WHITE, Color.WHITE)
+	
+	var bridge: Vector3 = HexMetrics.get_bridge(direction)
+	var e2: EdgeVertices = EdgeVertices.new(
+		e1.v1 + bridge,
+		e1.v5 + bridge
+	)
+	
+	_water.add_perturbed_quad(e1.v1, e1.v2, e2.v1, e2.v2,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	_water.add_perturbed_quad(e1.v2, e1.v3, e2.v2, e2.v3,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	_water.add_perturbed_quad(e1.v3, e1.v4, e2.v3, e2.v4,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	_water.add_perturbed_quad(e1.v4, e1.v5, e2.v4, e2.v5,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+		
+	var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
+	if (next_neighbor != null):
+		_water.add_perturbed_triangle(e1.v5, 
+			e1.v5 + HexMetrics.get_bridge(HexDirectionsClass.next(direction)),
+			e2.v5,
+			Color.WHITE, Color.WHITE, Color.WHITE)
 
 #endregion
 
