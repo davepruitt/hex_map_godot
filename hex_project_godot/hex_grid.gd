@@ -27,6 +27,9 @@ extends Node3D
 ## This is the default ShaderMaterial that will be used for the water in the hex grid
 @export var water_shader_material: ShaderMaterial
 
+## This is the default ShaderMaterial that will be used for the shore water in the hex grid
+@export var water_shore_shader_material: ShaderMaterial
+
 #endregion
 
 #region Private variables
@@ -69,6 +72,7 @@ func _ready() -> void:
 		_hex_grid_chunks[i].set_rivers_mesh_material(river_shader_material)
 		_hex_grid_chunks[i].set_road_mesh_material(road_shader_material)
 		_hex_grid_chunks[i].set_water_mesh_material(water_shader_material)
+		_hex_grid_chunks[i].set_water_shore_mesh_material(water_shore_shader_material)
 		_hex_grid_chunks[i].refresh()
 	
 

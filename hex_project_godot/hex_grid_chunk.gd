@@ -10,11 +10,13 @@ var _terrain: HexMesh = HexMesh.new()
 var _rivers: HexMesh = HexMesh.new()
 var _roads: HexMesh = HexMesh.new()
 var _water: HexMesh = HexMesh.new()
+var _water_shore: HexMesh = HexMesh.new()
 
 var _terrain_shader_material: ShaderMaterial
 var _rivers_shader_material: ShaderMaterial
 var _road_shader_material: ShaderMaterial
 var _water_shader_material: ShaderMaterial
+var _water_shore_shader_material: ShaderMaterial
 
 #endregion
 
@@ -32,6 +34,7 @@ func _ready() -> void:
 	add_child(_rivers)
 	add_child(_roads)
 	add_child(_water)
+	add_child(_water_shore)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -62,6 +65,9 @@ func set_road_mesh_material (mat: ShaderMaterial) -> void:
 	
 func set_water_mesh_material (mat: ShaderMaterial) -> void:
 	_water_shader_material = mat
+	
+func set_water_shore_mesh_material (mat: ShaderMaterial) -> void:
+	_water_shore_shader_material = mat
 
 func request_refresh () -> void:
 	#Set the "update needed" flag
@@ -103,6 +109,13 @@ func _triangulate_cells () -> void:
 	_water.use_uv_coordinates = true
 	_water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
+	#Begin creation of the shore water mesh
+	_water_shore.begin()
+	_water_shore.use_colors = false
+	_water_shore.use_collider = false
+	_water_shore.use_uv_coordinates = true
+	_water_shore.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
 		_triangulate_hex(_hex_cells[i])
@@ -118,6 +131,9 @@ func _triangulate_cells () -> void:
 	
 	#Finalize the creation of the water mesh
 	_water.end(_water_shader_material)
+	
+	#Finalize the creation of the water shore mesh
+	_water_shore.end(_water_shore_shader_material)
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex
@@ -742,21 +758,32 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		e1.v5 + bridge
 	)
 	
-	_water.add_perturbed_quad(e1.v1, e1.v2, e2.v1, e2.v2,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
-	_water.add_perturbed_quad(e1.v2, e1.v3, e2.v2, e2.v3,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
-	_water.add_perturbed_quad(e1.v3, e1.v4, e2.v3, e2.v4,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
-	_water.add_perturbed_quad(e1.v4, e1.v5, e2.v4, e2.v5,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	_water_shore.add_perturbed_quad_with_uv(e1.v1, e1.v2, e2.v1, e2.v2,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+		0, 0, 0, 1)
+	_water_shore.add_perturbed_quad_with_uv(e1.v2, e1.v3, e2.v2, e2.v3,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+		0, 0, 0, 1)
+	_water_shore.add_perturbed_quad_with_uv(e1.v3, e1.v4, e2.v3, e2.v4,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+		0, 0, 0, 1)
+	_water_shore.add_perturbed_quad_with_uv(e1.v4, e1.v5, e2.v4, e2.v5,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+		0, 0, 0, 1)
 		
 	var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
 	if (next_neighbor != null):
-		_water.add_perturbed_triangle(e1.v5, 
+		var v_val: float = 1.0
+		if (next_neighbor.is_underwater):
+			v_val = 0.0
+		
+		_water_shore.add_perturbed_triangle_with_uv(e1.v5, 
 			e1.v5 + HexMetrics.get_bridge(HexDirectionsClass.next(direction)),
 			e2.v5,
-			Color.WHITE, Color.WHITE, Color.WHITE)
+			Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(0, 0), 
+			Vector2(0, v_val), 
+			Vector2(0, 1))
 
 #endregion
 
