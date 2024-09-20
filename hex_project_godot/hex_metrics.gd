@@ -48,6 +48,8 @@ const STREAM_BED_ELEVATION_OFFSET: float = -0.1
 
 const RIVER_SURFACE_ELEVATION_OFFSET: float = 0.5 * STREAM_BED_ELEVATION_OFFSET
 
+const WATER_ELEVATION_OFFSET: float = -0.05
+
 #endregion
 
 #region Static variables

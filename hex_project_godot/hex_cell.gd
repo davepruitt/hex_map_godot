@@ -25,6 +25,8 @@ var _outgoing_river_direction: HexDirectionsClass.HexDirections = HexDirectionsC
 
 var _roads: Array[bool] = [false, false, false, false, false, false]
 
+var _water_level: int = 0
+
 #endregion
 
 #region Public data members
@@ -143,6 +145,25 @@ var river_begin_or_end_direction: HexDirectionsClass.HexDirections:
 			return incoming_river_direction
 		else:
 			return outgoing_river_direction
+
+var water_level: int:
+	get:
+		return _water_level
+	set(value):
+		if (_water_level == value):
+			return
+		
+		_water_level = value
+		
+		_refresh()
+
+var is_underwater: bool:
+	get:
+		return (_water_level > _elevation)
+		
+var water_surface_y: float:
+	get:
+		return (_water_level + HexMetrics.WATER_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP
 
 #endregion
 

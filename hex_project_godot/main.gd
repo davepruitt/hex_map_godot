@@ -18,11 +18,13 @@ var camera_speed: float = 0.1
 
 var paint_terrain_color_enabled: bool = true
 var paint_terrain_elevation_enabled: bool = true
+var apply_water_level: bool = true
 
 var active_color: Color = Color.WHITE
 var active_elevation: int = 0
 var active_brush_size: int = 0
 var active_show_labels: bool = true
+var active_water_level: int = 0
 
 var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
@@ -53,6 +55,9 @@ var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 @onready var check_button_roads_ignore := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsIgnore
 @onready var check_button_roads_yes := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsYes
 @onready var check_button_roads_no := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo
+
+@onready var check_button_water_level := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_WaterLevel
+@onready var water_level_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer5/WaterLevelValueLabel
 
 #endregion
 
@@ -192,6 +197,13 @@ func _on_check_box_roads_no_pressed() -> void:
 	_set_road_mode(Enums.OptionalToggle.No)
 
 
+func _on_check_button_water_level_toggled(toggled_on: bool) -> void:
+	_set_apply_water_level(toggled_on)
+
+
+func _on_water_level_slider_value_changed(value: float) -> void:
+	_set_water_level(value)
+
 #endregion
 
 #region Private methods
@@ -199,6 +211,7 @@ func _on_check_box_roads_no_pressed() -> void:
 func _initialize_ui () -> void:
 	check_button_show_labels.set_pressed_no_signal(active_show_labels)
 	check_button_enable_elevation.set_pressed_no_signal(paint_terrain_elevation_enabled)
+	check_button_water_level.set_pressed_no_signal(apply_water_level)
 	
 	if (paint_terrain_color_enabled):
 		if (active_color == Color.YELLOW):
@@ -281,6 +294,9 @@ func _edit_cell (cell: HexCell) -> void:
 		#Paint the terrain elevation value
 		if (paint_terrain_elevation_enabled):
 			cell.elevation = active_elevation
+		
+		if (apply_water_level):
+			cell.water_level = active_water_level
 			
 		#Remove rivers if the river mode is "no"
 		if (river_mode == Enums.OptionalToggle.No):
@@ -308,6 +324,12 @@ func _set_river_mode (mode: Enums.OptionalToggle) -> void:
 	
 func _set_road_mode (mode: Enums.OptionalToggle) -> void:
 	road_mode = mode
+	
+func _set_apply_water_level (toggle: bool) -> void:
+	apply_water_level = toggle
+	
+func _set_water_level (level: float) -> void:
+	active_water_level = int(level)
 	
 func _validate_drag () -> void:
 	#Set the initial drag direction

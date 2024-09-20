@@ -9,10 +9,12 @@ var _hex_cells: Array[HexCell] = []
 var _terrain: HexMesh = HexMesh.new()
 var _rivers: HexMesh = HexMesh.new()
 var _roads: HexMesh = HexMesh.new()
+var _water: HexMesh = HexMesh.new()
 
 var _terrain_shader_material: ShaderMaterial
 var _rivers_shader_material: ShaderMaterial
 var _road_shader_material: ShaderMaterial
+var _water_shader_material: ShaderMaterial
 
 #endregion
 
@@ -56,6 +58,9 @@ func set_rivers_mesh_material (mat: ShaderMaterial) -> void:
 	
 func set_road_mesh_material (mat: ShaderMaterial) -> void:
 	_road_shader_material = mat
+	
+func set_water_mesh_material (mat: ShaderMaterial) -> void:
+	_water_shader_material = mat
 
 func request_refresh () -> void:
 	#Set the "update needed" flag
@@ -90,6 +95,13 @@ func _triangulate_cells () -> void:
 	_roads.use_uv_coordinates = true
 	_roads.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
+	#Begin creation of the water mesh
+	_water.begin()
+	_water.use_colors = false
+	_water.use_collider = false
+	_water.use_uv_coordinates = true
+	_water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
 		_triangulate_hex(_hex_cells[i])
@@ -102,6 +114,9 @@ func _triangulate_cells () -> void:
 	
 	#Finalize the creation of the roads mesh
 	_roads.end(_road_shader_material)
+	
+	#Finalize the creation of the water mesh
+	_water.end(_water_shader_material)
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex

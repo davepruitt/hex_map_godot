@@ -115,7 +115,7 @@ layout_mode = 2
 [node name="CheckButton_EnableElevation" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 focus_mode = 0
-text = "Paint Elevation"
+text = "Apply Elevation"
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -137,6 +137,43 @@ layout_mode = 2
 text = "Elevation: "
 
 [node name="ElevationValueLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "0"
+
+[node name="MarginContainer10" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 10
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer10"]
+layout_mode = 2
+
+[node name="CheckButton_WaterLevel" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+text = "Apply Water Level"
+
+[node name="MarginContainer11" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="WaterLevelSlider" type="HSlider" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer11"]
+layout_mode = 2
+focus_mode = 0
+max_value = 5.0
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="WaterLevelLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer5"]
+layout_mode = 2
+text = "Water Level: "
+
+[node name="WaterLevelValueLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer5"]
 layout_mode = 2
 text = "0"
 
@@ -276,6 +313,8 @@ theme_override_constants/margin_bottom = 10
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation" to="." method="_on_check_button_enable_elevation_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_WaterLevel" to="." method="_on_check_button_water_level_toggled"]
+[connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer11/WaterLevelSlider" to="." method="_on_water_level_slider_value_changed"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer2/BrushSizeSlider" to="." method="_on_brush_size_slider_value_changed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_ShowLabels" to="." method="_on_check_button_show_labels_toggled"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversIgnore" to="." method="_on_check_box_rivers_ignore_pressed"]
