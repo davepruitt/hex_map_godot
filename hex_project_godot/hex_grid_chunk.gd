@@ -689,5 +689,57 @@ func _triangulate_water (direction: HexDirectionsClass.HexDirections, cell: HexC
 	_water.add_perturbed_triangle(center, c2, c1, 
 		Color.WHITE, Color.WHITE, Color.WHITE,
 		)
+	
+	if (direction <= HexDirectionsClass.HexDirections.SE):
+		var neighbor: HexCell = cell.get_neighbor(direction)
+		if (neighbor == null) or (not neighbor.is_underwater):
+			return
+		
+		var bridge: Vector3 = HexMetrics.get_bridge(direction)
+		var e1: Vector3 = c1 + bridge
+		var e2: Vector3 = c2 + bridge
+		
+		_water.add_perturbed_quad(c1, c2, e1, e2, 
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+		
+		if (direction <= HexDirectionsClass.HexDirections.E):
+			var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
+			if (next_neighbor == null) or (not next_neighbor.is_underwater):
+				return
+			
+			_water.add_perturbed_triangle(c2, 
+				c2 + HexMetrics.get_bridge(HexDirectionsClass.next(direction)), 
+				e2, Color.WHITE, Color.WHITE, Color.WHITE)
+	
 
+#endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#region file whitespace region
 #endregion
