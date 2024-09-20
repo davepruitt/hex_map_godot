@@ -18,7 +18,7 @@ const CORNERS = [
 	Vector3(0, 0, OUTER_RADIUS),
 ]
 
-const SOLID_FACTOR: float = 0.75
+const SOLID_FACTOR: float = 0.8
 
 const BLEND_FACTOR: float = 1.0 - SOLID_FACTOR
 
@@ -49,6 +49,10 @@ const STREAM_BED_ELEVATION_OFFSET: float = -0.1
 const RIVER_SURFACE_ELEVATION_OFFSET: float = 0.5 * STREAM_BED_ELEVATION_OFFSET
 
 const WATER_ELEVATION_OFFSET: float = -0.1
+
+const WATER_FACTOR = 0.6
+
+const WATER_BLEND_FACTOR = 1.0 - WATER_FACTOR
 
 #endregion
 
@@ -99,9 +103,18 @@ static func get_first_solid_corner (direction: HexDirectionsClass.HexDirections)
 	
 static func get_second_solid_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
 	return HexMetrics.CORNERS[int(direction) + 1] * HexMetrics.SOLID_FACTOR
+	
+static func get_first_water_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
+	return HexMetrics.CORNERS[int(direction)] * HexMetrics.WATER_FACTOR
+	
+static func get_second_water_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
+	return HexMetrics.CORNERS[int(direction) + 1] * HexMetrics.WATER_FACTOR
 
 static func get_bridge (direction: HexDirectionsClass.HexDirections) -> Vector3:
 	return (HexMetrics.CORNERS[int(direction)] + HexMetrics.CORNERS[int(direction) + 1]) * HexMetrics.BLEND_FACTOR
+
+static func get_water_bridge (direction: HexDirectionsClass.HexDirections) -> Vector3:
+	return (HexMetrics.CORNERS[int(direction)] + HexMetrics.CORNERS[int(direction) + 1]) * HexMetrics.WATER_BLEND_FACTOR
 
 static func terrace_lerp (a: Vector3, b: Vector3, step: int) -> Vector3:
 	var h = step * HORIZONTAL_TERRACE_STEP_SIZE

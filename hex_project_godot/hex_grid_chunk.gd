@@ -711,15 +711,15 @@ func _triangulate_water (direction: HexDirectionsClass.HexDirections, cell: HexC
 func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, neighbor: HexCell, center: Vector3) -> void:
 	
-	var c1: Vector3 = center + HexMetrics.get_first_solid_corner(direction)
-	var c2: Vector3 = center + HexMetrics.get_second_solid_corner(direction)
+	var c1: Vector3 = center + HexMetrics.get_first_water_corner(direction)
+	var c2: Vector3 = center + HexMetrics.get_second_water_corner(direction)
 
 	_water.add_perturbed_triangle(center, c2, c1, 
 		Color.WHITE, Color.WHITE, Color.WHITE,
 		)
 	
 	if (direction <= HexDirectionsClass.HexDirections.SE) and (neighbor != null):
-		var bridge: Vector3 = HexMetrics.get_bridge(direction)
+		var bridge: Vector3 = HexMetrics.get_water_bridge(direction)
 		var e1: Vector3 = c1 + bridge
 		var e2: Vector3 = c2 + bridge
 		
@@ -732,15 +732,15 @@ func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
 				return
 			
 			_water.add_perturbed_triangle(c2, 
-				c2 + HexMetrics.get_bridge(HexDirectionsClass.next(direction)), 
+				c2 + HexMetrics.get_water_bridge(HexDirectionsClass.next(direction)), 
 				e2, Color.WHITE, Color.WHITE, Color.WHITE)
 
 func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, neighbor: HexCell, center: Vector3) -> void:
 	
 	var e1: EdgeVertices = EdgeVertices.new(
-		center + HexMetrics.get_first_solid_corner(direction),
-		center + HexMetrics.get_second_solid_corner(direction)
+		center + HexMetrics.get_first_water_corner(direction),
+		center + HexMetrics.get_second_water_corner(direction)
 	)
 	
 	_water.add_perturbed_triangle(center, e1.v2, e1.v1,
@@ -752,10 +752,11 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	_water.add_perturbed_triangle(center, e1.v5, e1.v4,
 		Color.WHITE, Color.WHITE, Color.WHITE)
 	
-	var bridge: Vector3 = HexMetrics.get_bridge(direction)
+	var center2: Vector3 = neighbor.position
+	center2.y = center.y
 	var e2: EdgeVertices = EdgeVertices.new(
-		e1.v1 + bridge,
-		e1.v5 + bridge
+		center2 + HexMetrics.get_second_solid_corner(HexDirectionsClass.opposite(direction)),
+		center2 + HexMetrics.get_first_solid_corner(HexDirectionsClass.opposite(direction))
 	)
 	
 	_water_shore.add_perturbed_quad_with_uv(e1.v1, e1.v2, e2.v1, e2.v2,
@@ -773,12 +774,19 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		
 	var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
 	if (next_neighbor != null):
+		var v3: Vector3 = next_neighbor.position
+		if (next_neighbor.is_underwater):
+			v3 += HexMetrics.get_first_water_corner(HexDirectionsClass.previous(direction))
+		else:
+			v3 += HexMetrics.get_first_solid_corner(HexDirectionsClass.previous(direction))
+		v3.y = center.y
+		
 		var v_val: float = 1.0
 		if (next_neighbor.is_underwater):
 			v_val = 0.0
 		
 		_water_shore.add_perturbed_triangle_with_uv(e1.v5, 
-			e1.v5 + HexMetrics.get_bridge(HexDirectionsClass.next(direction)),
+			v3,
 			e2.v5,
 			Color.WHITE, Color.WHITE, Color.WHITE,
 			Vector2(0, 0), 
