@@ -128,7 +128,7 @@ func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass
 		else:
 			_triangulate_adjacent_to_river(direction, cell, center, edge_vertices)
 	else:
-		_triangulate_edge_fan(center, edge_vertices, cell.hex_color)
+		_triangulate_without_river(direction, cell, center, edge_vertices)
 	
 	#Add connections to other hex cells
 	if (direction <= HexDirectionsClass.HexDirections.SE):
@@ -286,9 +286,11 @@ func _triangulate_connection (
 			0.8, reversed)
 	
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
-		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell)
+		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell,
+			cell.has_road_through_edge(direction))
 	else:
-		_triangulate_edge_strip(e1, cell.hex_color, e2, neighbor_cell.hex_color)
+		_triangulate_edge_strip(e1, cell.hex_color, e2, neighbor_cell.hex_color,
+			cell.has_road_through_edge(direction))
 	
 	#Get the next neighbor of the cell
 	var next_direction = HexDirectionsClass.next(direction)
@@ -309,12 +311,13 @@ func _triangulate_connection (
 
 func _triangulate_edge_terraces (
 	begin: EdgeVertices, begin_cell: HexCell,
-	end: EdgeVertices, end_cell: HexCell):
+	end: EdgeVertices, end_cell: HexCell,
+	has_road: bool = false):
 	
 	var e2: EdgeVertices = EdgeVertices.terrace_lerp(begin, end, 1)
 	var c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, 1)
 	
-	_triangulate_edge_strip(begin, begin_cell.hex_color, e2, c2)
+	_triangulate_edge_strip(begin, begin_cell.hex_color, e2, c2, has_road)
 		
 	for i in range(2, HexMetrics.TERRACE_STEPS):
 		var e1: EdgeVertices = e2
@@ -322,9 +325,9 @@ func _triangulate_edge_terraces (
 		e2 = EdgeVertices.terrace_lerp(begin, end, i)
 		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, i)
 		
-		_triangulate_edge_strip(e1, c1, e2, c2)
+		_triangulate_edge_strip(e1, c1, e2, c2, has_road)
 	
-	_triangulate_edge_strip(e2, c2, end, end_cell.hex_color)
+	_triangulate_edge_strip(e2, c2, end, end_cell.hex_color, has_road)
 
 func _triangulate_corner (
 	bottom: Vector3, bottom_cell: HexCell, 
@@ -455,12 +458,17 @@ func _triangulate_edge_fan (
 	_terrain.add_perturbed_triangle(center, edge.v5, edge.v4, color, color, color)
 
 func _triangulate_edge_strip (
-	e1: EdgeVertices, c1: Color, e2: EdgeVertices, c2: Color) -> void:
+	e1: EdgeVertices, c1: Color, e2: EdgeVertices, c2: Color,
+	has_road: bool = false) -> void:
 	
 	_terrain.add_perturbed_quad(e1.v1, e1.v2, e2.v1, e2.v2, c1, c1, c2, c2)
 	_terrain.add_perturbed_quad(e1.v2, e1.v3, e2.v2, e2.v3, c1, c1, c2, c2)
 	_terrain.add_perturbed_quad(e1.v3, e1.v4, e2.v3, e2.v4, c1, c1, c2, c2)
 	_terrain.add_perturbed_quad(e1.v4, e1.v5, e2.v4, e2.v5, c1, c1, c2, c2)
+	
+	if (has_road):
+		_triangulate_road_segment(e1.v2, e1.v3, e1.v4, 
+			e2.v2, e2.v3, e2.v4)
 
 func _triangulate_river_quad_1 (v1: Vector3, v2: Vector3, 
 	v3: Vector3, v4: Vector3, 
@@ -484,5 +492,77 @@ func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3,
 		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 1, 0, 0.8 - v, 0.6 - v)
 	else:
 		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 0, 1, v, v + 0.2)
+
+func _triangulate_road_segment (v1: Vector3, v2: Vector3, v3: Vector3,
+	v4: Vector3, v5: Vector3, v6: Vector3) -> void:
+	
+	_roads.add_perturbed_quad_with_uv(v1, v2, v4, v5, 
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+		0, 1, 0, 0)
+	_roads.add_perturbed_quad_with_uv(v2, v3, v5, v6,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+		1, 0, 0, 0)
+
+func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertices,
+	has_road_through_cell_edge: bool) -> void:
+	
+	if (has_road_through_cell_edge):
+		var mC: Vector3 = mL.lerp(mR, 0.5)
+		_triangulate_road_segment(mL, mC, mR, e.v2, e.v3, e.v4)
+		
+		#The colors will be ignored for roads
+		_roads.add_perturbed_triangle_with_uv(center, mC, mL, 
+			Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(1, 0), Vector2(0, 0), Vector2(1, 0))
+		_roads.add_perturbed_triangle_with_uv(center, mR, mC, 
+			Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
+	else:
+		_triangulate_road_edge(center, mL, mR)
+	
+func _triangulate_without_river (direction: HexDirectionsClass.HexDirections,
+	cell: HexCell, center: Vector3, e: EdgeVertices) -> void:
+	
+	_triangulate_edge_fan(center, e, cell.hex_color)
+	
+	if (cell.has_roads):
+		var interpolators: Vector2 = _get_road_interpolators(direction, cell)
+		
+		_triangulate_road(center, 
+			center.lerp(e.v1, interpolators.x),
+			center.lerp(e.v5, interpolators.y),
+			e,
+			cell.has_road_through_edge(direction))
+
+func _triangulate_road_edge (center: Vector3, mL: Vector3, mR: Vector3) -> void:
+	_roads.add_perturbed_triangle_with_uv(center, mR, mL,
+		Color.WHITE, Color.WHITE, Color.WHITE,
+		Vector2(1, 0), Vector2(0, 0), Vector2(0, 0))
+
+func _get_road_interpolators (direction: HexDirectionsClass.HexDirections,
+	cell: HexCell) -> Vector2:
+	
+	#Instantiate the object that will hold the result
+	var interpolators: Vector2
+	
+	if (cell.has_road_through_edge(direction)):
+		interpolators.x = 0.5
+		interpolators.y = 0.5
+	else:
+		var previous_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous(direction)
+		var next_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next(direction)
+		
+		if (cell.has_road_through_edge(previous_direction)):
+			interpolators.x = 0.5
+		else:
+			interpolators.x = 0.25
+		
+		if (cell.has_road_through_edge(next_direction)):
+			interpolators.y = 0.5
+		else:
+			interpolators.y = 0.25
+	
+	#Return the result
+	return interpolators
 
 #endregion
