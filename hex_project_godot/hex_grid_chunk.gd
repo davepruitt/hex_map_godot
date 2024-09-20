@@ -8,9 +8,11 @@ var _hex_cells: Array[HexCell] = []
 
 var _terrain: HexMesh = HexMesh.new()
 var _rivers: HexMesh = HexMesh.new()
+var _roads: HexMesh = HexMesh.new()
 
 var _terrain_shader_material: ShaderMaterial
 var _rivers_shader_material: ShaderMaterial
+var _road_shader_material: ShaderMaterial
 
 #endregion
 
@@ -26,6 +28,7 @@ var update_needed: bool = false
 func _ready() -> void:
 	add_child(_terrain)
 	add_child(_rivers)
+	add_child(_roads)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -50,6 +53,9 @@ func set_terrain_mesh_material (mat: ShaderMaterial) -> void:
 	
 func set_rivers_mesh_material (mat: ShaderMaterial) -> void:
 	_rivers_shader_material = mat
+	
+func set_road_mesh_material (mat: ShaderMaterial) -> void:
+	_road_shader_material = mat
 
 func request_refresh () -> void:
 	#Set the "update needed" flag
@@ -72,8 +78,17 @@ func _triangulate_cells () -> void:
 	
 	#Begin creation of the rivers mesh
 	_rivers.begin()
+	_rivers.use_colors = false
+	_rivers.use_collider = false
 	_rivers.use_uv_coordinates = true
 	_rivers.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
+	#Begin creation of the roads mesh
+	_roads.begin()
+	_roads.use_colors = false
+	_roads.use_collider = false
+	_roads.use_uv_coordinates = true
+	_roads.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
@@ -84,6 +99,9 @@ func _triangulate_cells () -> void:
 	
 	#Finalize the creation of the rivers mesh
 	_rivers.end(_rivers_shader_material)
+	
+	#Finalize the creation of the roads mesh
+	_roads.end(_road_shader_material)
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex

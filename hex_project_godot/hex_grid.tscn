@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://bumgasrkg2l7p"]
+[gd_scene load_steps=10 format=3 uid="uid://bumgasrkg2l7p"]
 
 [ext_resource type="Script" path="res://hex_grid.gd" id="1_byfya"]
 [ext_resource type="PackedScene" uid="uid://r8nfx0vsi5ah" path="res://hex_cell.tscn" id="2_ud45i"]
 [ext_resource type="Shader" path="res://hex_cell_shader.gdshader" id="3_e7bgw"]
 [ext_resource type="Shader" path="res://river_shader.gdshader" id="4_703fq"]
 [ext_resource type="Texture2D" uid="uid://btho5i7eejpuh" path="res://assets/tiling-perlin-noise-rgb.png" id="5_cm4mn"]
+[ext_resource type="Shader" path="res://road_shader.gdshader" id="6_ok46w"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_c0bb5"]
 render_priority = 0
@@ -16,9 +17,14 @@ shader = ExtResource("4_703fq")
 shader_parameter/base_color = Color(0.244129, 0.468967, 0.999601, 0.658824)
 shader_parameter/noise_texture = ExtResource("5_cm4mn")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lf52a"]
+render_priority = 0
+shader = ExtResource("6_ok46w")
+
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
 hex_cell_prefab = ExtResource("2_ud45i")
 default_hex_color = Color(1, 1, 1, 1)
 terrain_shader_material = SubResource("ShaderMaterial_c0bb5")
 river_shader_material = SubResource("ShaderMaterial_6crjs")
+road_shader_material = SubResource("ShaderMaterial_lf52a")
