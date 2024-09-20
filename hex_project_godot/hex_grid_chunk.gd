@@ -31,6 +31,7 @@ func _ready() -> void:
 	add_child(_terrain)
 	add_child(_rivers)
 	add_child(_roads)
+	add_child(_water)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -148,6 +149,10 @@ func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass
 	#Add connections to other hex cells
 	if (direction <= HexDirectionsClass.HexDirections.SE):
 		_triangulate_connection(direction, cell, edge_vertices)
+	
+	#Triangulate water if this cell is underwater
+	if (cell.is_underwater):
+		_triangulate_water(direction, cell, center)
 
 func _triangulate_with_river_begin_or_end (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell,
@@ -674,5 +679,15 @@ func _get_road_interpolators (direction: HexDirectionsClass.HexDirections,
 	
 	#Return the result
 	return interpolators
+
+func _triangulate_water (direction: HexDirectionsClass.HexDirections, cell: HexCell, center: Vector3) -> void:
+	center.y = cell.water_surface_y
+	
+	var c1: Vector3 = center + HexMetrics.get_first_solid_corner(direction)
+	var c2: Vector3 = center + HexMetrics.get_second_solid_corner(direction)
+	
+	_water.add_perturbed_triangle(center, c2, c1, 
+		Color.WHITE, Color.WHITE, Color.WHITE,
+		)
 
 #endregion

@@ -203,6 +203,7 @@ func _on_check_button_water_level_toggled(toggled_on: bool) -> void:
 
 func _on_water_level_slider_value_changed(value: float) -> void:
 	_set_water_level(value)
+	water_level_value_label.text = str(value)
 
 #endregion
 
