@@ -137,6 +137,13 @@ var has_roads: bool:
 	get:
 		return _roads.any(func(x): return x)
 
+var river_begin_or_end_direction: HexDirectionsClass.HexDirections:
+	get:
+		if (has_incoming_river):
+			return incoming_river_direction
+		else:
+			return outgoing_river_direction
+
 #endregion
 
 #region Overrides

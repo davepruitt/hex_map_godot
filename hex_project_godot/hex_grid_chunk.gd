@@ -237,6 +237,9 @@ func _triangulate_adjacent_to_river (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell,
 	center: Vector3, e: EdgeVertices) -> void:
 	
+	if (cell.has_roads):
+		_triangulate_road_adjacent_to_river(direction, cell, center, e)
+	
 	var next_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next(direction)
 	var previous_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous(direction)
 	var previous2_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous2(direction)
@@ -538,6 +541,80 @@ func _triangulate_road_edge (center: Vector3, mL: Vector3, mR: Vector3) -> void:
 	_roads.add_perturbed_triangle_with_uv(center, mR, mL,
 		Color.WHITE, Color.WHITE, Color.WHITE,
 		Vector2(1, 0), Vector2(0, 0), Vector2(0, 0))
+
+func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirections,
+	cell: HexCell, center: Vector3, e: EdgeVertices) -> void:
+	
+	var has_road_through_edge: bool = cell.has_road_through_edge(direction)
+	var interpolators: Vector2 = _get_road_interpolators(direction, cell)
+	var previous_has_river: bool = cell.has_river_through_edge(HexDirectionsClass.previous(direction))
+	var next_has_river: bool = cell.has_river_through_edge(HexDirectionsClass.next(direction))
+	var road_center: Vector3 = center
+	
+	if (cell.has_river_beginning_or_end):
+		var dir = cell.river_begin_or_end_direction
+		var opp_dir = HexDirectionsClass.opposite(dir)
+		road_center += HexMetrics.get_solid_edge_middle(opp_dir) * (1.0 / 3.0)
+	elif (cell.incoming_river_direction == HexDirectionsClass.opposite(cell.outgoing_river_direction)):
+		var corner: Vector3 = Vector3.ZERO
+		if (previous_has_river):
+			
+			if (not has_road_through_edge) and (not cell.has_road_through_edge(HexDirectionsClass.next(direction))):
+				return
+			
+			corner = HexMetrics.get_second_solid_corner(direction)
+		else:
+			
+			if (not has_road_through_edge) and (not cell.has_road_through_edge(HexDirectionsClass.previous(direction))):
+				return
+			
+			corner = HexMetrics.get_first_solid_corner(direction)
+		
+		road_center += corner * 0.5
+		center += corner * 0.25
+	elif (cell.incoming_river_direction == HexDirectionsClass.previous(cell.outgoing_river_direction)):
+		road_center -= HexMetrics.get_second_corner(cell.incoming_river_direction) * 0.2
+	elif (cell.incoming_river_direction == HexDirectionsClass.next(cell.outgoing_river_direction)):
+		road_center -= HexMetrics.get_first_corner(cell.incoming_river_direction) * 0.2
+	elif (previous_has_river and next_has_river):
+		if (not has_road_through_edge):
+			return
+			
+		var offset: Vector3 = HexMetrics.get_solid_edge_middle(direction) * HexMetrics.INNER_TO_OUTER
+		road_center += offset * 0.7
+		center += offset * 0.5
+	else:
+		var middle: HexDirectionsClass.HexDirections
+		if previous_has_river:
+			middle = HexDirectionsClass.next(direction)
+		elif next_has_river:
+			middle = HexDirectionsClass.previous(direction)
+		else:
+			middle = direction
+		
+		if (
+			(not cell.has_road_through_edge(middle)) and 
+			(not cell.has_road_through_edge(HexDirectionsClass.previous(middle))) and
+			(not cell.has_road_through_edge(HexDirectionsClass.next(middle)))
+		):
+			return
+		
+		road_center += HexMetrics.get_solid_edge_middle(middle) * 0.25
+		
+	
+	var mL: Vector3 = road_center.lerp(e.v1, interpolators.x)
+	var mR: Vector3 = road_center.lerp(e.v5, interpolators.y)
+	
+	_triangulate_road(road_center, mL, mR, e, has_road_through_edge)
+	
+	var previous_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous(direction)
+	var next_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next(direction)
+	
+	if (previous_has_river):
+		_triangulate_road_edge(road_center, center, mL)
+	if (next_has_river):
+		_triangulate_road_edge(road_center, mR, center)
+		
 
 func _get_road_interpolators (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell) -> Vector2:
