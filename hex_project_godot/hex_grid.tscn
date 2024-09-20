@@ -20,6 +20,8 @@ shader_parameter/noise_texture = ExtResource("5_cm4mn")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lf52a"]
 render_priority = 0
 shader = ExtResource("6_ok46w")
+shader_parameter/base_color = Color(1, 0, 0, 1)
+shader_parameter/noise_texture = ExtResource("5_cm4mn")
 
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
