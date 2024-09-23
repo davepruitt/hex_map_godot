@@ -62,17 +62,7 @@ var elevation: int:
 		position_label.position.y = 0.01 + abs(perturbation_amount)
 		
 		#Remove any illegal/invalid rivers due to the change in this cell's elevation
-		if (_has_outgoing_river):
-			var neighbor: HexCell = get_neighbor(_outgoing_river_direction)
-			if (neighbor):
-				if (_elevation < neighbor.elevation):
-					remove_outgoing_river()
-		
-		if (_has_incoming_river):
-			var neighbor: HexCell = get_neighbor(_incoming_river_direction)
-			if (neighbor):
-				if (_elevation > neighbor.elevation):
-					remove_incoming_river()
+		_validate_rivers()
 		
 		#Iterate over each road direction
 		for i in range(0, len(_roads)):
@@ -155,6 +145,7 @@ var water_level: int:
 		
 		_water_level = value
 		
+		_validate_rivers()
 		_refresh()
 
 var is_underwater: bool:
@@ -263,7 +254,7 @@ func set_outgoing_river (direction: HexDirectionsClass.HexDirections) -> void:
 	
 	#If no neighbor exists in the specified direction, or if the neighbor
 	#has a higher elevation than the current cell, then return immediately
-	if (not neighbor) or (_elevation < neighbor.elevation):
+	if (not _is_valid_river_destination(neighbor)):
 		return
 	
 	#Remove any previously existing outgoing river
@@ -341,5 +332,22 @@ func _refresh () -> void:
 			var neighbor: HexCell = hex_neighbors[i]
 			if (neighbor != null) and (neighbor.hex_chunk != hex_chunk):
 				neighbor.hex_chunk.request_refresh()
+
+func _is_valid_river_destination (neighbor: HexCell) -> bool:
+	if (neighbor != null):
+		var condition_1: bool = (elevation >= neighbor.elevation)
+		var condition_2: bool = (water_level == neighbor.elevation)
+		return (condition_1 or condition_2)
+	else:
+		return false
+
+func _validate_rivers () -> void:
+	var outgoing_neighbor: HexCell = get_neighbor(outgoing_river_direction)
+	if (has_outgoing_river and (not _is_valid_river_destination(outgoing_neighbor))):
+		remove_outgoing_river()
+	
+	var incoming_neighbor: HexCell = get_neighbor(incoming_river_direction)
+	if (has_incoming_river and (not incoming_neighbor._is_valid_river_destination(self))):
+		remove_incoming_river()
 
 #endregion

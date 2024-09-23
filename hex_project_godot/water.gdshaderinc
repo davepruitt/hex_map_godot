@@ -1,3 +1,19 @@
+float compute_river (vec2 river_uv, sampler2D noise_texture)
+{
+	vec2 uv = river_uv;
+	uv.x = (uv.x * 0.0625) * (TIME * 0.005);
+	uv.y -= TIME * 0.25f;
+	uv.y = fract(uv.y);
+	vec4 noise = texture(noise_texture, uv);
+
+	vec2 uv2 = river_uv;
+	uv2.x = (uv2.x * 0.0625) + (TIME * 0.0052);
+	uv2.y -= TIME * 0.23;
+	vec4 noise2 = texture(noise_texture, uv2);
+	
+	return (noise.x * noise2.w);
+}
+
 float compute_foam (float shore, vec2 world_xz, sampler2D noise_texture)
 {
 	shore = sqrt(shore) * 0.9;

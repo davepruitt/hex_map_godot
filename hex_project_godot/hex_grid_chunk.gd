@@ -11,12 +11,14 @@ var _rivers: HexMesh = HexMesh.new()
 var _roads: HexMesh = HexMesh.new()
 var _water: HexMesh = HexMesh.new()
 var _water_shore: HexMesh = HexMesh.new()
+var _estuaries: HexMesh = HexMesh.new()
 
 var _terrain_shader_material: ShaderMaterial
 var _rivers_shader_material: ShaderMaterial
 var _road_shader_material: ShaderMaterial
 var _water_shader_material: ShaderMaterial
 var _water_shore_shader_material: ShaderMaterial
+var _estuaries_shader_material: ShaderMaterial
 
 #endregion
 
@@ -35,6 +37,7 @@ func _ready() -> void:
 	add_child(_roads)
 	add_child(_water)
 	add_child(_water_shore)
+	add_child(_estuaries)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -68,6 +71,9 @@ func set_water_mesh_material (mat: ShaderMaterial) -> void:
 	
 func set_water_shore_mesh_material (mat: ShaderMaterial) -> void:
 	_water_shore_shader_material = mat
+
+func set_estuaries_mesh_material (mat: ShaderMaterial) -> void:
+	_estuaries_shader_material = mat
 
 func request_refresh () -> void:
 	#Set the "update needed" flag
@@ -116,6 +122,14 @@ func _triangulate_cells () -> void:
 	_water_shore.use_uv_coordinates = true
 	_water_shore.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
+	#Begin creation of the estuaries water mesh
+	_estuaries.begin()
+	_estuaries.use_colors = false
+	_estuaries.use_collider = false
+	_estuaries.use_uv_coordinates = true
+	_estuaries.use_uv2_coordinates = true
+	_estuaries.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
 		_triangulate_hex(_hex_cells[i])
@@ -134,6 +148,9 @@ func _triangulate_cells () -> void:
 	
 	#Finalize the creation of the water shore mesh
 	_water_shore.end(_water_shore_shader_material)
+	
+	#Finalize the creation of the estuaries mesh
+	_estuaries.end(_estuaries_shader_material)
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex
@@ -192,28 +209,29 @@ func _triangulate_with_river_begin_or_end (
 	_triangulate_edge_fan(center, m, cell.hex_color)
 	
 	#Triangulate the river quads
-	var reversed: bool = cell.has_incoming_river
-	_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
-	
-	center.y = cell.river_surface_y
-	m.v2.y = cell.river_surface_y
-	m.v4.y = cell.river_surface_y
-	if (reversed):
-		var uv1: Vector2 = Vector2(0.5, 0.4)
-		var uv2: Vector2 = Vector2(1.0, 0.2)
-		var uv3: Vector2 = Vector2(0.0, 0.2)
+	if (not cell.is_underwater):
+		var reversed: bool = cell.has_incoming_river
+		_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
 		
-		_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
-			Color.WHITE, Color.WHITE, Color.WHITE,
-			uv1, uv3, uv2)
-	else:
-		var uv1: Vector2 = Vector2(0.5, 0.4)
-		var uv2: Vector2 = Vector2(0.0, 0.6)
-		var uv3: Vector2 = Vector2(1.0, 0.6)
-		
-		_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
-			Color.WHITE, Color.WHITE, Color.WHITE,
-			uv1, uv3, uv2)
+		center.y = cell.river_surface_y
+		m.v2.y = cell.river_surface_y
+		m.v4.y = cell.river_surface_y
+		if (reversed):
+			var uv1: Vector2 = Vector2(0.5, 0.4)
+			var uv2: Vector2 = Vector2(1.0, 0.2)
+			var uv3: Vector2 = Vector2(0.0, 0.2)
+			
+			_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
+				Color.WHITE, Color.WHITE, Color.WHITE,
+				uv1, uv3, uv2)
+		else:
+			var uv1: Vector2 = Vector2(0.5, 0.4)
+			var uv2: Vector2 = Vector2(0.0, 0.6)
+			var uv3: Vector2 = Vector2(1.0, 0.6)
+			
+			_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
+				Color.WHITE, Color.WHITE, Color.WHITE,
+				uv1, uv3, uv2)
 
 func _triangulate_with_river (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell, 
@@ -265,9 +283,10 @@ func _triangulate_with_river (
 	_terrain.add_perturbed_triangle(center_r, m.v5, m.v4, cell.hex_color, cell.hex_color, cell.hex_color)
 	
 	#Form the river quads
-	var reversed: bool = (cell.incoming_river_direction == direction)
-	_triangulate_river_quad_1(center_l, center_r, m.v2, m.v4, cell.river_surface_y, 0.4, reversed)
-	_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
+	if (not cell.is_underwater):
+		var reversed: bool = (cell.incoming_river_direction == direction)
+		_triangulate_river_quad_1(center_l, center_r, m.v2, m.v4, cell.river_surface_y, 0.4, reversed)
+		_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
 
 func _triangulate_adjacent_to_river (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell,
@@ -319,10 +338,19 @@ func _triangulate_connection (
 	if (cell.has_river_through_edge(direction)):
 		e2.v3.y = neighbor_cell.stream_bed_y
 		
-		var reversed: bool = (cell.has_incoming_river and (cell.incoming_river_direction == direction))
-		_triangulate_river_quad_2(e1.v2, e1.v4, e2.v2, e2.v4,
-			cell.river_surface_y, neighbor_cell.river_surface_y,
-			0.8, reversed)
+		if (not cell.is_underwater):
+			if (not neighbor_cell.is_underwater):
+				var reversed: bool = (cell.has_incoming_river and (cell.incoming_river_direction == direction))
+				_triangulate_river_quad_2(e1.v2, e1.v4, e2.v2, e2.v4,
+					cell.river_surface_y, neighbor_cell.river_surface_y,
+					0.8, reversed)
+			elif (cell.elevation > neighbor_cell.water_level):
+				_triangulate_waterfall_in_water(e1.v2, e1.v4, e2.v2, e2.v4,
+					cell.river_surface_y, neighbor_cell.river_surface_y,
+					neighbor_cell.water_surface_y)
+		elif (not neighbor_cell.is_underwater) and (neighbor_cell.elevation > cell.water_level):
+			_triangulate_waterfall_in_water(e2.v4, e2.v2, e1.v4, e1.v2, 
+				neighbor_cell.river_surface_y, cell.river_surface_y, cell.water_surface_y)
 	
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
 		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell,
@@ -571,7 +599,7 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 			Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
 	else:
 		_triangulate_road_edge(center, mL, mR)
-	
+
 func _triangulate_without_river (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, center: Vector3, e: EdgeVertices) -> void:
 	
@@ -668,7 +696,6 @@ func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirec
 		_triangulate_road_edge(road_center, center, mL)
 	if (next_has_river):
 		_triangulate_road_edge(road_center, mR, center)
-		
 
 func _get_road_interpolators (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell) -> Vector2:
@@ -705,8 +732,6 @@ func _triangulate_water (direction: HexDirectionsClass.HexDirections, cell: HexC
 		_triangulate_shore_water(direction, cell, neighbor, center)
 	else:
 		_triangulate_open_water(direction, cell, neighbor, center)
-	
-
 
 func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, neighbor: HexCell, center: Vector3) -> void:
@@ -759,18 +784,21 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		center2 + HexMetrics.get_first_solid_corner(HexDirectionsClass.opposite(direction))
 	)
 	
-	_water_shore.add_perturbed_quad_with_uv(e1.v1, e1.v2, e2.v1, e2.v2,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-		0, 0, 0, 1)
-	_water_shore.add_perturbed_quad_with_uv(e1.v2, e1.v3, e2.v2, e2.v3,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-		0, 0, 0, 1)
-	_water_shore.add_perturbed_quad_with_uv(e1.v3, e1.v4, e2.v3, e2.v4,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-		0, 0, 0, 1)
-	_water_shore.add_perturbed_quad_with_uv(e1.v4, e1.v5, e2.v4, e2.v5,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-		0, 0, 0, 1)
+	if (cell.has_river_through_edge(direction)):
+		_triangulate_estuary(e1, e2, cell.incoming_river_direction == direction)
+	else:
+		_water_shore.add_perturbed_quad_with_uv(e1.v1, e1.v2, e2.v1, e2.v2,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			0, 0, 0, 1)
+		_water_shore.add_perturbed_quad_with_uv(e1.v2, e1.v3, e2.v2, e2.v3,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			0, 0, 0, 1)
+		_water_shore.add_perturbed_quad_with_uv(e1.v3, e1.v4, e2.v3, e2.v4,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			0, 0, 0, 1)
+		_water_shore.add_perturbed_quad_with_uv(e1.v4, e1.v5, e2.v4, e2.v5,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			0, 0, 0, 1)
 		
 	var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
 	if (next_neighbor != null):
@@ -792,6 +820,80 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 			Vector2(0, 0), 
 			Vector2(0, v_val), 
 			Vector2(0, 1))
+
+func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
+	y1: float, y2: float, water_y: float) -> void:
+	
+	v1.y = y1
+	v2.y = y1
+	v3.y = y2
+	v4.y = y2
+	
+	v1 = HexMetrics.perturb(v1)
+	v2 = HexMetrics.perturb(v2)
+	v3 = HexMetrics.perturb(v3)
+	v4 = HexMetrics.perturb(v4)
+	
+	var t: float = (water_y - y2) / (y1 - y2)
+	v3 = v3.lerp(v1, t);
+	v4 = v4.lerp(v2, t);
+	
+	_rivers.add_quad_with_uv(v1, v2, v3, v4,
+		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+		0, 1, 0.8, 1)
+
+func _triangulate_estuary (e1: EdgeVertices, e2: EdgeVertices, incoming_river: bool) -> void:
+	_water_shore.add_perturbed_triangle_with_uv(e2.v1, e1.v1, e1.v2,
+		Color.WHITE, Color.WHITE, Color.WHITE,
+		Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
+	_water_shore.add_perturbed_triangle_with_uv(e2.v5, e1.v4, e1.v5,
+		Color.WHITE, Color.WHITE, Color.WHITE,
+		Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
+	
+	if (incoming_river):
+		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
+			e2.v1, e1.v2, e2.v2, e1.v3,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0),
+			Vector2(1.5, 1), Vector2(0.7, 1.15), Vector2(1, 0.8), Vector2(0.5, 1.1)
+		)
+		
+		_estuaries.add_perturbed_triangle_with_uv_and_uv2(
+			e1.v3, e2.v4, e2.v2, 
+			Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(0, 0), Vector2(1, 1), Vector2(1, 1),
+			Vector2(0.5, 1.1), Vector2(0, 0.8), Vector2(1, 0.8)
+		)
+		
+		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
+			e1.v3, e1.v4, e2.v4, e2.v5,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1),
+			Vector2(0.5, 1.1), Vector2(0.3, 1.15), Vector2(0, 0.8), Vector2(-0.5, 1)
+		)
+	else:
+		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
+			e2.v1, e1.v2, e2.v2, e1.v3,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0),
+			Vector2(-0.5, -0.2), Vector2(0.3, -0.35), Vector2(0, 0), Vector2(0.5, -0.3)
+		)
+		
+		_estuaries.add_perturbed_triangle_with_uv_and_uv2(
+			e1.v3, e2.v4, e2.v2, 
+			Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(0, 0), Vector2(1, 1), Vector2(1, 1),
+			Vector2(0.5, -0.3), Vector2(1, 0), Vector2(0, 0)
+		)
+		
+		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
+			e1.v3, e1.v4, e2.v4, e2.v5,
+			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+			Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1),
+			Vector2(0.5, -0.3), Vector2(0.7, -0.35), Vector2(1, 0), Vector2(1.5, -0.2)
+		)
+	
+	
 
 #endregion
 
