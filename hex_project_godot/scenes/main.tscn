@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://b0jwbdlrgt1g2"]
 
-[ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://hex_grid.tscn" id="1_e2r5f"]
-[ext_resource type="Script" path="res://main.gd" id="1_ipy05"]
-[ext_resource type="Script" path="res://hex_map_camera.gd" id="2_ckdob"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_sv3ps"]
+[ext_resource type="Script" path="res://scripts/hex_map_camera.gd" id="2_roenc"]
+[ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://scenes/hex_grid.tscn" id="3_t3wo0"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_jp0eq"]
 resource_name = "ButtonGroup1"
@@ -14,11 +14,11 @@ resource_name = "RiversButtonGroup"
 resource_name = "RoadsButtonGroup"
 
 [node name="Main" type="Node3D"]
-script = ExtResource("1_ipy05")
+script = ExtResource("1_sv3ps")
 
 [node name="HexMapCamera" type="Node3D" parent="." node_paths=PackedStringArray("hex_grid")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 10)
-script = ExtResource("2_ckdob")
+script = ExtResource("2_roenc")
 hex_grid = NodePath("../HexGrid")
 
 [node name="Swivel" type="Node3D" parent="HexMapCamera"]
@@ -34,7 +34,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
 light_energy = 10.0
 omni_range = 1000.0
 
-[node name="HexGrid" parent="." instance=ExtResource("1_e2r5f")]
+[node name="HexGrid" parent="." instance=ExtResource("3_t3wo0")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

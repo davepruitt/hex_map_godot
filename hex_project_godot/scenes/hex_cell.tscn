@@ -1,9 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://r8nfx0vsi5ah"]
 
-[ext_resource type="Script" path="res://hex_cell.gd" id="1_8wrvn"]
+[ext_resource type="Script" path="res://scripts/hex_cell.gd" id="1_de0eb"]
 
 [node name="HexCell" type="Node3D" node_paths=PackedStringArray("position_label")]
-script = ExtResource("1_8wrvn")
+script = ExtResource("1_de0eb")
 position_label = NodePath("PositionLabel")
 
 [node name="Visualization" type="MeshInstance3D" parent="."]

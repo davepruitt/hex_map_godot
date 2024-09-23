@@ -52,8 +52,3 @@ float compute_waves (vec2 world_xz, sampler2D noise_texture)
 	
 	return waves;
 }
-
-
-
-
-

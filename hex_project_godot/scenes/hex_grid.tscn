@@ -1,14 +1,14 @@
 [gd_scene load_steps=16 format=3 uid="uid://bumgasrkg2l7p"]
 
-[ext_resource type="Script" path="res://hex_grid.gd" id="1_byfya"]
-[ext_resource type="PackedScene" uid="uid://r8nfx0vsi5ah" path="res://hex_cell.tscn" id="2_ud45i"]
-[ext_resource type="Shader" path="res://hex_cell_shader.gdshader" id="3_e7bgw"]
-[ext_resource type="Shader" path="res://river_shader.gdshader" id="4_703fq"]
+[ext_resource type="Script" path="res://scripts/hex_grid.gd" id="1_byfya"]
+[ext_resource type="PackedScene" uid="uid://r8nfx0vsi5ah" path="res://scenes/hex_cell.tscn" id="2_ud45i"]
+[ext_resource type="Shader" path="res://shaders/hex_cell_shader.gdshader" id="3_e7bgw"]
+[ext_resource type="Shader" path="res://shaders/river_shader.gdshader" id="4_703fq"]
 [ext_resource type="Texture2D" uid="uid://btho5i7eejpuh" path="res://assets/tiling-perlin-noise-rgb.png" id="5_cm4mn"]
-[ext_resource type="Shader" path="res://road_shader.gdshader" id="6_ok46w"]
-[ext_resource type="Shader" path="res://water_shader.gdshader" id="7_vp3mt"]
-[ext_resource type="Shader" path="res://water_shore_shader.gdshader" id="8_vthjl"]
-[ext_resource type="Shader" path="res://estuaries_shader.gdshader" id="9_4roe3"]
+[ext_resource type="Shader" path="res://shaders/road_shader.gdshader" id="6_ok46w"]
+[ext_resource type="Shader" path="res://shaders/water_shader.gdshader" id="7_vp3mt"]
+[ext_resource type="Shader" path="res://shaders/water_shore_shader.gdshader" id="8_vthjl"]
+[ext_resource type="Shader" path="res://shaders/estuaries_shader.gdshader" id="9_4roe3"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_c0bb5"]
 render_priority = 0
