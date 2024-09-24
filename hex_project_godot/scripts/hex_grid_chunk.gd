@@ -169,7 +169,7 @@ func _triangulate_hex (cell: HexCell) -> void:
 	
 	#Place a single feature in the center of every cell
 	if ((not cell.is_underwater) and (not cell.has_river) and (not cell.has_roads)):
-		_features.add_feature(self, cell.position)
+		_features.add_feature(self, cell, cell.position)
 	
 func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
@@ -195,7 +195,7 @@ func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass
 		#Add features
 		if (not cell.is_underwater) and (not cell.has_road_through_edge(direction)):
 			var feature_position: Vector3 = (center + edge_vertices.v1 + edge_vertices.v5) * (1.0 / 3.0)
-			_features.add_feature(self, feature_position)
+			_features.add_feature(self, cell, feature_position)
 	
 	#Add connections to other hex cells
 	if (direction <= HexDirectionsClass.HexDirections.SE):
@@ -337,7 +337,7 @@ func _triangulate_adjacent_to_river (
 	#Add features to this hex
 	if (not cell.is_underwater) and (not cell.has_road_through_edge(direction)):
 		var feature_position: Vector3 = (center + e.v1 + e.v5) * (1.0 / 3.0)
-		_features.add_feature(self, feature_position)
+		_features.add_feature(self, cell, feature_position)
 
 func _triangulate_connection (
 	direction: HexDirectionsClass.HexDirections, 

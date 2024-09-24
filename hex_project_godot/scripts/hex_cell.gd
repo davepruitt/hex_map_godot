@@ -27,6 +27,8 @@ var _roads: Array[bool] = [false, false, false, false, false, false]
 
 var _water_level: int = 0
 
+var _urban_level: int = 0
+
 #endregion
 
 #region Public data members
@@ -155,6 +157,14 @@ var is_underwater: bool:
 var water_surface_y: float:
 	get:
 		return (_water_level + HexMetrics.WATER_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP
+
+var urban_level: int:
+	get:
+		return _urban_level
+	set(value):
+		if (_urban_level != value):
+			_urban_level = value
+			_refresh_self_only()
 
 #endregion
 

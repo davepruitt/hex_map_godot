@@ -2,7 +2,11 @@ class_name HexFeatureManager
 
 #region Public data members
 
-var feature_prefab: BoxMesh = preload("res://resources/feature.tres")
+var urban_prefabs: Array[BoxMesh] = [
+	preload("res://resources/feature_urban_small.tres"),
+	preload("res://resources/feature_urban_medium.tres"),
+	preload("res://resources/feature_urban_large.tres")
+]
 
 #endregion
 
@@ -33,18 +37,18 @@ func clear () -> void:
 func apply () -> void:
 	pass
 	
-func add_feature (parent_hex_grid_chunk: HexGridChunk, pos: Vector3) -> void:
+func add_feature (parent_hex_grid_chunk: HexGridChunk, cell: HexCell, pos: Vector3) -> void:
 	#Get a random value to be used for this feature
 	var hash: HexHash = HexMetrics.sample_hash_grid(pos)
 	
 	#If the first random value is greater than 0.5, we will return immediately
 	#and thus not generate a feature in this location
-	if (hash.a >= 0.5):
+	if (hash.a >= (cell.urban_level * 0.25)):
 		return
 	
 	#var feature_mesh = feature_prefab.duplicate()
 	var feature: MeshInstance3D = MeshInstance3D.new()
-	feature.mesh = feature_prefab
+	feature.mesh = urban_prefabs[cell.urban_level - 1]
 	feature.position = HexMetrics.perturb(pos)
 	
 	#Increase the height so the entire feature is above-ground

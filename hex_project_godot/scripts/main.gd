@@ -17,14 +17,16 @@ extends Node3D
 var camera_speed: float = 0.1
 
 var paint_terrain_color_enabled: bool = true
-var paint_terrain_elevation_enabled: bool = true
-var apply_water_level: bool = true
+var paint_terrain_elevation_enabled: bool = false
+var apply_water_level: bool = false
+var apply_urban_level: bool = false
 
 var active_color: Color = Color.WHITE
 var active_elevation: int = 0
 var active_brush_size: int = 0
 var active_show_labels: bool = true
 var active_water_level: int = 0
+var active_urban_level: int = 0
 
 var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
@@ -58,6 +60,9 @@ var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 @onready var check_button_water_level := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_WaterLevel
 @onready var water_level_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer5/WaterLevelValueLabel
+
+@onready var check_button_urban_level := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_UrbanLevel
+@onready var urban_level_value_label := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/UrbanLevelValueLabel
 
 #endregion
 
@@ -209,6 +214,15 @@ func _on_water_level_slider_value_changed(value: float) -> void:
 	_set_water_level(value)
 	water_level_value_label.text = str(value)
 
+
+func _on_urban_level_slider_value_changed(value: float) -> void:
+	_set_urban_level(value)
+	urban_level_value_label.text = str(value)
+
+
+func _on_check_button_urban_level_toggled(toggled_on: bool) -> void:
+	_set_apply_urban_level(toggled_on)
+
 #endregion
 
 #region Private methods
@@ -300,9 +314,14 @@ func _edit_cell (cell: HexCell) -> void:
 		if (paint_terrain_elevation_enabled):
 			cell.elevation = active_elevation
 		
+		#Paint the water level value
 		if (apply_water_level):
 			cell.water_level = active_water_level
-			
+		
+		#Paint the urban level value
+		if (apply_urban_level):
+			cell.urban_level = active_urban_level
+		
 		#Remove rivers if the river mode is "no"
 		if (river_mode == Enums.OptionalToggle.No):
 			cell.remove_river()
@@ -335,6 +354,12 @@ func _set_apply_water_level (toggle: bool) -> void:
 	
 func _set_water_level (level: float) -> void:
 	active_water_level = int(level)
+
+func _set_apply_urban_level (toggle: bool) -> void:
+	apply_urban_level = toggle
+
+func _set_urban_level (level: float) -> void:
+	active_urban_level = int(level)
 	
 func _validate_drag () -> void:
 	#Set the initial drag direction
