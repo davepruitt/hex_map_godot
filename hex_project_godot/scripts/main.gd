@@ -74,6 +74,10 @@ var _mouse_up_cell: HexCell = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	#Set the seed of the global random number generator. 
+	#This allows for deterministic repeated-runs of the application.
+	seed(1)
+	
 	RenderingServer.set_debug_generate_wireframes(true)
 	
 	_initialize_ui()

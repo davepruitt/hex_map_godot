@@ -13,6 +13,8 @@ var _water: HexMesh = HexMesh.new()
 var _water_shore: HexMesh = HexMesh.new()
 var _estuaries: HexMesh = HexMesh.new()
 
+var _features: HexFeatureManager = HexFeatureManager.new()
+
 var _terrain_shader_material: ShaderMaterial
 var _rivers_shader_material: ShaderMaterial
 var _road_shader_material: ShaderMaterial
@@ -38,6 +40,7 @@ func _ready() -> void:
 	add_child(_water)
 	add_child(_water_shore)
 	add_child(_estuaries)
+	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -130,6 +133,9 @@ func _triangulate_cells () -> void:
 	_estuaries.use_uv2_coordinates = true
 	_estuaries.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
+	#Clear the features for the hex grid chunk
+	_features.clear()
+	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
 		_triangulate_hex(_hex_cells[i])
@@ -151,12 +157,19 @@ func _triangulate_cells () -> void:
 	
 	#Finalize the creation of the estuaries mesh
 	_estuaries.end(_estuaries_shader_material)
+	
+	#Finalize the creation of the features
+	_features.apply()
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex
 	for i in range(0, 6):
 		#Form the mesh for this direction of the hex
 		_triangulate_hex_in_direction(cell, i)
+	
+	#Place a single feature in the center of every cell
+	if ((not cell.is_underwater) and (not cell.has_river) and (not cell.has_roads)):
+		_features.add_feature(self, cell.position)
 	
 func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
@@ -178,6 +191,11 @@ func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass
 			_triangulate_adjacent_to_river(direction, cell, center, edge_vertices)
 	else:
 		_triangulate_without_river(direction, cell, center, edge_vertices)
+		
+		#Add features
+		if (not cell.is_underwater) and (not cell.has_road_through_edge(direction)):
+			var feature_position: Vector3 = (center + edge_vertices.v1 + edge_vertices.v5) * (1.0 / 3.0)
+			_features.add_feature(self, feature_position)
 	
 	#Add connections to other hex cells
 	if (direction <= HexDirectionsClass.HexDirections.SE):
@@ -315,6 +333,11 @@ func _triangulate_adjacent_to_river (
 	
 	_triangulate_edge_strip(m, cell.hex_color, e, cell.hex_color)
 	_triangulate_edge_fan(center, m, cell.hex_color)
+	
+	#Add features to this hex
+	if (not cell.is_underwater) and (not cell.has_road_through_edge(direction)):
+		var feature_position: Vector3 = (center + e.v1 + e.v5) * (1.0 / 3.0)
+		_features.add_feature(self, feature_position)
 
 func _triangulate_connection (
 	direction: HexDirectionsClass.HexDirections, 
