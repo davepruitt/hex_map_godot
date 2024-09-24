@@ -29,6 +29,10 @@ var _water_level: int = 0
 
 var _urban_level: int = 0
 
+var _farm_level: int = 0
+
+var _plant_level: int = 0
+
 #endregion
 
 #region Public data members
@@ -165,6 +169,24 @@ var urban_level: int:
 		if (_urban_level != value):
 			_urban_level = value
 			_refresh_self_only()
+
+var farm_level: int:
+	get:
+		return _farm_level
+	set(value):
+		if (_farm_level != value):
+			_farm_level = value
+			_refresh_self_only()
+
+var plant_level: int:
+	get:
+		return _plant_level
+	set(value):
+		if (_plant_level != value):
+			_plant_level = value
+			_refresh_self_only()
+
+
 
 #endregion
 

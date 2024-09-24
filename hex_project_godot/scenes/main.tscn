@@ -351,6 +351,68 @@ text = "Urban Level: "
 layout_mode = 2
 text = "0"
 
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CheckButton_FarmLevel" type="CheckButton" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+text = "Apply Farm Level"
+
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="FarmLevelSlider" type="HSlider" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer2"]
+layout_mode = 2
+focus_mode = 0
+max_value = 3.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="FarmLevelLabel" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Farm Level: "
+
+[node name="FarmLevelValueLabel" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "0"
+
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CheckButton_PlantLevel" type="CheckButton" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+text = "Apply Plant Level"
+
+[node name="MarginContainer3" type="MarginContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="PlantLevelSlider" type="HSlider" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer3"]
+layout_mode = 2
+focus_mode = 0
+max_value = 3.0
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="PlantLevelLabel" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Plant Level: "
+
+[node name="PlantLevelValueLabel" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "0"
+
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
@@ -371,3 +433,7 @@ text = "0"
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo" to="." method="_on_check_box_roads_no_pressed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_UrbanLevel" to="." method="_on_check_button_urban_level_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer/UrbanLevelSlider" to="." method="_on_urban_level_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_FarmLevel" to="." method="_on_check_button_farm_level_toggled"]
+[connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer2/FarmLevelSlider" to="." method="_on_farm_level_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_PlantLevel" to="." method="_on_check_button_plant_level_toggled"]
+[connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer3/PlantLevelSlider" to="." method="_on_plant_level_slider_value_changed"]

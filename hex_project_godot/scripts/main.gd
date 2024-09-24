@@ -20,6 +20,8 @@ var paint_terrain_color_enabled: bool = true
 var paint_terrain_elevation_enabled: bool = false
 var apply_water_level: bool = false
 var apply_urban_level: bool = false
+var apply_farm_level: bool = false
+var apply_plant_level: bool = false
 
 var active_color: Color = Color.WHITE
 var active_elevation: int = 0
@@ -27,6 +29,8 @@ var active_brush_size: int = 0
 var active_show_labels: bool = true
 var active_water_level: int = 0
 var active_urban_level: int = 0
+var active_farm_level: int = 0
+var active_plant_level: int = 0
 
 var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
@@ -63,6 +67,12 @@ var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 @onready var check_button_urban_level := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_UrbanLevel
 @onready var urban_level_value_label := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/UrbanLevelValueLabel
+
+@onready var check_button_farm_level := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_FarmLevel
+@onready var farm_level_value_label := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer2/FarmLevelValueLabel
+
+@onready var check_button_plant_level := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_PlantLevel
+@onready var plant_level_value_label := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3/PlantLevelValueLabel
 
 #endregion
 
@@ -223,6 +233,24 @@ func _on_urban_level_slider_value_changed(value: float) -> void:
 func _on_check_button_urban_level_toggled(toggled_on: bool) -> void:
 	_set_apply_urban_level(toggled_on)
 
+
+func _on_check_button_farm_level_toggled(toggled_on: bool) -> void:
+	_set_apply_farm_level(toggled_on)
+
+
+func _on_farm_level_slider_value_changed(value: float) -> void:
+	_set_farm_level(value)
+	farm_level_value_label.text = str(value)
+
+
+func _on_check_button_plant_level_toggled(toggled_on: bool) -> void:
+	_set_apply_plant_level(toggled_on)
+
+
+func _on_plant_level_slider_value_changed(value: float) -> void:
+	_set_plant_level(value)
+	plant_level_value_label.text = str(value)
+
 #endregion
 
 #region Private methods
@@ -231,6 +259,9 @@ func _initialize_ui () -> void:
 	check_button_show_labels.set_pressed_no_signal(active_show_labels)
 	check_button_enable_elevation.set_pressed_no_signal(paint_terrain_elevation_enabled)
 	check_button_water_level.set_pressed_no_signal(apply_water_level)
+	check_button_urban_level.set_pressed_no_signal(apply_urban_level)
+	check_button_farm_level.set_pressed_no_signal(apply_farm_level)
+	check_button_plant_level.set_pressed_no_signal(apply_plant_level)
 	
 	if (paint_terrain_color_enabled):
 		if (active_color == Color.YELLOW):
@@ -321,6 +352,14 @@ func _edit_cell (cell: HexCell) -> void:
 		#Paint the urban level value
 		if (apply_urban_level):
 			cell.urban_level = active_urban_level
+			
+		#Paint the farm level value
+		if (apply_farm_level):
+			cell.farm_level = active_farm_level
+		
+		#Paint the plant level value
+		if (apply_plant_level):
+			cell.plant_level = active_plant_level
 		
 		#Remove rivers if the river mode is "no"
 		if (river_mode == Enums.OptionalToggle.No):
@@ -360,6 +399,18 @@ func _set_apply_urban_level (toggle: bool) -> void:
 
 func _set_urban_level (level: float) -> void:
 	active_urban_level = int(level)
+
+func _set_apply_farm_level (toggle: bool) -> void:
+	apply_farm_level = toggle
+
+func _set_farm_level (level: float) -> void:
+	active_farm_level = int(level)
+	
+func _set_apply_plant_level (toggle: bool) -> void:
+	apply_plant_level = toggle
+
+func _set_plant_level (level: float) -> void:
+	active_plant_level = int(level)
 	
 func _validate_drag () -> void:
 	#Set the initial drag direction
