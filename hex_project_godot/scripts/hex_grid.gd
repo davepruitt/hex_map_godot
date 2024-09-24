@@ -63,6 +63,9 @@ func _ready() -> void:
 	#Initialize the Perlin noise
 	HexMetrics.initialize_noise_generator()
 	
+	#Initialize the hash grid
+	HexMetrics.initialize_hash_grid()
+	
 	#Calculate the cell count in the x and z directions
 	_cell_count_x = chunk_count_x * HexMetrics.CHUNK_SIZE_X
 	_cell_count_z = chunk_count_z * HexMetrics.CHUNK_SIZE_Z

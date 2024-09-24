@@ -34,6 +34,14 @@ func apply () -> void:
 	pass
 	
 func add_feature (parent_hex_grid_chunk: HexGridChunk, pos: Vector3) -> void:
+	#Get a random value to be used for this feature
+	var hash: HexHash = HexMetrics.sample_hash_grid(pos)
+	
+	#If the first random value is greater than 0.5, we will return immediately
+	#and thus not generate a feature in this location
+	if (hash.a >= 0.5):
+		return
+	
 	#var feature_mesh = feature_prefab.duplicate()
 	var feature: MeshInstance3D = MeshInstance3D.new()
 	feature.mesh = feature_prefab
@@ -44,7 +52,7 @@ func add_feature (parent_hex_grid_chunk: HexGridChunk, pos: Vector3) -> void:
 	feature.position.y += feature_height / 2.0
 	
 	#Randomize the rotation angle of the feature
-	feature.quaternion = Quaternion.from_euler(Vector3(0, 360.0 * randf(), 0))
+	feature.quaternion = Quaternion.from_euler(Vector3(0, 360.0 * hash.b, 0))
 	
 	#Add this feature to the private list of features
 	_features.append(feature)

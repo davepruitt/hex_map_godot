@@ -50,9 +50,13 @@ const RIVER_SURFACE_ELEVATION_OFFSET: float = 0.5 * STREAM_BED_ELEVATION_OFFSET
 
 const WATER_ELEVATION_OFFSET: float = -0.1
 
-const WATER_FACTOR = 0.6
+const WATER_FACTOR: float = 0.6
 
-const WATER_BLEND_FACTOR = 1.0 - WATER_FACTOR
+const WATER_BLEND_FACTOR: float = 1.0 - WATER_FACTOR
+
+const HASH_GRID_SIZE: int = 256
+
+const HASH_GRID_SCALE: float = 0.25
 
 #endregion
 
@@ -64,6 +68,8 @@ static var noise_generator: Array[FastNoiseLite] = [
 	FastNoiseLite.new(), 
 	FastNoiseLite.new()
 ]
+
+static var hash_grid: Array[HexHash] = []
 
 #endregion
 
@@ -91,6 +97,23 @@ static func sample_noise (position: Vector3) -> Vector4:
 		sample[i] = s_i
 	
 	return sample
+
+static func initialize_hash_grid () -> void:
+	hash_grid.clear()
+	hash_grid.resize(HASH_GRID_SIZE * HASH_GRID_SIZE)
+	for i in range(0, len(hash_grid)):
+		hash_grid[i] = HexHash.create()
+
+static func sample_hash_grid (position: Vector3) -> HexHash:
+	var x: int = int((position.x * 10.0) * HASH_GRID_SCALE) % HASH_GRID_SIZE
+	if (x < 0):
+		x += HASH_GRID_SIZE
+		
+	var z: int = int((position.z * 10.0) * HASH_GRID_SCALE) % HASH_GRID_SIZE
+	if (z < 0):
+		z += HASH_GRID_SIZE
+	
+	return hash_grid[x + z * HASH_GRID_SIZE]
 
 static func get_first_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
 	return HexMetrics.CORNERS[int(direction)]
