@@ -58,6 +58,10 @@ const HASH_GRID_SIZE: int = 256
 
 const HASH_GRID_SCALE: float = 0.25
 
+const FEATURE_THRESHOLD_LEVELS: int = 3
+
+const FEATURE_THRESHOLD_SUB_LEVELS: int = 3
+
 #endregion
 
 #region Static variables
@@ -70,6 +74,12 @@ static var noise_generator: Array[FastNoiseLite] = [
 ]
 
 static var hash_grid: Array[HexHash] = []
+
+static var feature_thresholds: Array[float] = [
+	0.0, 0.0, 0.4,			#Low
+	0.0, 0.4, 0.6,			#Medium
+	0.4, 0.6, 0.8			#High
+]
 
 #endregion
 
@@ -114,6 +124,18 @@ static func sample_hash_grid (position: Vector3) -> HexHash:
 		z += HASH_GRID_SIZE
 	
 	return hash_grid[x + z * HASH_GRID_SIZE]
+
+static func get_feature_thresholds (level: int) -> Array[float]:
+	var idx: int = level * FEATURE_THRESHOLD_SUB_LEVELS
+	
+	var result: Array[float] = []
+	result.resize(FEATURE_THRESHOLD_SUB_LEVELS)
+	
+	for i in range(0, FEATURE_THRESHOLD_SUB_LEVELS):
+		if ((idx + i) < len(feature_thresholds)):
+			result[i] = feature_thresholds[idx + i]
+	
+	return result
 
 static func get_first_corner (direction: HexDirectionsClass.HexDirections) -> Vector3:
 	return HexMetrics.CORNERS[int(direction)]
