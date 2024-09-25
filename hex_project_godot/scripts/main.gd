@@ -258,15 +258,15 @@ func _on_plant_level_slider_value_changed(value: float) -> void:
 
 
 func _on_check_box_walls_ignore_pressed() -> void:
-	pass # Replace with function body.
+	_set_wall_mode(Enums.OptionalToggle.Ignore)
 
 
 func _on_check_box_walls_yes_pressed() -> void:
-	pass # Replace with function body.
+	_set_wall_mode(Enums.OptionalToggle.Yes)
 
 
 func _on_check_box_walls_no_pressed() -> void:
-	pass # Replace with function body.
+	_set_wall_mode(Enums.OptionalToggle.No)
 
 
 #endregion

@@ -6,6 +6,8 @@ var urban_collections: Array[HexFeatureCollection]
 var farm_collections: Array[HexFeatureCollection]
 var plant_collections: Array[HexFeatureCollection]
 
+var walls: HexMesh = HexMesh.new()
+
 #endregion
 
 #region Private data members
@@ -137,6 +139,12 @@ func add_feature (parent_hex_grid_chunk: HexGridChunk, cell: HexCell, pos: Vecto
 	parent_hex_grid_chunk.add_child(feature)
 	
 
+func add_wall (near: EdgeVertices, near_cell: HexCell, far: EdgeVertices, far_cell: HexCell) -> void:
+	
+	if (near_cell.walled != far_cell.walled):
+		_add_wall_segment(near.v1, far.v1, near.v5, far.v5)
+
+
 #endregion
 
 #region Private methods
@@ -149,5 +157,21 @@ func _pick_prefab (collection: Array[HexFeatureCollection], level: int, hash: fl
 				return collection[i].pick(choice)
 	
 	return null
+
+func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vector3, far_right: Vector3) -> void:
+	
+	var left: Vector3 = near_left.lerp(far_left, 0.5)
+	var right: Vector3 = near_right.lerp(far_right, 0.5)
+	
+	var v1: Vector3 = left
+	var v2: Vector3 = right
+	var v3: Vector3 = left
+	var v4: Vector3 = right
+	
+	v3.y = left.y + HexMetrics.WALL_HEIGHT
+	v4.y = v3.y
+	
+	walls.add_perturbed_quad(v1, v2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	walls.add_perturbed_quad(v2, v1, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
 
 #endregion

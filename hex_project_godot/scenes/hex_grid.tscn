@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bumgasrkg2l7p"]
+[gd_scene load_steps=17 format=3 uid="uid://bumgasrkg2l7p"]
 
 [ext_resource type="Script" path="res://scripts/hex_grid.gd" id="1_byfya"]
 [ext_resource type="PackedScene" uid="uid://r8nfx0vsi5ah" path="res://scenes/hex_cell.tscn" id="2_ud45i"]
@@ -44,6 +44,9 @@ shader = ExtResource("9_4roe3")
 shader_parameter/base_color = Color(0.243137, 0.470588, 1, 0.658824)
 shader_parameter/noise_texture = ExtResource("5_cm4mn")
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vab8m"]
+albedo_color = Color(1, 0, 0, 1)
+
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
 hex_cell_prefab = ExtResource("2_ud45i")
@@ -54,3 +57,4 @@ road_shader_material = SubResource("ShaderMaterial_lf52a")
 water_shader_material = SubResource("ShaderMaterial_q2oyx")
 water_shore_shader_material = SubResource("ShaderMaterial_wcv8b")
 estuaries_shader_material = SubResource("ShaderMaterial_ar328")
+walls_material = SubResource("StandardMaterial3D_vab8m")

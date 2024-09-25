@@ -33,6 +33,9 @@ extends Node3D
 ## This is the default ShaderMaterial that will be used for estuaries in the hex grid
 @export var estuaries_shader_material: ShaderMaterial
 
+## This is the default material for walls
+@export var walls_material: StandardMaterial3D
+
 #endregion
 
 #region Private variables
@@ -80,6 +83,7 @@ func _ready() -> void:
 		_hex_grid_chunks[i].set_water_mesh_material(water_shader_material)
 		_hex_grid_chunks[i].set_water_shore_mesh_material(water_shore_shader_material)
 		_hex_grid_chunks[i].set_estuaries_mesh_material(estuaries_shader_material)
+		_hex_grid_chunks[i].set_walls_mesh_material(walls_material)
 		_hex_grid_chunks[i].refresh()
 	
 

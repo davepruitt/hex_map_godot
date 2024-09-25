@@ -62,6 +62,8 @@ const FEATURE_THRESHOLD_LEVELS: int = 3
 
 const FEATURE_THRESHOLD_SUB_LEVELS: int = 3
 
+const WALL_HEIGHT: float = 0.3
+
 #endregion
 
 #region Static variables

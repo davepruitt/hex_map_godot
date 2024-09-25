@@ -21,6 +21,7 @@ var _road_shader_material: ShaderMaterial
 var _water_shader_material: ShaderMaterial
 var _water_shore_shader_material: ShaderMaterial
 var _estuaries_shader_material: ShaderMaterial
+var _walls_material: StandardMaterial3D
 
 #endregion
 
@@ -40,6 +41,7 @@ func _ready() -> void:
 	add_child(_water)
 	add_child(_water_shore)
 	add_child(_estuaries)
+	add_child(_features.walls)
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -77,6 +79,9 @@ func set_water_shore_mesh_material (mat: ShaderMaterial) -> void:
 
 func set_estuaries_mesh_material (mat: ShaderMaterial) -> void:
 	_estuaries_shader_material = mat
+
+func set_walls_mesh_material (mat: StandardMaterial3D) -> void:
+	_walls_material = mat
 
 func request_refresh () -> void:
 	#Set the "update needed" flag
@@ -136,6 +141,14 @@ func _triangulate_cells () -> void:
 	#Clear the features for the hex grid chunk
 	_features.clear()
 	
+	#Begin creation of the walls mesh
+	_features.walls.begin()
+	_features.walls.use_colors = false
+	_features.walls.use_collider = false
+	_features.walls.use_uv_coordinates = false
+	_features.walls.use_uv2_coordinates = false
+	_features.walls.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
 		_triangulate_hex(_hex_cells[i])
@@ -160,6 +173,9 @@ func _triangulate_cells () -> void:
 	
 	#Finalize the creation of the features
 	_features.apply()
+	
+	#Finalize the walls mesh
+	_features.walls.end(_walls_material)
 
 func _triangulate_hex (cell: HexCell) -> void:
 	#Iterate over each of the 6 directions from the center of the hex
@@ -381,6 +397,9 @@ func _triangulate_connection (
 	else:
 		_triangulate_edge_strip(e1, cell.hex_color, e2, neighbor_cell.hex_color,
 			cell.has_road_through_edge(direction))
+	
+	#Add walls
+	_features.add_wall(e1, cell, e2, neighbor_cell)
 	
 	#Get the next neighbor of the cell
 	var next_direction = HexDirectionsClass.next(direction)

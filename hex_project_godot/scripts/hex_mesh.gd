@@ -35,7 +35,7 @@ func begin () -> void:
 	#Set the smooth group to -1, which produces flat normals for the mesh
 	_surface_tool.set_smooth_group(-1)
 
-func end (mat: ShaderMaterial) -> void:
+func end (mat: Material) -> void:
 	#Generate the normals for the mesh
 	_surface_tool.generate_normals()
 	
