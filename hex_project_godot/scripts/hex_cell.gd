@@ -33,6 +33,8 @@ var _farm_level: int = 0
 
 var _plant_level: int = 0
 
+var _walled: bool = false
+
 #endregion
 
 #region Public data members
@@ -186,7 +188,13 @@ var plant_level: int:
 			_plant_level = value
 			_refresh_self_only()
 
-
+var walled: bool:
+	get:
+		return _walled
+	set(value):
+		if (_walled != value):
+			_walled = value
+			_refresh()
 
 #endregion
 

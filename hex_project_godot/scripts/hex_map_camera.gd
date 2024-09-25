@@ -3,8 +3,8 @@ extends Node3D
 
 #region Exported data members
 
-@export var stick_min_zoom : float = 2.0
-@export var stick_max_zoom : float = 8.0
+@export var stick_min_zoom : float = 6.0
+@export var stick_max_zoom : float = 20.0
 @export var swivel_min_zoom : float = -45
 @export var swivel_max_zoom : float = -90
 @export var movement_speed_min_zoom : float = 25

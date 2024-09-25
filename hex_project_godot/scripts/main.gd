@@ -34,6 +34,7 @@ var active_plant_level: int = 0
 
 var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
+var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 #endregion
 
@@ -73,6 +74,10 @@ var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 @onready var check_button_plant_level := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_PlantLevel
 @onready var plant_level_value_label := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3/PlantLevelValueLabel
+
+@onready var check_button_walls_ignore := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsIgnore
+@onready var check_button_walls_yes := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsYes
+@onready var check_button_walls_no := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsNo
 
 #endregion
 
@@ -251,6 +256,19 @@ func _on_plant_level_slider_value_changed(value: float) -> void:
 	_set_plant_level(value)
 	plant_level_value_label.text = str(value)
 
+
+func _on_check_box_walls_ignore_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_check_box_walls_yes_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_check_box_walls_no_pressed() -> void:
+	pass # Replace with function body.
+
+
 #endregion
 
 #region Private methods
@@ -290,6 +308,13 @@ func _initialize_ui () -> void:
 		check_button_roads_yes.set_pressed_no_signal(true)
 	elif (road_mode == Enums.OptionalToggle.No):
 		check_button_roads_no.set_pressed_no_signal(true)
+	
+	if (walls_mode == Enums.OptionalToggle.Ignore):
+		check_button_walls_ignore.set_pressed_no_signal(true)
+	elif (walls_mode == Enums.OptionalToggle.Yes):
+		check_button_walls_yes.set_pressed_no_signal(true)
+	elif (walls_mode == Enums.OptionalToggle.No):
+		check_button_walls_no.set_pressed_no_signal(true)
 
 func show_ui (visible: bool) -> void:
 	hex_grid.show_ui(visible)
@@ -369,6 +394,10 @@ func _edit_cell (cell: HexCell) -> void:
 		if (road_mode == Enums.OptionalToggle.No):
 			cell.remove_roads()
 		
+		#Add or remove walls
+		if (walls_mode != Enums.OptionalToggle.Ignore):
+			cell.walled = (walls_mode == Enums.OptionalToggle.Yes)
+		
 		#Check to see if a drag event was completed
 		if (_is_drag):
 			var opposite_direction = HexDirectionsClass.opposite(_drag_direction)
@@ -411,6 +440,9 @@ func _set_apply_plant_level (toggle: bool) -> void:
 
 func _set_plant_level (level: float) -> void:
 	active_plant_level = int(level)
+
+func _set_wall_mode (mode: int) -> void:
+	walls_mode = mode
 	
 func _validate_drag () -> void:
 	#Set the initial drag direction

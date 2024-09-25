@@ -25,7 +25,7 @@ hex_grid = NodePath("../HexGrid")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
 
 [node name="Stick" type="Node3D" parent="HexMapCamera/Swivel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
 
 [node name="MainCamera" type="Camera3D" parent="HexMapCamera/Swivel/Stick"]
 
@@ -413,6 +413,33 @@ text = "Plant Level: "
 layout_mode = 2
 text = "0"
 
+[node name="HSeparator3" type="HSeparator" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="WallsLabel" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Walls"
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="CheckBox_WallsIgnore" type="CheckBox" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+focus_mode = 0
+text = "---	"
+
+[node name="CheckBox_WallsYes" type="CheckBox" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+focus_mode = 0
+text = "Yes"
+
+[node name="CheckBox_WallsNo" type="CheckBox" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+focus_mode = 0
+text = "No"
+
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
@@ -437,3 +464,6 @@ text = "0"
 [connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer2/FarmLevelSlider" to="." method="_on_farm_level_slider_value_changed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_PlantLevel" to="." method="_on_check_button_plant_level_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer3/PlantLevelSlider" to="." method="_on_plant_level_slider_value_changed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsIgnore" to="." method="_on_check_box_walls_ignore_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsYes" to="." method="_on_check_box_walls_yes_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsNo" to="." method="_on_check_box_walls_no_pressed"]
