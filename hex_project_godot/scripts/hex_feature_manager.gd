@@ -1,4 +1,5 @@
 class_name HexFeatureManager
+extends Node3D
 
 #region Public data members
 
@@ -7,6 +8,8 @@ var farm_collections: Array[HexFeatureCollection]
 var plant_collections: Array[HexFeatureCollection]
 
 var walls: HexMesh = HexMesh.new()
+
+var wall_tower_prefab: PackedScene = preload("res://scenes/prefabs/wall_tower.tscn")
 
 #endregion
 
@@ -19,6 +22,9 @@ var _features: Array[MeshInstance3D] = []
 #region Constructor
 
 func _init() -> void:
+	#Add the walls mesh as a child
+	add_child(walls)
+	
 	#Create the urban collections
 	var small_urban_collection = HexFeatureCollection.new()
 	small_urban_collection.prefabs.append(preload("res://resources/urban_features/small/feature_urban_small_01.tres"))
@@ -88,7 +94,7 @@ func clear () -> void:
 func apply () -> void:
 	pass
 	
-func add_feature (parent_hex_grid_chunk: HexGridChunk, cell: HexCell, pos: Vector3) -> void:
+func add_feature (cell: HexCell, pos: Vector3) -> void:
 	#Get a random value to be used for this feature
 	var hash: HexHash = HexMetrics.sample_hash_grid(pos)
 	
@@ -136,7 +142,7 @@ func add_feature (parent_hex_grid_chunk: HexGridChunk, cell: HexCell, pos: Vecto
 	_features.append(feature)
 	
 	#Add this feature as a child of the hex grid chunk
-	parent_hex_grid_chunk.add_child(feature)
+	add_child(feature)
 	
 
 func add_wall (near: EdgeVertices, near_cell: HexCell, 
@@ -261,6 +267,10 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	
 	walls.add_quad(v2, v1, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
 	walls.add_quad(t1, t2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	
+	#var tower_instance: Node3D = wall_tower_prefab.instantiate() as Node3D
+	#tower_instance.position = (left + right) * 0.5
+	#add_child(tower_instance)
 
 func _add_wall_cap (near: Vector3, far: Vector3) -> void:
 	near = HexMetrics.perturb(near)
