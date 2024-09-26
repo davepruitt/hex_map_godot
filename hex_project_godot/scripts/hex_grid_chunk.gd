@@ -699,6 +699,16 @@ func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirec
 			corner = HexMetrics.get_first_solid_corner(direction)
 		
 		road_center += corner * 0.5
+		
+		if ((cell.incoming_river_direction == HexDirectionsClass.next(direction)) and 
+			(
+				(cell.has_road_through_edge(HexDirectionsClass.next2(direction))) or
+				(cell.has_road_through_edge(HexDirectionsClass.opposite(direction)))
+			)
+		):
+			
+			_features.add_bridge(road_center, center - (corner * 0.5))
+		
 		center += corner * 0.25
 	elif (cell.incoming_river_direction == HexDirectionsClass.previous(cell.outgoing_river_direction)):
 		road_center -= HexMetrics.get_second_corner(cell.incoming_river_direction) * 0.2
@@ -727,7 +737,11 @@ func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirec
 		):
 			return
 		
-		road_center += HexMetrics.get_solid_edge_middle(middle) * 0.25
+		var offset: Vector3 = HexMetrics.get_solid_edge_middle(middle)
+		road_center += offset * 0.25
+		
+		if (direction == middle) and (cell.has_road_through_edge(HexDirectionsClass.opposite(direction))):
+			_features.add_bridge(road_center, center - offset * (HexMetrics.INNER_TO_OUTER * 0.7))
 		
 	
 	var mL: Vector3 = road_center.lerp(e.v1, interpolators.x)

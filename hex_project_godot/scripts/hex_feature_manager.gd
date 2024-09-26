@@ -10,12 +10,7 @@ var plant_collections: Array[HexFeatureCollection]
 var walls: HexMesh = HexMesh.new()
 
 var wall_tower_prefab: PackedScene = preload("res://scenes/prefabs/wall_tower.tscn")
-
-#endregion
-
-#region Private data members
-
-var _features: Array[MeshInstance3D] = []
+var bridge_prefab: PackedScene = preload("res://scenes/prefabs/bridge.tscn")
 
 #endregion
 
@@ -83,13 +78,11 @@ func _init() -> void:
 #region Methods
 
 func clear () -> void:
-	#Queue each feature to be free'd by Godot
-	for i in range(0, len(_features)):
-		var current_feature: MeshInstance3D = _features[i]
-		current_feature.queue_free()
+	for n in get_children():
+		n.queue_free()
 	
-	#Clear the list of features
-	_features.clear()
+	walls = HexMesh.new()
+	add_child(walls)
 	
 func apply () -> void:
 	pass
@@ -137,9 +130,6 @@ func add_feature (cell: HexCell, pos: Vector3) -> void:
 	
 	#Randomize the rotation angle of the feature
 	feature.quaternion = Quaternion.from_euler(Vector3(0, 360.0 * hash.e, 0))
-	
-	#Add this feature to the private list of features
-	_features.append(feature)
 	
 	#Add this feature as a child of the hex grid chunk
 	add_child(feature)
@@ -189,6 +179,19 @@ func add_wall_three_cells (c1: Vector3, cell1: HexCell,
 		_add_wall_segment_with_pivot(c3, cell3, c1, cell1, c2, cell2)
 	
 
+func add_bridge (road_center_1: Vector3, road_center_2: Vector3) -> void:
+	road_center_1 = HexMetrics.perturb(road_center_1)
+	road_center_2 = HexMetrics.perturb(road_center_2)
+	
+	var bridge_instance: Node3D = bridge_prefab.instantiate() as Node3D
+	bridge_instance.position = (road_center_1 + road_center_2) * 0.5
+	bridge_instance.quaternion = Quaternion(bridge_instance.basis.z, road_center_2 - road_center_1)
+	
+	var bridge_length: float = road_center_1.distance_to(road_center_2)
+	bridge_instance.scale = Vector3(1.0, 1.0, bridge_length * (1.0 / HexMetrics.BRIDGE_DESIGN_LENGTH))
+	
+	add_child(bridge_instance)
+
 #endregion
 
 #region Private methods
@@ -216,7 +219,12 @@ func _add_wall_segment_with_pivot (
 	
 	if (has_left_wall):
 		if (has_right_wall):
-			_add_wall_segment(pivot, left, pivot, right)
+			var has_tower: bool = false
+			if (left_cell.elevation == right_cell.elevation):
+				var hash: HexHash = HexMetrics.sample_hash_grid((pivot + left + right) / (1.0 / 3.0))
+				has_tower = (hash.e < HexMetrics.WALL_TOWER_THRESHOLD)
+			
+			_add_wall_segment(pivot, left, pivot, right, has_tower)
 		elif (left_cell.elevation < right_cell.elevation):
 			_add_wall_wedge(pivot, left, right)
 		else:
@@ -227,7 +235,8 @@ func _add_wall_segment_with_pivot (
 		else:
 			_add_wall_cap(right, pivot)
 
-func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vector3, far_right: Vector3) -> void:
+func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vector3, far_right: Vector3, 
+	add_tower: bool = false) -> void:
 	
 	#Perturb the vertices
 	near_left = HexMetrics.perturb(near_left)
@@ -268,9 +277,15 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	walls.add_quad(v2, v1, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
 	walls.add_quad(t1, t2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
 	
-	#var tower_instance: Node3D = wall_tower_prefab.instantiate() as Node3D
-	#tower_instance.position = (left + right) * 0.5
-	#add_child(tower_instance)
+	if (add_tower):
+		var tower_instance: Node3D = wall_tower_prefab.instantiate() as Node3D
+		tower_instance.position = (left + right) * 0.5
+		
+		var right_direction: Vector3 = right - left
+		right_direction.y = 0
+		tower_instance.quaternion = Quaternion(tower_instance.basis.x, right_direction)
+		
+		add_child(tower_instance)
 
 func _add_wall_cap (near: Vector3, far: Vector3) -> void:
 	near = HexMetrics.perturb(near)

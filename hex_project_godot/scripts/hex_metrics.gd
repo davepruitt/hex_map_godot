@@ -62,11 +62,17 @@ const FEATURE_THRESHOLD_LEVELS: int = 3
 
 const FEATURE_THRESHOLD_SUB_LEVELS: int = 3
 
-const WALL_HEIGHT: float = 0.3
+const WALL_HEIGHT: float = 0.4
+
+const WALL_Y_OFFSET: float = -0.1
 
 const WALL_THICKNESS: float = 0.075
 
-const WALL_ELEVATION_OFFSET = VERTICAL_TERRACE_STEP_SIZE
+const WALL_ELEVATION_OFFSET: float = VERTICAL_TERRACE_STEP_SIZE
+
+const WALL_TOWER_THRESHOLD: float = 0.5
+
+const BRIDGE_DESIGN_LENGTH: float = 0.7
 
 #endregion
 
@@ -222,7 +228,7 @@ static func wall_lerp (near: Vector3, far: Vector3) -> Vector3:
 	if (near.y < far.y):
 		v = 1.0 - WALL_ELEVATION_OFFSET
 	
-	near.y += (far.y - near.y) * v
+	near.y += (far.y - near.y) * v + WALL_Y_OFFSET
 	
 	return near
 
