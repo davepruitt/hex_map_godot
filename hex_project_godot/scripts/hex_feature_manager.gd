@@ -139,10 +139,28 @@ func add_feature (parent_hex_grid_chunk: HexGridChunk, cell: HexCell, pos: Vecto
 	parent_hex_grid_chunk.add_child(feature)
 	
 
-func add_wall (near: EdgeVertices, near_cell: HexCell, far: EdgeVertices, far_cell: HexCell) -> void:
+func add_wall (near: EdgeVertices, near_cell: HexCell, 
+	far: EdgeVertices, far_cell: HexCell,
+	has_river: bool, has_road: bool) -> void:
 	
-	if (near_cell.walled != far_cell.walled):
-		_add_wall_segment(near.v1, far.v1, near.v5, far.v5)
+	if ((near_cell.walled != far_cell.walled) and 
+		(not near_cell.is_underwater) and 
+		(not far_cell.is_underwater) and 
+		(near_cell.get_edge_type_from_other_cell(far_cell) != Enums.HexEdgeType.Cliff)):
+		
+		#First wall segment
+		_add_wall_segment(near.v1, far.v1, near.v2, far.v2)
+		
+		if (has_river or has_road):
+			_add_wall_cap(near.v2, far.v2)
+			_add_wall_cap(far.v4, near.v4)
+		else:
+			#Add these wall segments if no river or road
+			_add_wall_segment(near.v2, far.v2, near.v3, far.v3)
+			_add_wall_segment(near.v3, far.v3, near.v4, far.v4)
+			
+		#Last wall segment
+		_add_wall_segment(near.v4, far.v4, near.v5, far.v5)
 
 func add_wall_three_cells (c1: Vector3, cell1: HexCell, 
 	c2: Vector3, cell2: HexCell,
@@ -184,12 +202,35 @@ func _add_wall_segment_with_pivot (
 	right: Vector3, right_cell: HexCell
 ) -> void:
 	
-	_add_wall_segment(pivot, left, pivot, right)
+	if (pivot_cell.is_underwater):
+		return
+		
+	var has_left_wall: bool = (not left_cell.is_underwater) and (pivot_cell.get_edge_type_from_other_cell(left_cell) != Enums.HexEdgeType.Cliff)
+	var has_right_wall: bool = (not right_cell.is_underwater) and (pivot_cell.get_edge_type_from_other_cell(right_cell) != Enums.HexEdgeType.Cliff)
+	
+	if (has_left_wall):
+		if (has_right_wall):
+			_add_wall_segment(pivot, left, pivot, right)
+		elif (left_cell.elevation < right_cell.elevation):
+			_add_wall_wedge(pivot, left, right)
+		else:
+			_add_wall_cap(pivot, left)
+	elif (has_right_wall):
+		if (right_cell.elevation < left_cell.elevation):
+			_add_wall_wedge(right, pivot, left)
+		else:
+			_add_wall_cap(right, pivot)
 
 func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vector3, far_right: Vector3) -> void:
 	
-	var left: Vector3 = near_left.lerp(far_left, 0.5)
-	var right: Vector3 = near_right.lerp(far_right, 0.5)
+	#Perturb the vertices
+	near_left = HexMetrics.perturb(near_left)
+	far_left = HexMetrics.perturb(far_left)
+	near_right = HexMetrics.perturb(near_right)
+	far_right = HexMetrics.perturb(far_right)
+	
+	var left: Vector3 = HexMetrics.wall_lerp(near_left, far_left)
+	var right: Vector3 = HexMetrics.wall_lerp(near_right, far_right)
 	
 	var left_thickness_offset: Vector3 = HexMetrics.wall_thickness_offset(near_left, far_left)
 	var right_thickness_offset: Vector3 = HexMetrics.wall_thickness_offset(near_right, far_right)
@@ -204,7 +245,7 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	v3.y = left_top
 	v4.y = right_top
 	
-	walls.add_perturbed_quad(v1, v2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	walls.add_quad(v1, v2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
 	
 	#Wall top
 	var t1: Vector3 = v3
@@ -218,7 +259,58 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	v3.y = left_top
 	v4.y = right_top
 	
-	walls.add_perturbed_quad(v2, v1, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
-	walls.add_perturbed_quad(t1, t2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	walls.add_quad(v2, v1, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	walls.add_quad(t1, t2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+
+func _add_wall_cap (near: Vector3, far: Vector3) -> void:
+	near = HexMetrics.perturb(near)
+	far = HexMetrics.perturb(far)
+	
+	var center: Vector3 = HexMetrics.wall_lerp(near, far)
+	var thickness: Vector3 = HexMetrics.wall_thickness_offset(near, far)
+	
+	var v1: Vector3 = Vector3.ZERO
+	var v2: Vector3 = Vector3.ZERO
+	var v3: Vector3 = Vector3.ZERO
+	var v4: Vector3 = Vector3.ZERO
+
+	v1 = center - thickness
+	v3 = v1
+	v2 = center + thickness
+	v4 = v2
+	
+	v3.y = center.y + HexMetrics.WALL_HEIGHT
+	v4.y = v3.y
+	
+	walls.add_quad(v1, v2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+
+func _add_wall_wedge (near: Vector3, far: Vector3, point: Vector3) -> void:
+	near = HexMetrics.perturb(near)
+	far = HexMetrics.perturb(far)
+	point = HexMetrics.perturb(point)
+	
+	var center: Vector3 = HexMetrics.wall_lerp(near, far)
+	var thickness: Vector3 = HexMetrics.wall_thickness_offset(near, far)
+	
+	var v1: Vector3 = Vector3.ZERO
+	var v2: Vector3 = Vector3.ZERO
+	var v3: Vector3 = Vector3.ZERO
+	var v4: Vector3 = Vector3.ZERO
+	
+	var point_top: Vector3 = point
+	point.y = center.y
+
+	v1 = center - thickness
+	v3 = v1
+	v2 = center + thickness
+	v4 = v2
+	
+	v3.y = center.y + HexMetrics.WALL_HEIGHT
+	v4.y = v3.y
+	point_top.y = v3.y
+	
+	walls.add_quad(v1, point, v3, point_top, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	walls.add_quad(point, v2, point_top, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	walls.add_triangle(point_top, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE)
 
 #endregion

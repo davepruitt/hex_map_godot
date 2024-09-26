@@ -66,6 +66,8 @@ const WALL_HEIGHT: float = 0.3
 
 const WALL_THICKNESS: float = 0.075
 
+const WALL_ELEVATION_OFFSET = VERTICAL_TERRACE_STEP_SIZE
+
 #endregion
 
 #region Static variables
@@ -211,5 +213,17 @@ static func wall_thickness_offset (near: Vector3, far: Vector3) -> Vector3:
 	offset.z = far.z - near.z
 	
 	return (offset.normalized() * (WALL_THICKNESS * 0.5))
+
+static func wall_lerp (near: Vector3, far: Vector3) -> Vector3:
+	near.x += (far.x - near.x) * 0.5
+	near.z += (far.z - near.z) * 0.5
+	
+	var v: float = WALL_ELEVATION_OFFSET
+	if (near.y < far.y):
+		v = 1.0 - WALL_ELEVATION_OFFSET
+	
+	near.y += (far.y - near.y) * v
+	
+	return near
 
 #endregion

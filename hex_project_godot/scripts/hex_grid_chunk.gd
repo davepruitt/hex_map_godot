@@ -374,7 +374,10 @@ func _triangulate_connection (
 		e1.v5 + bridge
 	)
 	
-	if (cell.has_river_through_edge(direction)):
+	var has_river: bool = cell.has_river_through_edge(direction)
+	var has_road: bool = cell.has_road_through_edge(direction)
+	
+	if (has_river):
 		e2.v3.y = neighbor_cell.stream_bed_y
 		
 		if (not cell.is_underwater):
@@ -392,14 +395,12 @@ func _triangulate_connection (
 				neighbor_cell.river_surface_y, cell.river_surface_y, cell.water_surface_y)
 	
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
-		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell,
-			cell.has_road_through_edge(direction))
+		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell, has_road)
 	else:
-		_triangulate_edge_strip(e1, cell.hex_color, e2, neighbor_cell.hex_color,
-			cell.has_road_through_edge(direction))
+		_triangulate_edge_strip(e1, cell.hex_color, e2, neighbor_cell.hex_color, has_road)
 	
 	#Add walls
-	_features.add_wall(e1, cell, e2, neighbor_cell)
+	_features.add_wall(e1, cell, e2, neighbor_cell, has_river, has_road)
 	
 	#Get the next neighbor of the cell
 	var next_direction = HexDirectionsClass.next(direction)
