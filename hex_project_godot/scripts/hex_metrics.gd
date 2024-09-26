@@ -64,6 +64,8 @@ const FEATURE_THRESHOLD_SUB_LEVELS: int = 3
 
 const WALL_HEIGHT: float = 0.3
 
+const WALL_THICKNESS: float = 0.075
+
 #endregion
 
 #region Static variables
@@ -200,5 +202,14 @@ static func perturb (pos: Vector3) -> Vector3:
 	pos.z += (sample.z * 2.0 - 1.0) * HexMetrics.CELL_PERTURB_STRENGTH
 	
 	return pos
+
+static func wall_thickness_offset (near: Vector3, far: Vector3) -> Vector3:
+	var offset: Vector3 = Vector3.ZERO
+	
+	offset.x = far.x - near.x
+	offset.y = 0
+	offset.z = far.z - near.z
+	
+	return (offset.normalized() * (WALL_THICKNESS * 0.5))
 
 #endregion

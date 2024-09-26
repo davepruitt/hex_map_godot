@@ -144,6 +144,26 @@ func add_wall (near: EdgeVertices, near_cell: HexCell, far: EdgeVertices, far_ce
 	if (near_cell.walled != far_cell.walled):
 		_add_wall_segment(near.v1, far.v1, near.v5, far.v5)
 
+func add_wall_three_cells (c1: Vector3, cell1: HexCell, 
+	c2: Vector3, cell2: HexCell,
+	c3: Vector3, cell3: HexCell):
+	
+	if (cell1.walled):
+		if (cell2.walled):
+			if (not cell3.walled):
+				_add_wall_segment_with_pivot(c3, cell3, c1, cell1, c2, cell2)
+		elif (cell3.walled):
+			_add_wall_segment_with_pivot(c2, cell2, c3, cell3, c1, cell1)
+		else:
+			_add_wall_segment_with_pivot(c1, cell1, c2, cell2, c3, cell3)
+	elif (cell2.walled):
+		if (cell3.walled):
+			_add_wall_segment_with_pivot(c1, cell1, c2, cell2, c3, cell3)
+		else:
+			_add_wall_segment_with_pivot(c2, cell2, c3, cell3, c1, cell1)
+	elif (cell3.walled):
+		_add_wall_segment_with_pivot(c3, cell3, c1, cell1, c2, cell2)
+	
 
 #endregion
 
@@ -158,20 +178,47 @@ func _pick_prefab (collection: Array[HexFeatureCollection], level: int, hash: fl
 	
 	return null
 
+func _add_wall_segment_with_pivot (
+	pivot: Vector3, pivot_cell: HexCell,
+	left: Vector3, left_cell: HexCell,
+	right: Vector3, right_cell: HexCell
+) -> void:
+	
+	_add_wall_segment(pivot, left, pivot, right)
+
 func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vector3, far_right: Vector3) -> void:
 	
 	var left: Vector3 = near_left.lerp(far_left, 0.5)
 	var right: Vector3 = near_right.lerp(far_right, 0.5)
 	
-	var v1: Vector3 = left
-	var v2: Vector3 = right
-	var v3: Vector3 = left
-	var v4: Vector3 = right
+	var left_thickness_offset: Vector3 = HexMetrics.wall_thickness_offset(near_left, far_left)
+	var right_thickness_offset: Vector3 = HexMetrics.wall_thickness_offset(near_right, far_right)
 	
-	v3.y = left.y + HexMetrics.WALL_HEIGHT
-	v4.y = v3.y
+	var left_top: float = left.y + HexMetrics.WALL_HEIGHT
+	var right_top: float = right.y + HexMetrics.WALL_HEIGHT
+	
+	var v1: Vector3 = left - left_thickness_offset
+	var v2: Vector3 = right - right_thickness_offset
+	var v3: Vector3 = left - left_thickness_offset
+	var v4: Vector3 = right - right_thickness_offset
+	v3.y = left_top
+	v4.y = right_top
 	
 	walls.add_perturbed_quad(v1, v2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	
+	#Wall top
+	var t1: Vector3 = v3
+	var t2: Vector3 = v4
+	
+	v1 = left + left_thickness_offset
+	v3 = v1
+	v2 = right + right_thickness_offset
+	v4 = v2
+	
+	v3.y = left_top
+	v4.y = right_top
+	
 	walls.add_perturbed_quad(v2, v1, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	walls.add_perturbed_quad(t1, t2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
 
 #endregion

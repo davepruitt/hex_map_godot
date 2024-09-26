@@ -466,6 +466,9 @@ func _triangulate_corner (
 			_triangulate_corner_terrace_cliff(left, left_cell, right, right_cell, bottom, bottom_cell)
 	else:
 		_terrain.add_perturbed_triangle(bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
+	
+	#Add walls
+	_features.add_wall_three_cells(bottom, bottom_cell, left, left_cell, right, right_cell)
 
 func _triangulate_corner_terraces (
 	begin: Vector3, begin_cell: HexCell,
