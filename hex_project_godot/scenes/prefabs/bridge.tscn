@@ -1,13 +1,35 @@
-[gd_scene load_steps=3 format=3 uid="uid://c6gxdut3mf0eu"]
+[gd_scene load_steps=5 format=3 uid="uid://c6gxdut3mf0eu"]
 
 [ext_resource type="Material" uid="uid://cg7r03ilrwfg4" path="res://resources/urban_features/urban_material.tres" id="1_3ttyv"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_ueffr"]
+[sub_resource type="BoxMesh" id="BoxMesh_2h7o8"]
 material = ExtResource("1_3ttyv")
-size = Vector3(0.3, 0.1, 0.7)
+size = Vector3(0.3, 0.1, 0.137)
+
+[sub_resource type="BoxMesh" id="BoxMesh_abtg3"]
+material = ExtResource("1_3ttyv")
+size = Vector3(0.299, 0.1, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qs38a"]
+material = ExtResource("1_3ttyv")
+size = Vector3(0.299, 0.1, 0.3)
 
 [node name="Bridge" type="Node3D"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
-mesh = SubResource("BoxMesh_ueffr")
+[node name="Group" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+
+[node name="Middle" type="MeshInstance3D" parent="Group"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049, 0)
+mesh = SubResource("BoxMesh_2h7o8")
+skeleton = NodePath("../..")
+
+[node name="NearSlope" type="MeshInstance3D" parent="Group"]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 0, -0.192)
+mesh = SubResource("BoxMesh_abtg3")
+skeleton = NodePath("../..")
+
+[node name="FarSlope" type="MeshInstance3D" parent="Group"]
+transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 0, 0, 0.192)
+mesh = SubResource("BoxMesh_qs38a")
+skeleton = NodePath("../..")

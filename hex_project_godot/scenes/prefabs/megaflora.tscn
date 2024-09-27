@@ -1,0 +1,61 @@
+[gd_scene load_steps=9 format=3 uid="uid://b2fdxh6j02qk0"]
+
+[ext_resource type="Material" uid="uid://ct84lia5g456p" path="res://resources/plant_features/plant_material.tres" id="1_qr38k"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_70ujk"]
+material = ExtResource("1_qr38k")
+size = Vector3(0.3, 1, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6vl4g"]
+material = ExtResource("1_qr38k")
+size = Vector3(0.2, 0.8, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_nrjv2"]
+material = ExtResource("1_qr38k")
+size = Vector3(0.3, 0.6, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3rwq4"]
+material = ExtResource("1_qr38k")
+size = Vector3(0.3, 0.4, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_64hnn"]
+material = ExtResource("1_qr38k")
+size = Vector3(0.2, 0.3, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_u58fv"]
+material = ExtResource("1_qr38k")
+size = Vector3(0.15, 0.7, 0.15)
+
+[sub_resource type="BoxMesh" id="BoxMesh_w1oaf"]
+material = ExtResource("1_qr38k")
+size = Vector3(0.15, 0.4, 0.15)
+
+[node name="Megaflora" type="Node3D"]
+
+[node name="Tree0" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_70ujk")
+
+[node name="Tree1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.877983, 0, 0.478692, 0, 1, 0, -0.478692, 0, 0.877983, 0.397, 0.4, 0.37)
+mesh = SubResource("BoxMesh_6vl4g")
+
+[node name="Tree2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.844328, 0, -0.535827, 0, 1, 0, 0.535827, 0, 0.844328, -0.256, 0.3, 0.39)
+mesh = SubResource("BoxMesh_nrjv2")
+
+[node name="Tree3" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.970716, 0, -0.240228, 0, 1, 0, 0.240228, 0, 0.970716, 0.198, 0.2, -0.493)
+mesh = SubResource("BoxMesh_3rwq4")
+
+[node name="Tree4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.840567, 0, 0.541708, 0, 1, 0, -0.541708, 0, 0.840567, -0.416, 0.15, -0.099)
+mesh = SubResource("BoxMesh_64hnn")
+
+[node name="Tree5" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.427358, 0, 0.904083, 0, 1, 0, -0.904083, 0, 0.427358, -0.237, 0.35, -0.452)
+mesh = SubResource("BoxMesh_u58fv")
+
+[node name="Tree6" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.372988, 0, 0.927836, 0, 1, 0, -0.927836, 0, 0.372988, 0.4, 0.2, -0.1)
+mesh = SubResource("BoxMesh_w1oaf")

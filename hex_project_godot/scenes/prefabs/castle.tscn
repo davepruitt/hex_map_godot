@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3 uid="uid://k3ndxbyn70jl"]
+
+[ext_resource type="Material" uid="uid://cg7r03ilrwfg4" path="res://resources/urban_features/urban_material.tres" id="1_qmk23"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_xkt5f"]
+material = ExtResource("1_qmk23")
+size = Vector3(0.6, 0.4, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_kmjgj"]
+material = ExtResource("1_qmk23")
+size = Vector3(0.2, 0.6, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_le3q8"]
+material = ExtResource("1_qmk23")
+size = Vector3(0.2, 0.6, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_p1v8l"]
+material = ExtResource("1_qmk23")
+size = Vector3(0.2, 0.6, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hjjd3"]
+material = ExtResource("1_qmk23")
+size = Vector3(0.2, 0.6, 0.2)
+
+[node name="Castle" type="Node3D"]
+
+[node name="CenterCube" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+mesh = SubResource("BoxMesh_xkt5f")
+
+[node name="TowerSW" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.3, -0.3)
+mesh = SubResource("BoxMesh_kmjgj")
+
+[node name="TowerSE" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.3, -0.3)
+mesh = SubResource("BoxMesh_le3q8")
+
+[node name="TowerNE" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.3, 0.3)
+mesh = SubResource("BoxMesh_p1v8l")
+
+[node name="TowerNW" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.3, 0.3)
+mesh = SubResource("BoxMesh_hjjd3")
