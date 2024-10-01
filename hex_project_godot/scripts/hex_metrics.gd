@@ -93,6 +93,10 @@ static var feature_thresholds: Array[float] = [
 	0.4, 0.6, 0.8			#High
 ]
 
+static var colors: Array[Color] = [
+	
+]
+
 #endregion
 
 #region Static Methods

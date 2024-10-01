@@ -3,6 +3,15 @@ extends Node3D
 
 #region Exported variables
 
+## These are colors available for hex cells
+@export var hex_colors: Array[Color] = [
+	Color.YELLOW,
+	Color.GREEN,
+	Color.BLUE,
+	Color.ORANGE,
+	Color.WHITE
+]
+
 ## This is the number of chunks in the x-direction of the hex grid
 @export var chunk_count_x: int = 2
 
@@ -11,9 +20,6 @@ extends Node3D
 
 ## This is the scene that will be used for each hex cell in the grid
 @export var hex_cell_prefab: PackedScene
-
-## This is the default color for each hex in the grid
-@export var default_hex_color: Color
 
 ## This is the default ShaderMaterial that will be used for the terrain in the hex grid
 @export var terrain_shader_material: ShaderMaterial
@@ -46,10 +52,6 @@ var _hex_grid_chunks: Array[HexGridChunk] = []
 ## A list of all HexCell objects in the hex grid
 var _hex_cells: Array[HexCell] = []
 
-var _hex_colors : Array[Color] = [Color.YELLOW, Color.GREEN, Color.BLUE, Color.WHITE]
-
-var _rng = RandomNumberGenerator.new()
-
 var _cell_count_x: int = 0
 
 var _cell_count_z: int = 0
@@ -60,8 +62,8 @@ var _cell_count_z: int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	#Set the seed of the random number generator
-	_rng.set_seed(1)
+	#Set the colors on the HexMetrics class
+	HexMetrics.colors = hex_colors
 	
 	#Initialize the Perlin noise
 	HexMetrics.initialize_noise_generator()
@@ -202,19 +204,8 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	#Set the position of the hex cell in the scene
 	hex_cell.position = hex_position
 	
-	#Set the color of the hex cell
-	#var idx = _rng.randi_range(0, 3)
-	#hex_cell.hex_color = _hex_colors[idx]
-	hex_cell.hex_color = default_hex_color
-	
 	#Set the initial elevation of the hex cell
 	hex_cell.elevation = 0
-	#if (hex_cell.hex_color == Color.BLUE):
-		#hex_cell.elevation = 0
-	#elif (hex_cell.hex_color == Color.WHITE):
-		#hex_cell.elevation = 2
-	#else:
-		#hex_cell.elevation = 1
 	
 	#Set the coordinates of the hex cell within the grid
 	hex_cell.hex_coordinates = HexCoordinates.FromOffsetCoordinates(x, z)

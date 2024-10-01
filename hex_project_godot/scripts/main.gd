@@ -1,17 +1,6 @@
 class_name Main
 extends Node3D
 
-#region Exported variables
-
-@export_group("Hex Colors")
-@export var color_1 := Color.YELLOW
-@export var color_2 := Color.GREEN
-@export var color_3 := Color.BLUE
-@export var color_4 := Color.ORANGE
-@export var color_5 := Color.WHITE
-
-#endregion
-
 #region Public data members
 
 var camera_speed: float = 0.1
@@ -197,27 +186,27 @@ func _on_check_box_no_color_pressed() -> void:
 
 func _on_check_box_color_yellow_pressed() -> void:
 	paint_terrain_color_enabled = true
-	active_color = color_1
+	active_color = HexMetrics.colors[0]
 
 
 func _on_check_box_color_green_pressed() -> void:
 	paint_terrain_color_enabled = true
-	active_color = color_2
+	active_color = HexMetrics.colors[1]
 
 
 func _on_check_box_color_blue_pressed() -> void:
 	paint_terrain_color_enabled = true
-	active_color = color_3
+	active_color = HexMetrics.colors[2]
 
 
 func _on_check_box_color_orange_pressed() -> void:
 	paint_terrain_color_enabled = true
-	active_color = color_4
+	active_color = HexMetrics.colors[3]
 	
 
 func _on_check_box_color_white_pressed() -> void:
 	paint_terrain_color_enabled = true
-	active_color = color_5
+	active_color = HexMetrics.colors[4]
 
 
 func _on_elevation_slider_value_changed(value: float) -> void:

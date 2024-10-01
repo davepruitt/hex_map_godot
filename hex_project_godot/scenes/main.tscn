@@ -42,6 +42,7 @@ light_energy = 10.0
 omni_range = 1000.0
 
 [node name="HexGrid" parent="." instance=ExtResource("3_t3wo0")]
+hex_colors = Array[Color]([])
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

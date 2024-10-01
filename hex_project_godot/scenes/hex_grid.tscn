@@ -50,7 +50,6 @@ albedo_color = Color(1, 0, 0, 1)
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
 hex_cell_prefab = ExtResource("2_ud45i")
-default_hex_color = Color(1, 1, 1, 1)
 terrain_shader_material = SubResource("ShaderMaterial_c0bb5")
 river_shader_material = SubResource("ShaderMaterial_6crjs")
 road_shader_material = SubResource("ShaderMaterial_lf52a")
