@@ -31,27 +31,35 @@ var _rotation_angle: float = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	_main_camera.make_current()
+	pass
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	var left_right_movement = Input.get_axis("ui_left", "ui_right")
-	var forward_back_movement = Input.get_axis("ui_up", "ui_down")
+	#Check to see if the main camera is the current camera
+	if (_main_camera.current):
+		#If so, then we will respond to user interactions on this camera
+		
+		var left_right_movement = Input.get_axis("ui_left", "ui_right")
+		var forward_back_movement = Input.get_axis("ui_up", "ui_down")
 
-	if (left_right_movement != 0.0 || forward_back_movement != 0.0):
-		_adjust_position(left_right_movement, forward_back_movement, delta)
-	
-	var rotate_left_right_movement = Input.get_axis("ui_rotate_right", "ui_rotate_left")
-	if (rotate_left_right_movement != 0.0):
-		_adjust_rotation(rotate_left_right_movement, delta)
+		if (left_right_movement != 0.0 || forward_back_movement != 0.0):
+			_adjust_position(left_right_movement, forward_back_movement, delta)
+		
+		var rotate_left_right_movement = Input.get_axis("ui_rotate_right", "ui_rotate_left")
+		if (rotate_left_right_movement != 0.0):
+			_adjust_rotation(rotate_left_right_movement, delta)
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_Z:
-			_adjust_zoom(-0.1)
-		elif event.keycode == KEY_X:
-			_adjust_zoom(0.1)
+	#Check to see if the main camera is the current camera
+	if (_main_camera.current):	
+		#If so, then we will respond to user interactions on this camera
+		
+		if event is InputEventKey and event.pressed:
+			if event.keycode == KEY_Z:
+				_adjust_zoom(-0.1)
+			elif event.keycode == KEY_X:
+				_adjust_zoom(0.1)
 
 #endregion
 

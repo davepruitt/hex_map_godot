@@ -43,7 +43,6 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 #region OnReady public data members
 
 @onready var hex_grid := $HexGrid
-@onready var scene_camera := $HexMapCamera/Swivel/Stick/MainCamera
 
 @onready var elevation_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer/ElevationValueLabel
 @onready var check_button_enable_elevation := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
@@ -84,6 +83,13 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 @onready var check_button_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_SpecialFeature
 @onready var drop_down_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/OptionButton_SpecialFeature
 
+@onready var cameras: Array[Camera3D] = [
+	$HexMapCamera/Swivel/Stick/MainCamera,
+	$DebugCamera
+]
+
+@onready var current_camera_value_label := $CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer/CurrentCameraValueLabel
+
 #endregion
 
 #region Private data members
@@ -92,6 +98,8 @@ var _is_drag: bool = false
 var _drag_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
 var _mouse_down_cell: HexCell = null
 var _mouse_up_cell: HexCell = null
+
+var _selected_camera: int = 0
 
 #endregion
 
@@ -103,28 +111,57 @@ func _ready() -> void:
 	#This allows for deterministic repeated-runs of the application.
 	seed(1)
 	
+	#This allows us to cycle through some debug views of our meshes
 	RenderingServer.set_debug_generate_wireframes(true)
 	
+	#Initialize the user interface
 	_initialize_ui()
+	
+	#Set the default camera
+	cameras[_selected_camera].make_current()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	var left_right_movement = Input.get_axis("ui_left", "ui_right")
-	var up_down_movement = Input.get_axis("ui_up", "ui_down")
+	pass
 	
 	
 func _input(event: InputEvent) -> void:
+	#Check for user input...
 	if event is InputEventKey and event.pressed:
+		#If the "P" key was pressed, let's cycle through debug views
 		if event.keycode == KEY_P:
 			var vp = get_viewport()
 			vp.debug_draw = (vp.debug_draw + 1) % 5
 			
+		#If the "C" key was pressed, let's alternate the camera being used
+		if event.keycode == KEY_C:
+			#Increment the index of the selected camera
+			_selected_camera += 1
+			if (_selected_camera >= len(cameras)):
+				#Set the index to 0 if we have exceeded the length of the list
+				_selected_camera = 0
+			
+			#Set the current camera to the newly selected camera
+			cameras[_selected_camera].make_current()
+
+			#Update the UI to reflect which camera is selected
+			if (_selected_camera == 0):
+				current_camera_value_label.text = "Main"
+			elif (_selected_camera == 1):
+				current_camera_value_label.text = "Debug"
+			else:
+				current_camera_value_label.text = "NA"
+	
+	#If a mouse button was pressed...
 	elif event is InputEventMouseButton:
+		#If the left mouse button was pressed...
 		if event.button_index == MOUSE_BUTTON_LEFT:
+			#Shoot a ray through a cell in the hex grid to see what cell was touched by the user
 			var RAY_LENGTH = 1000
 			var space_state = get_world_3d().direct_space_state
 			var mousepos = get_viewport().get_mouse_position()
 
+			var scene_camera: Camera3D = cameras[_selected_camera]
 			var origin = scene_camera.project_ray_origin(mousepos)
 			var end = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
 			var query = PhysicsRayQueryParameters3D.create(origin, end)
@@ -287,6 +324,13 @@ func _on_option_button_special_feature_item_selected(index: int) -> void:
 #region Private methods
 
 func _initialize_ui () -> void:
+	if (_selected_camera == 0):
+		current_camera_value_label.text = "Main"
+	elif (_selected_camera == 1):
+		current_camera_value_label.text = "Debug"
+	else:
+		current_camera_value_label.text = "NA"
+	
 	check_button_show_labels.set_pressed_no_signal(active_show_labels)
 	check_button_enable_elevation.set_pressed_no_signal(paint_terrain_elevation_enabled)
 	check_button_water_level.set_pressed_no_signal(apply_water_level)

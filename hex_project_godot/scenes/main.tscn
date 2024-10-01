@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=9 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_sv3ps"]
 [ext_resource type="Script" path="res://scripts/hex_map_camera.gd" id="2_roenc"]
+[ext_resource type="Script" path="res://scripts/debug_camera.gd" id="3_8bvhd"]
 [ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://scenes/hex_grid.tscn" id="3_t3wo0"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_jp0eq"]
@@ -31,6 +32,9 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
 
 [node name="MainCamera" type="Camera3D" parent="HexMapCamera/Swivel/Stick"]
+
+[node name="DebugCamera" type="Camera3D" parent="."]
+script = ExtResource("3_8bvhd")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
@@ -467,6 +471,46 @@ layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_n8ipb")
 text = "No"
+
+[node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 8
+size_flags_vertical = 8
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer3"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer3/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Press 'C' to change camera"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Label" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Current camera: "
+
+[node name="CurrentCameraValueLabel" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "NA"
 
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
