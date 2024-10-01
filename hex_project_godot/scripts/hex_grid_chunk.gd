@@ -646,10 +646,10 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 		#The colors will be ignored for roads
 		_roads.add_perturbed_triangle_with_uv(center, mC, mL, 
 			Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(1, 0), Vector2(0, 0), Vector2(1, 0))
+			Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
 		_roads.add_perturbed_triangle_with_uv(center, mR, mC, 
 			Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
+			Vector2(1, 0), Vector2(0, 0), Vector2(1, 0))
 	else:
 		_triangulate_road_edge(center, mL, mR)
 
