@@ -11,6 +11,7 @@ var walls: HexMesh = HexMesh.new()
 
 var wall_tower_prefab: PackedScene = preload("res://scenes/prefabs/wall_tower.tscn")
 var bridge_prefab: PackedScene = preload("res://scenes/prefabs/bridge.tscn")
+var flag_prefab: PackedScene = preload("res://scenes/prefabs/flag.tscn")
 
 var special_prefabs: Array[PackedScene] = [
 	preload("res://scenes/prefabs/castle.tscn"),
@@ -193,9 +194,16 @@ func add_bridge (road_center_1: Vector3, road_center_2: Vector3) -> void:
 	road_center_1 = HexMetrics.perturb(road_center_1)
 	road_center_2 = HexMetrics.perturb(road_center_2)
 	
+	#There seems to be some issue with correctly rotating the bridges if road_center_2's Z value
+	#is less than road_center_1's Z value. So, if this is the case, let's just swap the two
+	if (road_center_2.z < road_center_1.z):
+		var temp: Vector3 = road_center_2
+		road_center_2 = road_center_1
+		road_center_1 = temp
+	
 	var bridge_instance: Node3D = bridge_prefab.instantiate() as Node3D
 	bridge_instance.position = (road_center_1 + road_center_2) * 0.5
-	bridge_instance.quaternion = Quaternion(bridge_instance.basis.z, road_center_2 - road_center_1)
+	bridge_instance.quaternion = Quaternion(bridge_instance.global_transform.basis.z, road_center_2 - road_center_1)
 	
 	var bridge_length: float = road_center_1.distance_to(road_center_2)
 	bridge_instance.scale = Vector3(1.0, 1.0, bridge_length * (1.0 / HexMetrics.BRIDGE_DESIGN_LENGTH))

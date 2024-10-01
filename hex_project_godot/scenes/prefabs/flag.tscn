@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://c4iw74q8wbu6f"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_46sc4"]
+albedo_color = Color(0.843184, 0.843184, 0.843184, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_i73pj"]
+material = SubResource("StandardMaterial3D_46sc4")
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wwbk3"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_qqpmp"]
+material = SubResource("StandardMaterial3D_wwbk3")
+size = Vector3(0.2, 0.25, 0.05)
+
+[node name="Flag" type="Node3D"]
+
+[node name="FlagPole" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+mesh = SubResource("CylinderMesh_i73pj")
+
+[node name="FlagBanner" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0, 1, 0.15, 0.3, 0)
+mesh = SubResource("PrismMesh_qqpmp")
