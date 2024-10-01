@@ -7,21 +7,21 @@ uniform sampler2D noise_texture;
 
 varying vec3 world_position;
 
-void vertex() 
+void vertex()
 {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_position.x *= 10.0;
 	world_position.z *= 10.0;
 }
 
-void fragment() 
+void fragment()
 {
 	float shore = UV.y;
 	float foam = compute_foam(shore, world_position.xz, noise_texture);
 	float waves = compute_waves(world_position.xz, noise_texture);
-	
+
 	waves *= 1.0 - shore;
-	
+
 	vec4 c = clamp(base_color + max(foam, waves), 0.0, 1.0);
 	ALBEDO = c.rgb;
 	ALPHA = c.a;

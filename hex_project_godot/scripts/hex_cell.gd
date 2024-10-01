@@ -35,6 +35,8 @@ var _plant_level: int = 0
 
 var _walled: bool = false
 
+var _special_index: int = 0
+
 #endregion
 
 #region Public data members
@@ -195,6 +197,18 @@ var walled: bool:
 		if (_walled != value):
 			_walled = value
 			_refresh()
+
+var special_index: int:
+	get:
+		return _special_index
+	set(value):
+		if (_special_index != value):
+			_special_index = value
+			_refresh_self_only()
+
+var is_special: bool:
+	get:
+		return (_special_index > 0)
 
 #endregion
 

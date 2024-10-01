@@ -419,6 +419,28 @@ text = "0"
 [node name="HSeparator3" type="HSeparator" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
+[node name="CheckButton_SpecialFeature" type="CheckButton" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+text = "Apply Special Feature"
+
+[node name="OptionButton_SpecialFeature" type="OptionButton" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+item_count = 4
+popup/item_0/text = "None"
+popup/item_1/text = "Castle"
+popup/item_1/id = 1
+popup/item_2/text = "Ziggurat"
+popup/item_2/id = 2
+popup/item_3/text = "Megaflora"
+popup/item_3/id = 3
+
+[node name="HSeparator4" type="HSeparator" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
 [node name="WallsLabel" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -470,6 +492,8 @@ text = "No"
 [connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer2/FarmLevelSlider" to="." method="_on_farm_level_slider_value_changed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_PlantLevel" to="." method="_on_check_button_plant_level_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer3/PlantLevelSlider" to="." method="_on_plant_level_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_SpecialFeature" to="." method="_on_check_button_special_feature_toggled"]
+[connection signal="item_selected" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/OptionButton_SpecialFeature" to="." method="_on_option_button_special_feature_item_selected"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsIgnore" to="." method="_on_check_box_walls_ignore_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsYes" to="." method="_on_check_box_walls_yes_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsNo" to="." method="_on_check_box_walls_no_pressed"]

@@ -12,6 +12,12 @@ var walls: HexMesh = HexMesh.new()
 var wall_tower_prefab: PackedScene = preload("res://scenes/prefabs/wall_tower.tscn")
 var bridge_prefab: PackedScene = preload("res://scenes/prefabs/bridge.tscn")
 
+var special_prefabs: Array[PackedScene] = [
+	preload("res://scenes/prefabs/castle.tscn"),
+	preload("res://scenes/prefabs/ziggurat.tscn"),
+	preload("res://scenes/prefabs/megaflora.tscn")
+]
+
 #endregion
 
 #region Constructor

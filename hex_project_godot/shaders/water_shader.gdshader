@@ -7,14 +7,14 @@ uniform sampler2D noise_texture;
 
 varying vec3 world_position;
 
-void vertex() 
+void vertex()
 {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_position.x *= 10.0;
 	world_position.z *= 10.0;
 }
 
-void fragment() 
+void fragment()
 {
 	float waves = compute_waves(world_position.xz, noise_texture);
 

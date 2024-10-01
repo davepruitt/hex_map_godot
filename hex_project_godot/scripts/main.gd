@@ -22,6 +22,7 @@ var apply_water_level: bool = false
 var apply_urban_level: bool = false
 var apply_farm_level: bool = false
 var apply_plant_level: bool = false
+var apply_special_feature: bool = false
 
 var active_color: Color = Color.WHITE
 var active_elevation: int = 0
@@ -31,6 +32,7 @@ var active_water_level: int = 0
 var active_urban_level: int = 0
 var active_farm_level: int = 0
 var active_plant_level: int = 0
+var active_special_feature: int = 0
 
 var river_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 var road_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
@@ -78,6 +80,9 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 @onready var check_button_walls_ignore := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsIgnore
 @onready var check_button_walls_yes := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsYes
 @onready var check_button_walls_no := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsNo
+
+@onready var check_button_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_SpecialFeature
+@onready var drop_down_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/OptionButton_SpecialFeature
 
 #endregion
 
@@ -269,6 +274,14 @@ func _on_check_box_walls_no_pressed() -> void:
 	_set_wall_mode(Enums.OptionalToggle.No)
 
 
+func _on_check_button_special_feature_toggled(toggled_on: bool) -> void:
+	_set_apply_special_feature(toggled_on)
+
+
+func _on_option_button_special_feature_item_selected(index: int) -> void:
+	_set_special_feature_index(index)
+
+
 #endregion
 
 #region Private methods
@@ -374,6 +387,10 @@ func _edit_cell (cell: HexCell) -> void:
 		if (apply_water_level):
 			cell.water_level = active_water_level
 		
+		#Paint the special feature
+		if (apply_special_feature):
+			cell.special_index = active_special_feature
+		
 		#Paint the urban level value
 		if (apply_urban_level):
 			cell.urban_level = active_urban_level
@@ -443,6 +460,12 @@ func _set_plant_level (level: float) -> void:
 
 func _set_wall_mode (mode: int) -> void:
 	walls_mode = mode
+
+func _set_apply_special_feature (toggle: bool) -> void:
+	apply_special_feature = toggle
+
+func _set_special_feature_index (index: float) -> void:
+	active_special_feature = index
 	
 func _validate_drag () -> void:
 	#Set the initial drag direction

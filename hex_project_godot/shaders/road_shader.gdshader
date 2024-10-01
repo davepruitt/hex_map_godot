@@ -13,7 +13,7 @@ void fragment() {
 	float blend = UV.x;
 	blend *= noise.x + 0.5;
 	blend = smoothstep(0.4, 0.7, blend);
-	
+
 	ALBEDO = c.rgb;
 	//ALPHA = blend;
 }
