@@ -187,6 +187,10 @@ func _triangulate_hex (cell: HexCell) -> void:
 	if ((not cell.is_underwater) and (not cell.has_river) and (not cell.has_roads)):
 		_features.add_feature(cell, cell.position)
 	
+	#Place special features
+	if (cell.is_special):
+		_features.add_special_feature(cell, cell.position)
+	
 func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
 	var center = cell.position

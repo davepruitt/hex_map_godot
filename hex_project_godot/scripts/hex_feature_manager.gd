@@ -198,6 +198,20 @@ func add_bridge (road_center_1: Vector3, road_center_2: Vector3) -> void:
 	
 	add_child(bridge_instance)
 
+func add_special_feature (cell: HexCell, pos: Vector3) -> void:
+	#Instantiate the selected special feature
+	var instance: Node3D = special_prefabs[cell.special_index - 1].instantiate() as Node3D
+	
+	#Give it a position
+	instance.position = HexMetrics.perturb(pos)
+	
+	#Give it an orientation
+	var hash: HexHash = HexMetrics.sample_hash_grid(pos)
+	instance.quaternion = Quaternion.from_euler(Vector3(0, 360.0 * hash.e, 0))
+	
+	#Add it as a child of this node
+	add_child(instance)
+
 #endregion
 
 #region Private methods
