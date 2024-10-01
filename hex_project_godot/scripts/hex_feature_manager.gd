@@ -94,6 +94,10 @@ func apply () -> void:
 	pass
 	
 func add_feature (cell: HexCell, pos: Vector3) -> void:
+	#If this cell contains a special feature, then suppress adding any other features
+	if (cell.is_special):
+		return
+	
 	#Get a random value to be used for this feature
 	var hash: HexHash = HexMetrics.sample_hash_grid(pos)
 	

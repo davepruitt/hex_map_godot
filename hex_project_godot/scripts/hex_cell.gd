@@ -202,8 +202,9 @@ var special_index: int:
 	get:
 		return _special_index
 	set(value):
-		if (_special_index != value):
+		if (_special_index != value) and (not has_river):
 			_special_index = value
+			remove_roads()
 			_refresh_self_only()
 
 var is_special: bool:
@@ -325,10 +326,14 @@ func set_outgoing_river (direction: HexDirectionsClass.HexDirections) -> void:
 	#Set the direction of the outgoing river
 	_outgoing_river_direction = direction
 	
+	#Set the special feature index to 0 (indicating that no special feature exists)
+	_special_index = 0
+	
 	#Set the incoming river of the neighbor cell
 	neighbor.remove_incoming_river()
 	neighbor._has_incoming_river = true
 	neighbor._incoming_river_direction = HexDirectionsClass.opposite(direction)
+	neighbor._special_index = 0
 	
 	#Clear out any road that exists in this direction
 	#This will also call the function to refresh the cell and its neighbors
@@ -340,6 +345,8 @@ func has_road_through_edge (direction: HexDirectionsClass.HexDirections) -> bool
 func add_road (direction: HexDirectionsClass.HexDirections) -> void:
 	if ((!_roads[int(direction)]) and 
 		(!has_river_through_edge(direction)) and 
+		(not is_special) and
+		(not get_neighbor(direction).is_special) and
 		(get_elevation_difference(direction) <= 1)):
 		
 		set_road(int(direction), true)

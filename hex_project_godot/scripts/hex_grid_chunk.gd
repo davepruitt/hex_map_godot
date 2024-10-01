@@ -183,13 +183,16 @@ func _triangulate_hex (cell: HexCell) -> void:
 		#Form the mesh for this direction of the hex
 		_triangulate_hex_in_direction(cell, i)
 	
-	#Place a single feature in the center of every cell
-	if ((not cell.is_underwater) and (not cell.has_river) and (not cell.has_roads)):
-		_features.add_feature(cell, cell.position)
-	
-	#Place special features
-	if (cell.is_special):
-		_features.add_special_feature(cell, cell.position)
+	#If this cell is not underwater...
+	if (not cell.is_underwater):
+		#If this cell does not have a river and also does not have roads...
+		if (not cell.has_river) and (not cell.has_roads):
+			#Add the features to this cell
+			_features.add_feature(cell, cell.position)
+		
+		#If this cell has a special feature...
+		if (cell.is_special):
+			_features.add_special_feature(cell, cell.position)
 	
 func _triangulate_hex_in_direction (cell: HexCell, direction: HexDirectionsClass.HexDirections) -> void:
 	#Calculate the Vector3 positions for the vertices of the triangle
