@@ -42,7 +42,6 @@ light_energy = 10.0
 omni_range = 1000.0
 
 [node name="HexGrid" parent="." instance=ExtResource("3_t3wo0")]
-hex_colors = Array[Color]([])
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -473,6 +472,37 @@ focus_mode = 0
 button_group = SubResource("ButtonGroup_n8ipb")
 text = "No"
 
+[node name="HSeparator5" type="HSeparator" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer4" type="MarginContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4"]
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 3
+
+[node name="LoadButton" type="Button" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer"]
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Load"
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 0
+
+[node name="SaveButton" type="Button" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer"]
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+text = "Save"
+
 [node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer"]
 anchors_preset = 3
 anchor_left = 1.0
@@ -542,3 +572,5 @@ text = "NA"
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsIgnore" to="." method="_on_check_box_walls_ignore_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsYes" to="." method="_on_check_box_walls_yes_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsNo" to="." method="_on_check_box_walls_no_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/SaveButton" to="." method="_on_save_button_pressed"]

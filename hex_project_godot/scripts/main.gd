@@ -5,7 +5,6 @@ extends Node3D
 
 var camera_speed: float = 0.1
 
-var paint_terrain_color_enabled: bool = true
 var paint_terrain_elevation_enabled: bool = false
 var apply_water_level: bool = false
 var apply_urban_level: bool = false
@@ -13,7 +12,7 @@ var apply_farm_level: bool = false
 var apply_plant_level: bool = false
 var apply_special_feature: bool = false
 
-var active_color: Color = Color.WHITE
+var active_terrain_type_index: int = 0
 var active_elevation: int = 0
 var active_brush_size: int = 0
 var active_show_labels: bool = true
@@ -181,32 +180,38 @@ func _input(event: InputEvent) -> void:
 #region GUI event handlers
 
 func _on_check_box_no_color_pressed() -> void:
-	paint_terrain_color_enabled = false
+	#paint_terrain_color_enabled = false
+	return
 
 
 func _on_check_box_color_yellow_pressed() -> void:
-	paint_terrain_color_enabled = true
-	active_color = HexMetrics.colors[0]
+	#paint_terrain_color_enabled = true
+	#active_color = HexMetrics.colors[0]
+	return
 
 
 func _on_check_box_color_green_pressed() -> void:
-	paint_terrain_color_enabled = true
-	active_color = HexMetrics.colors[1]
+	#paint_terrain_color_enabled = true
+	#active_color = HexMetrics.colors[1]
+	return
 
 
 func _on_check_box_color_blue_pressed() -> void:
-	paint_terrain_color_enabled = true
-	active_color = HexMetrics.colors[2]
+	#paint_terrain_color_enabled = true
+	#active_color = HexMetrics.colors[2]
+	return
 
 
 func _on_check_box_color_orange_pressed() -> void:
-	paint_terrain_color_enabled = true
-	active_color = HexMetrics.colors[3]
+	#paint_terrain_color_enabled = true
+	#active_color = HexMetrics.colors[3]
+	return
 	
 
 func _on_check_box_color_white_pressed() -> void:
-	paint_terrain_color_enabled = true
-	active_color = HexMetrics.colors[4]
+	#paint_terrain_color_enabled = true
+	#active_color = HexMetrics.colors[4]
+	return
 
 
 func _on_elevation_slider_value_changed(value: float) -> void:
@@ -308,6 +313,32 @@ func _on_option_button_special_feature_item_selected(index: int) -> void:
 	_set_special_feature_index(index)
 
 
+func _on_save_button_pressed() -> void:
+	#Set the path we will save to
+	var path: String = "user://test.map"
+	
+	#Open the file for writing
+	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	
+	
+	
+	#Close the file
+	save_file.close()
+
+
+func _on_load_button_pressed() -> void:
+	#Set the path we will save to
+	var path: String = "user://test.map"
+	
+	#Open the file for writing
+	var load_file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	
+	
+	
+	#Close the file
+	load_file.close()
+
+
 #endregion
 
 #region Private methods
@@ -327,19 +358,19 @@ func _initialize_ui () -> void:
 	check_button_farm_level.set_pressed_no_signal(apply_farm_level)
 	check_button_plant_level.set_pressed_no_signal(apply_plant_level)
 	
-	if (paint_terrain_color_enabled):
-		if (active_color == Color.YELLOW):
-			check_button_color_yellow.set_pressed_no_signal(true)
-		elif (active_color == Color.GREEN):
-			check_button_color_green.set_pressed_no_signal(true)
-		elif (active_color == Color.BLUE):
-			check_button_color_blue.set_pressed_no_signal(true)
-		elif (active_color == Color.ORANGE):
-			check_button_color_orange.set_pressed_no_signal(true)
-		elif (active_color == Color.WHITE):
-			check_button_color_white.set_pressed_no_signal(true)
-	else:
-		check_button_color_none.set_pressed_no_signal(true)
+	#if (paint_terrain_color_enabled):
+		#if (active_color == Color.YELLOW):
+			#check_button_color_yellow.set_pressed_no_signal(true)
+		#elif (active_color == Color.GREEN):
+			#check_button_color_green.set_pressed_no_signal(true)
+		#elif (active_color == Color.BLUE):
+			#check_button_color_blue.set_pressed_no_signal(true)
+		#elif (active_color == Color.ORANGE):
+			#check_button_color_orange.set_pressed_no_signal(true)
+		#elif (active_color == Color.WHITE):
+			#check_button_color_white.set_pressed_no_signal(true)
+	#else:
+		#check_button_color_none.set_pressed_no_signal(true)
 		
 	if (river_mode == Enums.OptionalToggle.Ignore):
 		check_button_rivers_ignore.set_pressed_no_signal(true)
@@ -409,8 +440,8 @@ func _edit_cell (cell: HexCell) -> void:
 	#Make sure the cell is not null
 	if (cell):
 		#Paint the color
-		if (paint_terrain_color_enabled):
-			cell.hex_color = active_color
+		if (active_terrain_type_index >= 0):
+			cell.terrain_type_index = active_terrain_type_index
 		
 		#Paint the terrain elevation value
 		if (paint_terrain_elevation_enabled):
@@ -460,6 +491,9 @@ func _edit_cell (cell: HexCell) -> void:
 				#Place roads if the road mode is set to "yes"
 				if (road_mode == Enums.OptionalToggle.Yes):
 					other_cell.add_road(_drag_direction)
+
+func _set_terrain_type_index (index: int) -> void:
+	active_terrain_type_index = index
 
 func _set_river_mode (mode: Enums.OptionalToggle) -> void:
 	river_mode = mode

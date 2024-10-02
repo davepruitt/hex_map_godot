@@ -10,7 +10,8 @@ extends Node3D
 
 #region Private data members
 
-var _hex_color: Color = Color.BLACK
+## This is the terrain type for this cell
+var _terrain_type_index: int = 0
 
 ## This is the elevation of the hex cell
 var _elevation: int = -32767
@@ -87,14 +88,16 @@ var elevation: int:
 ## This is the color of this hex
 var hex_color: Color:
 	get:
-		return _hex_color
+		return (HexMetrics.colors[_terrain_type_index])
+
+## This is the terrain type of this hex
+var terrain_type_index: int:
+	get:
+		return _terrain_type_index
 	set(value):
-		if (_hex_color == value):
-			return
-		
-		_hex_color = value
-		
-		_refresh()
+		if (_terrain_type_index != value):
+			_terrain_type_index = value
+			_refresh()
 
 ## This is a property indicating whether this cell has an incoming river
 var has_incoming_river: bool:
