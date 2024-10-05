@@ -413,8 +413,6 @@ func load_hex_cell (file_reader: FileAccess) -> void:
 	
 	_walled = bool(file_reader.get_8())
 	
-	_has_incoming_river = bool(file_reader.get_8())
-	_incoming_river_direction = file_reader.get_8()
 	var incoming_river_info: int = file_reader.get_8()
 	if (incoming_river_info >= 128):
 		_has_incoming_river = true
