@@ -180,37 +180,32 @@ func _input(event: InputEvent) -> void:
 #region GUI event handlers
 
 func _on_check_box_no_color_pressed() -> void:
-	#paint_terrain_color_enabled = false
+	active_terrain_type_index = -1
 	return
 
 
 func _on_check_box_color_yellow_pressed() -> void:
-	#paint_terrain_color_enabled = true
-	#active_color = HexMetrics.colors[0]
+	active_terrain_type_index = 0
 	return
 
 
 func _on_check_box_color_green_pressed() -> void:
-	#paint_terrain_color_enabled = true
-	#active_color = HexMetrics.colors[1]
+	active_terrain_type_index = 1
 	return
 
 
 func _on_check_box_color_blue_pressed() -> void:
-	#paint_terrain_color_enabled = true
-	#active_color = HexMetrics.colors[2]
+	active_terrain_type_index = 2
 	return
 
 
 func _on_check_box_color_orange_pressed() -> void:
-	#paint_terrain_color_enabled = true
-	#active_color = HexMetrics.colors[3]
+	active_terrain_type_index = 3
 	return
 	
 
 func _on_check_box_color_white_pressed() -> void:
-	#paint_terrain_color_enabled = true
-	#active_color = HexMetrics.colors[4]
+	active_terrain_type_index = 4
 	return
 
 
@@ -320,7 +315,11 @@ func _on_save_button_pressed() -> void:
 	#Open the file for writing
 	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	
+	#File version
+	save_file.store_32(0)
 	
+	#Save the hex grid
+	hex_grid.save_hex_grid(save_file)
 	
 	#Close the file
 	save_file.close()
@@ -333,7 +332,13 @@ func _on_load_button_pressed() -> void:
 	#Open the file for writing
 	var load_file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	
+	#Get the file version
+	var file_version: int = load_file.get_32()
 	
+	#If the file version is 0...
+	if (file_version == 0):
+		#Load the hex grid
+		hex_grid.load_hex_grid(load_file)
 	
 	#Close the file
 	load_file.close()
@@ -358,19 +363,18 @@ func _initialize_ui () -> void:
 	check_button_farm_level.set_pressed_no_signal(apply_farm_level)
 	check_button_plant_level.set_pressed_no_signal(apply_plant_level)
 	
-	#if (paint_terrain_color_enabled):
-		#if (active_color == Color.YELLOW):
-			#check_button_color_yellow.set_pressed_no_signal(true)
-		#elif (active_color == Color.GREEN):
-			#check_button_color_green.set_pressed_no_signal(true)
-		#elif (active_color == Color.BLUE):
-			#check_button_color_blue.set_pressed_no_signal(true)
-		#elif (active_color == Color.ORANGE):
-			#check_button_color_orange.set_pressed_no_signal(true)
-		#elif (active_color == Color.WHITE):
-			#check_button_color_white.set_pressed_no_signal(true)
-	#else:
-		#check_button_color_none.set_pressed_no_signal(true)
+	if (active_terrain_type_index == -1):
+		check_button_color_none.set_pressed_no_signal(true)
+	elif (active_terrain_type_index == 0):
+		check_button_color_yellow.set_pressed_no_signal(true)
+	elif (active_terrain_type_index == 1):
+		check_button_color_green.set_pressed_no_signal(true)
+	elif (active_terrain_type_index == 2):
+		check_button_color_blue.set_pressed_no_signal(true)
+	elif (active_terrain_type_index == 3):
+		check_button_color_orange.set_pressed_no_signal(true)
+	elif (active_terrain_type_index == 4):
+		check_button_color_white.set_pressed_no_signal(true)
 		
 	if (river_mode == Enums.OptionalToggle.Ignore):
 		check_button_rivers_ignore.set_pressed_no_signal(true)

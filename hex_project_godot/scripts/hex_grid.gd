@@ -131,6 +131,17 @@ func show_ui (visible: bool) -> void:
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].show_ui_label(visible)
 
+func save_hex_grid (file_writer: FileAccess) -> void:
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i].save_hex_cell(file_writer)
+	
+func load_hex_grid (file_reader: FileAccess) -> void:
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i].load_hex_cell(file_reader)
+		
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i]._refresh()
+
 #endregion
 
 #region Private methods

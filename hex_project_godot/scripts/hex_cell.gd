@@ -62,15 +62,8 @@ var elevation: int:
 		#Set the elevation value for this cell
 		_elevation = value
 		
-		#Set the position of the cell
-		position.y = _elevation * HexMetrics.ELEVATION_STEP
-		
-		var noise_sample: Vector4 = HexMetrics.sample_noise(position * HexMetrics.CELL_PERTURB_POSITION_MULTIPLIER)
-		var perturbation_amount: float = ((noise_sample.y * 2.0 - 1.0) * HexMetrics.ELEVATION_PERTURB_STRENGTH)
-		position.y += perturbation_amount
-		
-		#Set the y-axis position of the "position label" for the cell
-		position_label.position.y = 0.01 + abs(perturbation_amount)
+		#Refresh the position
+		_refresh_position()
 		
 		#Remove any illegal/invalid rivers due to the change in this cell's elevation
 		_validate_rivers()
@@ -380,6 +373,66 @@ func get_elevation_difference (direction: HexDirectionsClass.HexDirections) -> i
 	else:
 		return -difference
 
+func save_hex_cell (file_writer: FileAccess) -> void:
+	file_writer.store_8(_terrain_type_index)
+	file_writer.store_8(_elevation)
+	file_writer.store_8(_water_level)
+	file_writer.store_8(_urban_level)
+	file_writer.store_8(_farm_level)
+	file_writer.store_8(_plant_level)
+	file_writer.store_8(_special_index)
+	file_writer.store_8(_walled)
+	
+	if (_has_incoming_river):
+		file_writer.store_8(int(_incoming_river_direction) + 128)
+	else:
+		file_writer.store_8(0)
+	
+	if (_has_outgoing_river):
+		file_writer.store_8(int(_outgoing_river_direction) + 128)
+	else:
+		file_writer.store_8(0)
+	
+	var road_flags: int = 0
+	for i in range(0, len(_roads)):
+		if (_roads[i]):
+			road_flags |= 1 << i
+	file_writer.store_8(road_flags)
+
+func load_hex_cell (file_reader: FileAccess) -> void:
+	_terrain_type_index = file_reader.get_8()
+	
+	_elevation = file_reader.get_8()
+	_refresh_position()
+	
+	_water_level = file_reader.get_8()
+	_urban_level = file_reader.get_8()
+	_farm_level = file_reader.get_8()
+	_plant_level = file_reader.get_8()
+	_special_index = file_reader.get_8()
+	
+	_walled = bool(file_reader.get_8())
+	
+	_has_incoming_river = bool(file_reader.get_8())
+	_incoming_river_direction = file_reader.get_8()
+	var incoming_river_info: int = file_reader.get_8()
+	if (incoming_river_info >= 128):
+		_has_incoming_river = true
+		_incoming_river_direction = incoming_river_info - 128
+	else:
+		_has_incoming_river = false
+	
+	var outgoing_river_info: int = file_reader.get_8()
+	if (outgoing_river_info >= 128):
+		_has_outgoing_river = true
+		_outgoing_river_direction = outgoing_river_info - 128
+	else:
+		_has_outgoing_river = false
+	
+	var road_flags: int = file_reader.get_8()
+	for i in range(0, len(_roads)):
+		_roads[i] = ((road_flags & (1 << i)) != 0)
+
 #endregion
 
 #region Private methods
@@ -396,6 +449,17 @@ func _refresh () -> void:
 			var neighbor: HexCell = hex_neighbors[i]
 			if (neighbor != null) and (neighbor.hex_chunk != hex_chunk):
 				neighbor.hex_chunk.request_refresh()
+
+func _refresh_position () -> void:
+	#Set the position of the cell
+	position.y = _elevation * HexMetrics.ELEVATION_STEP
+	
+	var noise_sample: Vector4 = HexMetrics.sample_noise(position * HexMetrics.CELL_PERTURB_POSITION_MULTIPLIER)
+	var perturbation_amount: float = ((noise_sample.y * 2.0 - 1.0) * HexMetrics.ELEVATION_PERTURB_STRENGTH)
+	position.y += perturbation_amount
+	
+	#Set the y-axis position of the "position label" for the cell
+	position_label.position.y = 0.01 + abs(perturbation_amount)
 
 func _is_valid_river_destination (neighbor: HexCell) -> bool:
 	if (neighbor != null):
