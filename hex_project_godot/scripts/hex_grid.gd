@@ -12,11 +12,11 @@ extends Node3D
 	Color.WHITE
 ]
 
-## This is the number of chunks in the x-direction of the hex grid
-@export var chunk_count_x: int = 2
+## The number of cells in the X direction
+@export var cell_count_x: int = 0
 
-## This is the number of chunks in the y-direction of the hex grid
-@export var chunk_count_z: int = 2
+## The number of cells in the Z direction
+@export var cell_count_z: int = 0
 
 ## This is the scene that will be used for each hex cell in the grid
 @export var hex_cell_prefab: PackedScene
@@ -52,9 +52,11 @@ var _hex_grid_chunks: Array[HexGridChunk] = []
 ## A list of all HexCell objects in the hex grid
 var _hex_cells: Array[HexCell] = []
 
-var _cell_count_x: int = 0
+## This is the number of chunks in the x-direction of the hex grid
+var _chunk_count_x: int = 2
 
-var _cell_count_z: int = 0
+## This is the number of chunks in the y-direction of the hex grid
+var _chunk_count_z: int = 2
 
 #endregion
 
@@ -71,9 +73,46 @@ func _ready() -> void:
 	#Initialize the hash grid
 	HexMetrics.initialize_hash_grid()
 	
-	#Calculate the cell count in the x and z directions
-	_cell_count_x = chunk_count_x * HexMetrics.CHUNK_SIZE_X
-	_cell_count_z = chunk_count_z * HexMetrics.CHUNK_SIZE_Z
+	#Create the map
+	create_map(cell_count_x, cell_count_z)
+	
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	for i in range(0, len(_hex_grid_chunks)):
+		var current_chunk: HexGridChunk = _hex_grid_chunks[i]
+		if (current_chunk.update_needed):
+			current_chunk.refresh()
+	
+#endregion
+
+#region Public methods
+
+func create_map (map_size_x: int, map_size_z: int) -> bool:
+	#Return immediately if this is an unsupported map size
+	if ((map_size_x <= 0) or 
+		(map_size_x % HexMetrics.CHUNK_SIZE_X != 0) or
+		(map_size_z <= 0) or
+		(map_size_z % HexMetrics.CHUNK_SIZE_Z != 0)):
+		
+		return false
+	
+	#Destroy existing chunks
+	if (_hex_grid_chunks != null):
+		#Remove each chunk from the scene
+		for i in range(0, len(_hex_grid_chunks)):
+			remove_child(_hex_grid_chunks[i])
+			
+		#Clear the list of chunks
+		_hex_grid_chunks.clear()
+	
+	#Set the cell counts in each axis direction
+	cell_count_x = map_size_x
+	cell_count_z = map_size_z
+	
+	#Calculate the chunk count count in the x and z directions
+	_chunk_count_x = cell_count_x / HexMetrics.CHUNK_SIZE_X
+	_chunk_count_z = cell_count_z / HexMetrics.CHUNK_SIZE_Z
 	
 	_create_chunks()
 	_create_cells()
@@ -88,28 +127,19 @@ func _ready() -> void:
 		_hex_grid_chunks[i].set_walls_mesh_material(walls_material)
 		_hex_grid_chunks[i].refresh()
 	
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	for i in range(0, len(_hex_grid_chunks)):
-		var current_chunk: HexGridChunk = _hex_grid_chunks[i]
-		if (current_chunk.update_needed):
-			current_chunk.refresh()
-	
-#endregion
-
-#region Public methods
+	#Return true, indicating the map was created successfully
+	return true
 
 func get_cell_from_coordinates (coordinates: HexCoordinates) -> HexCell:
 	var z: int = coordinates.Z
-	if (z < 0) or (z >= _cell_count_z):
+	if (z < 0) or (z >= cell_count_z):
 		return null
 	
 	var x: int = coordinates.X + z / 2
-	if (x < 0) or (x >= _cell_count_x):
+	if (x < 0) or (x >= cell_count_x):
 		return null
 	
-	return _hex_cells[x + z * _cell_count_x]
+	return _hex_cells[x + z * cell_count_x]
 
 func get_cell (position: Vector3) -> HexCell:
 	#Convert the global position to a position within the hex grid
@@ -119,7 +149,7 @@ func get_cell (position: Vector3) -> HexCell:
 	var coordinates: HexCoordinates = HexCoordinates.FromPosition(inverse_transform_point)
 	
 	#Find the index into the _hex_cells list for which hex object we want
-	var index = coordinates.X + coordinates.Z * _cell_count_x + coordinates.Z / 2.0
+	var index = coordinates.X + coordinates.Z * cell_count_x + coordinates.Z / 2.0
 	
 	#Get the selected hex cell object
 	var cell = _hex_cells[index] as HexCell
@@ -132,13 +162,35 @@ func show_ui (visible: bool) -> void:
 		_hex_cells[i].show_ui_label(visible)
 
 func save_hex_grid (file_writer: FileAccess) -> void:
+	#Save the map size
+	file_writer.store_32(cell_count_x)
+	file_writer.store_32(cell_count_z)
+	
+	#Save each cell
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].save_hex_cell(file_writer)
 	
-func load_hex_grid (file_reader: FileAccess) -> void:
+func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
+	#Set the default map size
+	var new_map_size_x: int = 20
+	var new_map_size_z: int = 15
+	
+	#Load the map size if the file version is high enough
+	if (file_version >= 1):
+		new_map_size_x = file_reader.get_32()
+		new_map_size_z = file_reader.get_32()
+	
+	#Create the map
+	if (new_map_size_x != cell_count_x) or (new_map_size_z != cell_count_z):
+		var create_map_success: bool = create_map(new_map_size_x, new_map_size_z)
+		if (not create_map_success):
+			return
+	
+	#Load each cell
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].load_hex_cell(file_reader)
-		
+	
+	#Refresh each cell
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i]._refresh()
 
@@ -151,8 +203,8 @@ func _create_chunks () -> void:
 	_hex_grid_chunks = []
 	
 	#Iterate over each chunk
-	for z in range(0, chunk_count_z):
-		for x in range(0, chunk_count_x):
+	for z in range(0, _chunk_count_z):
+		for x in range(0, _chunk_count_x):
 			#Instantiate this chunk
 			var chunk: HexGridChunk = HexGridChunk.new()
 			
@@ -168,8 +220,8 @@ func _create_cells () -> void:
 	
 	#Iterate over the height and width of the hex grid
 	var i = 0
-	for z in range(0, _cell_count_z):
-		for x in range(0, _cell_count_x):
+	for z in range(0, cell_count_z):
+		for x in range(0, cell_count_x):
 			#Create the hex cell at this position in the grid
 			_create_cell(z, x, i)
 			
@@ -197,20 +249,20 @@ func _create_cell(z: int, x: int, i: int) -> void:
 			#If this is an even row...
 			
 			#Set the south-east neighbor of the hex cell
-			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - _cell_count_x])
+			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - cell_count_x])
 			
 			if (x > 0):
 				#Set the south-west neighbor of the hex cell
-				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - _cell_count_x - 1])
+				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - cell_count_x - 1])
 		else:
 			#If this is an odd row...
 			
 			#Set the south-west neighbor of the hex cell
-			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - _cell_count_x])
+			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - cell_count_x])
 			
-			if (x < _cell_count_x - 1):
+			if (x < cell_count_x - 1):
 				#Set the south-east neighbor of the hex cell
-				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - _cell_count_x + 1])
+				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - cell_count_x + 1])
 	
 	#Set the position of the hex cell in the scene
 	hex_cell.position = hex_position
@@ -234,7 +286,7 @@ func _add_cell_to_chunk (x: int, z: int, cell: HexCell) -> void:
 	var chunk_x: int = x / HexMetrics.CHUNK_SIZE_X
 	var chunk_z: int = z / HexMetrics.CHUNK_SIZE_Z
 	
-	var chunk_index: int = chunk_x + chunk_z * chunk_count_x
+	var chunk_index: int = chunk_x + chunk_z * _chunk_count_x
 	var chunk: HexGridChunk = _hex_grid_chunks[chunk_index]
 	
 	if (chunk_index == 0):

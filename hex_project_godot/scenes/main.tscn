@@ -42,6 +42,8 @@ light_energy = 10.0
 omni_range = 1000.0
 
 [node name="HexGrid" parent="." instance=ExtResource("3_t3wo0")]
+cell_count_x = 20
+cell_count_z = 15
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -503,6 +505,15 @@ custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
 text = "Save"
 
+[node name="MarginContainer5" type="MarginContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 15
+
+[node name="NewMapButton" type="Button" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer5"]
+layout_mode = 2
+text = "New Map"
+
 [node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer"]
 anchors_preset = 3
 anchor_left = 1.0
@@ -543,6 +554,17 @@ text = "Current camera: "
 layout_mode = 2
 text = "NA"
 
+[node name="PopupMenu" type="PopupMenu" parent="CanvasLayer"]
+initial_position = 1
+item_count = 4
+item_0/text = "Small"
+item_1/text = "Medium"
+item_1/id = 1
+item_2/text = "Large"
+item_2/id = 2
+item_3/text = "Cancel"
+item_3/id = 3
+
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
@@ -574,3 +596,5 @@ text = "NA"
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/CheckBox_WallsNo" to="." method="_on_check_box_walls_no_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer5/NewMapButton" to="." method="_on_new_map_button_pressed"]
+[connection signal="index_pressed" from="CanvasLayer/PopupMenu" to="." method="_on_popup_menu_index_pressed"]

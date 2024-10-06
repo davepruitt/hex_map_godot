@@ -20,6 +20,12 @@ extends Camera3D
 
 #endregion
 
+#region Public data members
+
+var locked: bool = false
+
+#endregion
+
 #region Overrides
 
 # Called when the node enters the scene tree for the first time.
@@ -29,7 +35,7 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	
-	if (current):
+	if (current) and (not locked):
 		#Get the direction of movement based on user interaction
 		var direction = Vector3(
 			float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)),
@@ -46,7 +52,7 @@ func _process(delta: float) -> void:
 	return
 
 func _input(event: InputEvent) -> void:
-	if (current):
+	if (current) and (not locked):
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 			if event is InputEventMouseMotion:
 				rotation.y -= event.relative.x / 1000 * sensitivity

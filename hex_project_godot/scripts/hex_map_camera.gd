@@ -27,6 +27,12 @@ var _rotation_angle: float = 0
 
 #endregion
 
+#region Public data members
+
+var locked: bool = false
+
+#endregion
+
 #region Method overrides
 
 # Called when the node enters the scene tree for the first time.
@@ -37,7 +43,7 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	#Check to see if the main camera is the current camera
-	if (_main_camera.current):
+	if (_main_camera.current) and (not locked):
 		#If so, then we will respond to user interactions on this camera
 		
 		var left_right_movement = Input.get_axis("ui_left", "ui_right")
@@ -52,7 +58,7 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	#Check to see if the main camera is the current camera
-	if (_main_camera.current):	
+	if (_main_camera.current) and (not locked):	
 		#If so, then we will respond to user interactions on this camera
 		
 		if event is InputEventKey and event.pressed:
@@ -60,6 +66,13 @@ func _input(event: InputEvent) -> void:
 				_adjust_zoom(-0.1)
 			elif event.keycode == KEY_X:
 				_adjust_zoom(0.1)
+
+#endregion
+
+#region Public methods
+
+func validate_position () -> void:
+	_adjust_position(0, 0, 0)
 
 #endregion
 
@@ -90,10 +103,10 @@ func _adjust_position (x_delta: float, z_delta: float, time_delta: float) -> voi
 	position = _clamp_position(position)
 
 func _clamp_position (pos: Vector3) -> Vector3:
-	var x_max: float = (hex_grid.chunk_count_x * HexMetrics.CHUNK_SIZE_X - 0.5) * (2.0 * HexMetrics.INNER_RADIUS)
+	var x_max: float = (hex_grid.cell_count_x - 0.5) * (2.0 * HexMetrics.INNER_RADIUS)
 	pos.x = clampf(pos.x, 0.0, x_max)
 	
-	var z_max: float = (hex_grid.chunk_count_z * HexMetrics.CHUNK_SIZE_Z - 1.0) * (1.5 * HexMetrics.OUTER_RADIUS)
+	var z_max: float = (hex_grid.cell_count_z - 1.0) * (1.5 * HexMetrics.OUTER_RADIUS)
 	pos.z = clampf(pos.z, 0.0, z_max)
 	
 	return pos

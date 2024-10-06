@@ -71,10 +71,15 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 @onready var check_button_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_SpecialFeature
 @onready var drop_down_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/OptionButton_SpecialFeature
 
+@onready var new_map_popup_menu := $CanvasLayer/PopupMenu
+
 @onready var cameras: Array[Camera3D] = [
 	$HexMapCamera/Swivel/Stick/MainCamera,
 	$DebugCamera
 ]
+
+@onready var main_camera_assembly = $HexMapCamera
+@onready var debug_camera = $DebugCamera
 
 @onready var current_camera_value_label := $CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer/CurrentCameraValueLabel
 
@@ -316,7 +321,7 @@ func _on_save_button_pressed() -> void:
 	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	
 	#File version
-	save_file.store_32(0)
+	save_file.store_32(1)
 	
 	#Save the hex grid
 	hex_grid.save_hex_grid(save_file)
@@ -336,13 +341,45 @@ func _on_load_button_pressed() -> void:
 	var file_version: int = load_file.get_32()
 	
 	#If the file version is 0...
-	if (file_version == 0):
+	if (file_version <= 1):
 		#Load the hex grid
-		hex_grid.load_hex_grid(load_file)
+		hex_grid.load_hex_grid(load_file, file_version)
+		
+		#Validate the position of the main camera
+		main_camera_assembly.validate_position()
 	
 	#Close the file
 	load_file.close()
 
+
+func _on_new_map_button_pressed() -> void:
+	#Show the popup menu
+	new_map_popup_menu.show()
+	
+	#Lock the cameras
+	main_camera_assembly.locked = true
+	debug_camera.locked = true
+	
+	return
+
+
+func _on_popup_menu_index_pressed(index: int) -> void:
+	#Create the map based on the user's selection
+	if (index == 0):
+		hex_grid.create_map(20, 15)
+	elif (index == 1):
+		hex_grid.create_map(40, 30)
+	elif (index == 2):
+		hex_grid.create_map(80, 60)
+	elif (index == 3):
+		return
+		
+	#Unlock the cameras
+	main_camera_assembly.locked = false
+	debug_camera.locked = false
+	
+	#Validate the position of the main camera
+	main_camera_assembly.validate_position()
 
 #endregion
 
