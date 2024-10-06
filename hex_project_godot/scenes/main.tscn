@@ -556,6 +556,7 @@ text = "NA"
 
 [node name="PopupMenu" type="PopupMenu" parent="CanvasLayer"]
 initial_position = 1
+size = Vector2i(100, 116)
 item_count = 4
 item_0/text = "Small"
 item_1/text = "Medium"
@@ -564,6 +565,18 @@ item_2/text = "Large"
 item_2/id = 2
 item_3/text = "Cancel"
 item_3/id = 3
+
+[node name="SaveFileDialog" type="FileDialog" parent="CanvasLayer"]
+size = Vector2i(303, 180)
+access = 1
+use_native_dialog = true
+
+[node name="LoadFileDialog" type="FileDialog" parent="CanvasLayer"]
+title = "Open a File"
+ok_button_text = "Open"
+file_mode = 0
+access = 1
+use_native_dialog = true
 
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
@@ -598,3 +611,7 @@ item_3/id = 3
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/SaveButton" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer5/NewMapButton" to="." method="_on_new_map_button_pressed"]
 [connection signal="index_pressed" from="CanvasLayer/PopupMenu" to="." method="_on_popup_menu_index_pressed"]
+[connection signal="canceled" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_canceled"]
+[connection signal="file_selected" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]
+[connection signal="canceled" from="CanvasLayer/LoadFileDialog" to="." method="_on_load_file_dialog_canceled"]
+[connection signal="file_selected" from="CanvasLayer/LoadFileDialog" to="." method="_on_load_file_dialog_file_selected"]

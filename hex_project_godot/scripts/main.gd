@@ -72,6 +72,8 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 @onready var drop_down_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/OptionButton_SpecialFeature
 
 @onready var new_map_popup_menu := $CanvasLayer/PopupMenu
+@onready var save_map_file_dialog := $CanvasLayer/SaveFileDialog
+@onready var load_map_file_dialog := $CanvasLayer/LoadFileDialog
 
 @onready var cameras: Array[Camera3D] = [
 	$HexMapCamera/Swivel/Stick/MainCamera,
@@ -314,42 +316,21 @@ func _on_option_button_special_feature_item_selected(index: int) -> void:
 
 
 func _on_save_button_pressed() -> void:
-	#Set the path we will save to
-	var path: String = "user://test.map"
+	#Lock the cameras
+	main_camera_assembly.locked = true
+	debug_camera.locked = true
 	
-	#Open the file for writing
-	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
-	
-	#File version
-	save_file.store_32(1)
-	
-	#Save the hex grid
-	hex_grid.save_hex_grid(save_file)
-	
-	#Close the file
-	save_file.close()
+	#Show the save file dialog
+	save_map_file_dialog.show()
 
 
 func _on_load_button_pressed() -> void:
-	#Set the path we will save to
-	var path: String = "user://test.map"
+	#Lock the cameras
+	main_camera_assembly.locked = true
+	debug_camera.locked = true
 	
-	#Open the file for writing
-	var load_file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	
-	#Get the file version
-	var file_version: int = load_file.get_32()
-	
-	#If the file version is 0...
-	if (file_version <= 1):
-		#Load the hex grid
-		hex_grid.load_hex_grid(load_file, file_version)
-		
-		#Validate the position of the main camera
-		main_camera_assembly.validate_position()
-	
-	#Close the file
-	load_file.close()
+	#Show the load file dialog
+	load_map_file_dialog.show()
 
 
 func _on_new_map_button_pressed() -> void:
@@ -380,6 +361,40 @@ func _on_popup_menu_index_pressed(index: int) -> void:
 	
 	#Validate the position of the main camera
 	main_camera_assembly.validate_position()
+
+
+func _on_save_file_dialog_file_selected(path: String) -> void:
+	#Save the map to the file that was chosen by the user
+	_save_map_file(path)
+	
+	#Unlock the cameras
+	main_camera_assembly.locked = false
+	debug_camera.locked = false
+
+
+func _on_save_file_dialog_canceled() -> void:
+	#Unlock the cameras
+	main_camera_assembly.locked = false
+	debug_camera.locked = false
+
+
+func _on_load_file_dialog_file_selected(path: String) -> void:
+	#Load the map from the file chosen by the user
+	_load_map_file(path)
+	
+	#Unlock the cameras
+	main_camera_assembly.locked = false
+	debug_camera.locked = false
+	
+	#Validate the position of the main camera
+	main_camera_assembly.validate_position()
+
+
+func _on_load_file_dialog_canceled() -> void:
+	#Unlock the cameras
+	main_camera_assembly.locked = false
+	debug_camera.locked = false
+
 
 #endregion
 
@@ -595,5 +610,36 @@ func _validate_drag () -> void:
 	#If we reach this point in the code, then no drag occurred
 	_is_drag = false
 		
+
+func _save_map_file (file_path_and_name: String) -> void:
+	#Open the file for writing
+	var save_file: FileAccess = FileAccess.open(file_path_and_name, FileAccess.WRITE)
+	
+	#File version
+	save_file.store_32(1)
+	
+	#Save the hex grid
+	hex_grid.save_hex_grid(save_file)
+	
+	#Close the file
+	save_file.close()
+
+func _load_map_file (file_path_and_name: String) -> void:
+	#Open the file for writing
+	var load_file: FileAccess = FileAccess.open(file_path_and_name, FileAccess.READ)
+	
+	#Get the file version
+	var file_version: int = load_file.get_32()
+	
+	#If the file version is 0...
+	if (file_version <= 1):
+		#Load the hex grid
+		hex_grid.load_hex_grid(load_file, file_version)
+		
+		#Validate the position of the main camera
+		main_camera_assembly.validate_position()
+	
+	#Close the file
+	load_file.close()
 
 #endregion
