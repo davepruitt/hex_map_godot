@@ -275,17 +275,19 @@ func _triangulate_with_river_begin_or_end (
 			var uv2: Vector2 = Vector2(1.0, 0.2)
 			var uv3: Vector2 = Vector2(0.0, 0.2)
 			
-			_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
-				Color.WHITE, Color.WHITE, Color.WHITE,
-				uv1, uv3, uv2)
+			var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+			r1.add_triangle_perturbed_vertices(center, m.v2, m.v4)
+			r1.add_triangle_uv1(uv1, uv2, uv3)
+			_rivers.commit_primitive(r1)
 		else:
 			var uv1: Vector2 = Vector2(0.5, 0.4)
 			var uv2: Vector2 = Vector2(0.0, 0.6)
 			var uv3: Vector2 = Vector2(1.0, 0.6)
-			
-			_rivers.add_perturbed_triangle_with_uv(center, m.v4, m.v2,
-				Color.WHITE, Color.WHITE, Color.WHITE,
-				uv1, uv3, uv2)
+
+			var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+			r1.add_triangle_perturbed_vertices(center, m.v2, m.v4)
+			r1.add_triangle_uv1(uv1, uv2, uv3)
+			_rivers.commit_primitive(r1)
 
 func _triangulate_with_river (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell, 
@@ -334,10 +336,25 @@ func _triangulate_with_river (
 	_triangulate_edge_strip(m, color_to_use, e, color_to_use)
 	
 	#Second section of trapezoid
-	_terrain.add_perturbed_triangle(center_l, m.v2, m.v1, color_to_use, color_to_use, color_to_use)
-	_terrain.add_perturbed_quad(center_l, center, m.v2, m.v3, color_to_use, color_to_use, color_to_use, color_to_use)
-	_terrain.add_perturbed_quad(center, center_r, m.v3, m.v4, color_to_use, color_to_use, color_to_use, color_to_use)
-	_terrain.add_perturbed_triangle(center_r, m.v5, m.v4, color_to_use, color_to_use, color_to_use)
+	var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t1.add_triangle_perturbed_vertices(center_l, m.v1, m.v2)
+	t1.add_triangle_colors(color_to_use, color_to_use, color_to_use)
+	_terrain.commit_primitive(t1)
+	
+	var t2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	t2.add_quad_perturbed_vertices(center_l, center, m.v2, m.v3)
+	t2.add_quad_colors(color_to_use, color_to_use, color_to_use, color_to_use)
+	_terrain.commit_primitive(t2)
+	
+	var t3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	t3.add_quad_perturbed_vertices(center, center_r, m.v3, m.v4)
+	t3.add_quad_colors(color_to_use, color_to_use, color_to_use, color_to_use)
+	_terrain.commit_primitive(t3)
+	
+	var t4: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t4.add_triangle_perturbed_vertices(center_r, m.v4, m.v5)
+	t4.add_triangle_colors(color_to_use, color_to_use, color_to_use)
+	_terrain.commit_primitive(t4)
 	
 	#Form the river quads
 	if (not cell.is_underwater):
@@ -516,7 +533,10 @@ func _triangulate_corner (
 			right_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
 			else HexGridChunk.splat_map_colors[2])
 		
-		_terrain.add_perturbed_triangle(bottom, right, left, color_to_use_1, color_to_use_3, color_to_use_2)
+		var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		t1.add_triangle_perturbed_vertices(bottom, left, right)
+		t1.add_triangle_colors(color_to_use_1, color_to_use_2, color_to_use_3)
+		_terrain.commit_primitive(t1)
 	
 	#Add walls
 	_features.add_wall_three_cells(bottom, bottom_cell, left, left_cell, right, right_cell)
@@ -542,7 +562,10 @@ func _triangulate_corner_terraces (
 	var c4: Color = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_3, 1)
 	
 	#The bottom triangle
-	_terrain.add_perturbed_triangle(begin, v4, v3, color_to_use_1, c4, c3)
+	var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t1.add_triangle_perturbed_vertices(begin, v3, v4)
+	t1.add_triangle_colors(color_to_use_1, c3, c4)
+	_terrain.commit_primitive(t1)
 	
 	#The steps inbetween
 	for i in range(2, HexMetrics.TERRACE_STEPS):
@@ -556,10 +579,16 @@ func _triangulate_corner_terraces (
 		c3 = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_2, i)
 		c4 = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_3, i)
 		
-		_terrain.add_perturbed_quad(v1, v2, v3, v4, c1, c2, c3, c4)
+		var q1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		q1.add_quad_perturbed_vertices(v1, v2, v3, v4)
+		q1.add_quad_colors(c1, c2, c3, c4)
+		_terrain.commit_primitive(q1)
 	
 	#The top quad
-	_terrain.add_perturbed_quad(v3, v4, left, right, c3, c4, color_to_use_2, color_to_use_3)
+	var q2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	q2.add_quad_perturbed_vertices(v3, v4, left, right)
+	q2.add_quad_colors(c3, c4, color_to_use_2, color_to_use_3)
+	_terrain.commit_primitive(q2)
 	
 func _triangulate_corner_terrace_cliff (
 	begin: Vector3, begin_cell: HexCell,
@@ -588,8 +617,10 @@ func _triangulate_corner_terrace_cliff (
 	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
 		_triangulate_boundary_triangle(left, left_cell, color_to_use_2, right, right_cell, color_to_use_3, boundary, boundary_color)
 	else:
-		_terrain.add_triangle(HexMetrics.perturb(left), boundary, HexMetrics.perturb(right), 
-			color_to_use_2, boundary_color, color_to_use_3)
+		var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		t1.add_triangle_unperturbed_vertices(HexMetrics.perturb(left), HexMetrics.perturb(right), boundary)
+		t1.add_triangle_colors(color_to_use_2, color_to_use_3, boundary_color)
+		_terrain.commit_primitive(t1)
 
 func _triangulate_corner_cliff_terrace (
 	begin: Vector3, begin_cell: HexCell,
@@ -618,8 +649,10 @@ func _triangulate_corner_cliff_terrace (
 	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
 		_triangulate_boundary_triangle(left, left_cell, color_to_use_2, right, right_cell, color_to_use_3, boundary, boundary_color)
 	else:
-		_terrain.add_triangle(HexMetrics.perturb(left), boundary, HexMetrics.perturb(right), 
-			color_to_use_2, boundary_color, color_to_use_3)
+		var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		t1.add_triangle_unperturbed_vertices(HexMetrics.perturb(left), HexMetrics.perturb(right), boundary)
+		t1.add_triangle_colors(color_to_use_2, color_to_use_3, boundary_color)
+		_terrain.commit_primitive(t1)
 
 func _triangulate_boundary_triangle (
 	begin: Vector3, begin_cell: HexCell, begin_splat_color: Color,
@@ -636,7 +669,10 @@ func _triangulate_boundary_triangle (
 	var v2: Vector3 = HexMetrics.perturb(HexMetrics.terrace_lerp(begin, left, 1))
 	var c2: Color = HexMetrics.terrace_color_lerp(begin_color, left_color, 1)
 	
-	_terrain.add_triangle(HexMetrics.perturb(begin), boundary, v2, begin_color, boundary_color, c2)
+	var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t1.add_triangle_unperturbed_vertices(HexMetrics.perturb(begin), v2, boundary)
+	t1.add_triangle_colors(begin_color, c2, boundary_color)
+	_terrain.commit_primitive(t1)
 	
 	for i in range(2, HexMetrics.TERRACE_STEPS):
 		var v1: Vector3 = v2
@@ -645,26 +681,62 @@ func _triangulate_boundary_triangle (
 		v2 = HexMetrics.perturb(HexMetrics.terrace_lerp(begin, left, i))
 		c2 = HexMetrics.terrace_color_lerp(begin_color, left_color, i)
 		
-		_terrain.add_triangle(v1, boundary, v2, c1, boundary_color, c2)
-		
-	_terrain.add_triangle(v2, boundary, HexMetrics.perturb(left), c2, boundary_color, left_color)
+		var t2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		t2.add_triangle_unperturbed_vertices(v1, v2, boundary)
+		t2.add_triangle_colors(c1, c2, boundary_color)
+		_terrain.commit_primitive(t2)
+	
+	var t3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t3.add_triangle_unperturbed_vertices(v2, HexMetrics.perturb(left), boundary)
+	t3.add_triangle_colors(c2, left_color, boundary_color)
+	_terrain.commit_primitive(t3)
 
 func _triangulate_edge_fan (
 	center: Vector3, edge: EdgeVertices, color: Color) -> void:
 	
-	_terrain.add_perturbed_triangle(center, edge.v2, edge.v1, color, color, color)
-	_terrain.add_perturbed_triangle(center, edge.v3, edge.v2, color, color, color)
-	_terrain.add_perturbed_triangle(center, edge.v4, edge.v3, color, color, color)
-	_terrain.add_perturbed_triangle(center, edge.v5, edge.v4, color, color, color)
+	var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t1.add_triangle_perturbed_vertices(center, edge.v1, edge.v2)
+	t1.add_triangle_colors(color, color, color)
+	_terrain.commit_primitive(t1)
+	
+	var t2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t2.add_triangle_perturbed_vertices(center, edge.v2, edge.v3)
+	t2.add_triangle_colors(color, color, color)
+	_terrain.commit_primitive(t2)
+	
+	var t3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t3.add_triangle_perturbed_vertices(center, edge.v3, edge.v4)
+	t3.add_triangle_colors(color, color, color)
+	_terrain.commit_primitive(t3)
+	
+	var t4: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	t4.add_triangle_perturbed_vertices(center, edge.v4, edge.v5)
+	t4.add_triangle_colors(color, color, color)
+	_terrain.commit_primitive(t4)
 
 func _triangulate_edge_strip (
 	e1: EdgeVertices, c1: Color, e2: EdgeVertices, c2: Color,
 	has_road: bool = false) -> void:
 	
-	_terrain.add_perturbed_quad(e1.v1, e1.v2, e2.v1, e2.v2, c1, c1, c2, c2)
-	_terrain.add_perturbed_quad(e1.v2, e1.v3, e2.v2, e2.v3, c1, c1, c2, c2)
-	_terrain.add_perturbed_quad(e1.v3, e1.v4, e2.v3, e2.v4, c1, c1, c2, c2)
-	_terrain.add_perturbed_quad(e1.v4, e1.v5, e2.v4, e2.v5, c1, c1, c2, c2)
+	var t1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	t1.add_quad_perturbed_vertices(e1.v1, e1.v2, e2.v1, e2.v2)
+	t1.add_quad_colors(c1, c1, c2, c2)
+	_terrain.commit_primitive(t1)
+	
+	var t2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	t2.add_quad_perturbed_vertices(e1.v2, e1.v3, e2.v2, e2.v3)
+	t2.add_quad_colors(c1, c1, c2, c2)
+	_terrain.commit_primitive(t2)
+	
+	var t3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	t3.add_quad_perturbed_vertices(e1.v3, e1.v4, e2.v3, e2.v4)
+	t3.add_quad_colors(c1, c1, c2, c2)
+	_terrain.commit_primitive(t3)
+	
+	var t4: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	t4.add_quad_perturbed_vertices(e1.v4, e1.v5, e2.v4, e2.v5)
+	t4.add_quad_colors(c1, c1, c2, c2)
+	_terrain.commit_primitive(t4)
 	
 	if (has_road):
 		_triangulate_road_segment(e1.v2, e1.v3, e1.v4, 
@@ -687,11 +759,16 @@ func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3,
 	v4.y = y2
 	
 	#This color will be unused
-	var c1: Color = Color.WHITE
 	if (reversed):
-		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 1, 0, 0.8 - v, 0.6 - v)
+		var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		r1.add_quad_perturbed_vertices(v1, v2, v3, v4)
+		r1.add_quad_uv1_floats(1, 0, 0.8 - v, 0.6 - v)
+		_rivers.commit_primitive(r1)
 	else:
-		_rivers.add_perturbed_quad_with_uv(v1, v2, v3, v4, c1, c1, c1, c1, 0, 1, v, v + 0.2)
+		var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		r1.add_quad_perturbed_vertices(v1, v2, v3, v4)
+		r1.add_quad_uv1_floats(0, 1, v, v + 0.2)
+		_rivers.commit_primitive(r1)
 
 func _triangulate_road_segment (v1: Vector3, v2: Vector3, v3: Vector3,
 	v4: Vector3, v5: Vector3, v6: Vector3) -> void:
@@ -703,12 +780,15 @@ func _triangulate_road_segment (v1: Vector3, v2: Vector3, v3: Vector3,
 	v5.y += 0.01;
 	v6.y += 0.01;
 	
-	_roads.add_perturbed_quad_with_uv(v1, v2, v4, v5, 
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-		0, 1, 0, 0)
-	_roads.add_perturbed_quad_with_uv(v2, v3, v5, v6,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-		1, 0, 0, 0)
+	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	r1.add_quad_perturbed_vertices(v1, v2, v4, v5)
+	r1.add_quad_uv1_floats(0, 1, 0, 0)
+	_roads.commit_primitive(r1)
+
+	var r2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	r2.add_quad_perturbed_vertices(v2, v3, v5, v6)
+	r2.add_quad_uv1_floats(1, 0, 0, 0)
+	_roads.commit_primitive(r2)
 
 func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertices,
 	has_road_through_cell_edge: bool) -> void:
@@ -724,12 +804,16 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 		mR.y += 0.01;
 		
 		#The colors will be ignored for roads
-		_roads.add_perturbed_triangle_with_uv(center, mC, mL, 
-			Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
-		_roads.add_perturbed_triangle_with_uv(center, mR, mC, 
-			Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(1, 0), Vector2(0, 0), Vector2(1, 0))
+		var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		r1.add_triangle_perturbed_vertices(center, mL, mC)
+		r1.add_triangle_uv1(Vector2(1, 0), Vector2(0, 0), Vector2(1, 0))
+		_roads.commit_primitive(r1)
+		
+		var r2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		r2.add_triangle_perturbed_vertices(center, mR, mC)
+		r2.add_triangle_uv1(Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
+		_roads.commit_primitive(r2)
+
 	else:
 		_triangulate_road_edge(center, mL, mR)
 
@@ -756,9 +840,10 @@ func _triangulate_road_edge (center: Vector3, mL: Vector3, mR: Vector3) -> void:
 	mR.y += 0.01;
 	mL.y += 0.01;
 	
-	_roads.add_perturbed_triangle_with_uv(center, mR, mL,
-		Color.WHITE, Color.WHITE, Color.WHITE,
-		Vector2(1, 0), Vector2(0, 0), Vector2(0, 0))
+	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	r1.add_triangle_perturbed_vertices(center, mL, mR)
+	r1.add_triangle_uv1(Vector2(1, 0), Vector2(0, 0), Vector2(0, 0))
+	_roads.commit_primitive(r1)
 
 func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, center: Vector3, e: EdgeVertices) -> void:
@@ -889,26 +974,30 @@ func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
 	var c1: Vector3 = center + HexMetrics.get_first_water_corner(direction)
 	var c2: Vector3 = center + HexMetrics.get_second_water_corner(direction)
 
-	_water.add_perturbed_triangle(center, c2, c1, 
-		Color.WHITE, Color.WHITE, Color.WHITE,
-		)
+	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	w1.add_triangle_perturbed_vertices(center, c1, c2)
+	_water.commit_primitive(w1)
 	
 	if (direction <= HexDirectionsClass.HexDirections.SE) and (neighbor != null):
 		var bridge: Vector3 = HexMetrics.get_water_bridge(direction)
 		var e1: Vector3 = c1 + bridge
 		var e2: Vector3 = c2 + bridge
 		
-		_water.add_perturbed_quad(c1, c2, e1, e2, 
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+		var wquad: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		wquad.add_quad_perturbed_vertices(c1, c2, e1, e2)
+		_water.commit_primitive(wquad)
 		
 		if (direction <= HexDirectionsClass.HexDirections.E):
 			var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
 			if (next_neighbor == null) or (not next_neighbor.is_underwater):
 				return
 			
-			_water.add_perturbed_triangle(c2, 
-				c2 + HexMetrics.get_water_bridge(HexDirectionsClass.next(direction)), 
-				e2, Color.WHITE, Color.WHITE, Color.WHITE)
+			var wquad2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+			wquad2.add_triangle_perturbed_vertices(c2,
+				e2,
+				c2 + HexMetrics.get_water_bridge(HexDirectionsClass.next(direction))
+			)
+			_water.commit_primitive(wquad2)
 
 func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, neighbor: HexCell, center: Vector3) -> void:
@@ -918,14 +1007,21 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		center + HexMetrics.get_second_water_corner(direction)
 	)
 	
-	_water.add_perturbed_triangle(center, e1.v2, e1.v1,
-		Color.WHITE, Color.WHITE, Color.WHITE)
-	_water.add_perturbed_triangle(center, e1.v3, e1.v2,
-		Color.WHITE, Color.WHITE, Color.WHITE)
-	_water.add_perturbed_triangle(center, e1.v4, e1.v3,
-		Color.WHITE, Color.WHITE, Color.WHITE)
-	_water.add_perturbed_triangle(center, e1.v5, e1.v4,
-		Color.WHITE, Color.WHITE, Color.WHITE)
+	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	w1.add_triangle_perturbed_vertices(center, e1.v1, e1.v2)
+	_water.commit_primitive(w1)
+
+	var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	w2.add_triangle_perturbed_vertices(center, e1.v2, e1.v3)
+	_water.commit_primitive(w2)
+	
+	var w3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	w3.add_triangle_perturbed_vertices(center, e1.v3, e1.v4)
+	_water.commit_primitive(w3)
+	
+	var w4: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	w4.add_triangle_perturbed_vertices(center, e1.v4, e1.v5)
+	_water.commit_primitive(w4)
 	
 	var center2: Vector3 = neighbor.position
 	center2.y = center.y
@@ -937,18 +1033,25 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	if (cell.has_river_through_edge(direction)):
 		_triangulate_estuary(e1, e2, cell.incoming_river_direction == direction)
 	else:
-		_water_shore.add_perturbed_quad_with_uv(e1.v1, e1.v2, e2.v1, e2.v2,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			0, 0, 0, 1)
-		_water_shore.add_perturbed_quad_with_uv(e1.v2, e1.v3, e2.v2, e2.v3,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			0, 0, 0, 1)
-		_water_shore.add_perturbed_quad_with_uv(e1.v3, e1.v4, e2.v3, e2.v4,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			0, 0, 0, 1)
-		_water_shore.add_perturbed_quad_with_uv(e1.v4, e1.v5, e2.v4, e2.v5,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			0, 0, 0, 1)
+		var ws1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		ws1.add_quad_perturbed_vertices(e1.v1, e1.v2, e2.v1, e2.v2)
+		ws1.add_quad_uv1_floats(0, 0, 0, 1)
+		_water_shore.commit_primitive(ws1)
+
+		var ws2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		ws2.add_quad_perturbed_vertices(e1.v2, e1.v3, e2.v2, e2.v3)
+		ws2.add_quad_uv1_floats(0, 0, 0, 1)
+		_water_shore.commit_primitive(ws2)
+
+		var ws3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		ws3.add_quad_perturbed_vertices(e1.v3, e1.v4, e2.v3, e2.v4)
+		ws3.add_quad_uv1_floats(0, 0, 0, 1)
+		_water_shore.commit_primitive(ws3)
+
+		var ws4: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		ws4.add_quad_perturbed_vertices(e1.v4, e1.v5, e2.v4, e2.v5)
+		ws4.add_quad_uv1_floats(0, 0, 0, 1)
+		_water_shore.commit_primitive(ws4)
 		
 	var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
 	if (next_neighbor != null):
@@ -963,13 +1066,10 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		if (next_neighbor.is_underwater):
 			v_val = 0.0
 		
-		_water_shore.add_perturbed_triangle_with_uv(e1.v5, 
-			v3,
-			e2.v5,
-			Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(0, 0), 
-			Vector2(0, v_val), 
-			Vector2(0, 1))
+		var ws_tri: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		ws_tri.add_triangle_perturbed_vertices(e1.v5, e2.v5, v3)
+		ws_tri.add_triangle_uv1(Vector2(0, 0), Vector2(0, 1), Vector2(0, v_val))
+		_water_shore.commit_primitive(ws_tri)
 
 func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
 	y1: float, y2: float, water_y: float) -> void:
@@ -988,61 +1088,57 @@ func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4:
 	v3 = v3.lerp(v1, t);
 	v4 = v4.lerp(v2, t);
 	
-	_rivers.add_quad_with_uv(v1, v2, v3, v4,
-		Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-		0, 1, 0.8, 1)
+	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	r1.add_quad_unperturbed_vertices(v1, v2, v3, v4)
+	r1.add_quad_uv1_floats(0, 1, 0.8, 1)
 
 func _triangulate_estuary (e1: EdgeVertices, e2: EdgeVertices, incoming_river: bool) -> void:
-	_water_shore.add_perturbed_triangle_with_uv(e2.v1, e1.v1, e1.v2,
-		Color.WHITE, Color.WHITE, Color.WHITE,
-		Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
-	_water_shore.add_perturbed_triangle_with_uv(e2.v5, e1.v4, e1.v5,
-		Color.WHITE, Color.WHITE, Color.WHITE,
-		Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
+	var ws1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	ws1.add_triangle_perturbed_vertices(e2.v1, e1.v2, e1.v1)
+	ws1.add_triangle_uv1(Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
+	_water_shore.commit_primitive(ws1)
+
+	var ws2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	ws2.add_triangle_perturbed_vertices(e2.v5, e1.v5, e1.v4)
+	ws2.add_triangle_uv1(Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
+	_water_shore.commit_primitive(ws2)
 	
 	if (incoming_river):
-		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
-			e2.v1, e1.v2, e2.v2, e1.v3,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0),
-			Vector2(1.5, 1), Vector2(0.7, 1.15), Vector2(1, 0.8), Vector2(0.5, 1.1)
-		)
+		var est1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		est1.add_quad_perturbed_vertices(e2.v1, e1.v2, e2.v2, e1.v3)
+		est1.add_quad_uv1_vectors(Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0))
+		est1.add_quad_uv2_vectors(Vector2(1.5, 1), Vector2(0.7, 1.15), Vector2(1, 0.8), Vector2(0.5, 1.1))
+		_estuaries.commit_primitive(est1)
+
+		var est2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		est2.add_triangle_perturbed_vertices(e1.v3, e2.v2, e2.v4)
+		est2.add_triangle_uv1(Vector2(0, 0), Vector2(1, 1), Vector2(1, 1))
+		est2.add_triangle_uv2(Vector2(0.5, 1.1), Vector2(1, 0.8), Vector2(0, 0.8))
+		_estuaries.commit_primitive(est2)
 		
-		_estuaries.add_perturbed_triangle_with_uv_and_uv2(
-			e1.v3, e2.v4, e2.v2, 
-			Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(0, 0), Vector2(1, 1), Vector2(1, 1),
-			Vector2(0.5, 1.1), Vector2(0, 0.8), Vector2(1, 0.8)
-		)
-		
-		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
-			e1.v3, e1.v4, e2.v4, e2.v5,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1),
-			Vector2(0.5, 1.1), Vector2(0.3, 1.15), Vector2(0, 0.8), Vector2(-0.5, 1)
-		)
+		var est3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		est3.add_quad_perturbed_vertices(e1.v3, e1.v4, e2.v4, e2.v5)
+		est3.add_quad_uv1_vectors(Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1))
+		est3.add_quad_uv2_vectors(Vector2(0.5, 1.1), Vector2(0.3, 1.15), Vector2(0, 0.8), Vector2(-0.5, 1))
+		_estuaries.commit_primitive(est3)
 	else:
-		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
-			e2.v1, e1.v2, e2.v2, e1.v3,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0),
-			Vector2(-0.5, -0.2), Vector2(0.3, -0.35), Vector2(0, 0), Vector2(0.5, -0.3)
-		)
+		var est1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		est1.add_quad_perturbed_vertices(e2.v1, e1.v2, e2.v2, e1.v3)
+		est1.add_quad_uv1_vectors(Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0))
+		est1.add_quad_uv2_vectors(Vector2(-0.5, -0.2), Vector2(0.3, -0.35), Vector2(0, 0), Vector2(0.5, -0.3))
+		_estuaries.commit_primitive(est1)
 		
-		_estuaries.add_perturbed_triangle_with_uv_and_uv2(
-			e1.v3, e2.v4, e2.v2, 
-			Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(0, 0), Vector2(1, 1), Vector2(1, 1),
-			Vector2(0.5, -0.3), Vector2(1, 0), Vector2(0, 0)
-		)
+		var est2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+		est2.add_triangle_perturbed_vertices(e1.v3, e2.v2, e2.v4)
+		est2.add_triangle_uv1(Vector2(0, 0), Vector2(1, 1), Vector2(1, 1))
+		est2.add_triangle_uv2(Vector2(0.5, -0.3), Vector2(0, 0), Vector2(1, 0))
+		_estuaries.commit_primitive(est2)
 		
-		_estuaries.add_perturbed_quad_with_uv_and_uv2_vectors(
-			e1.v3, e1.v4, e2.v4, e2.v5,
-			Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
-			Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1),
-			Vector2(0.5, -0.3), Vector2(0.7, -0.35), Vector2(1, 0), Vector2(1.5, -0.2)
-		)
-	
+		var est3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+		est3.add_quad_perturbed_vertices(e1.v3, e1.v4, e2.v4, e2.v5)
+		est3.add_quad_uv1_vectors(Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1))
+		est3.add_quad_uv2_vectors(Vector2(0.5, -0.3), Vector2(0.7, -0.35), Vector2(1, 0), Vector2(1.5, -0.2))
+		_estuaries.commit_primitive(est3)
 	
 
 #endregion
