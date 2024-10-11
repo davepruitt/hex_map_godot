@@ -1091,6 +1091,7 @@ func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4:
 	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	r1.add_quad_unperturbed_vertices(v1, v2, v3, v4)
 	r1.add_quad_uv1_floats(0, 1, 0.8, 1)
+	_rivers.commit_primitive(r1)
 
 func _triangulate_estuary (e1: EdgeVertices, e2: EdgeVertices, incoming_river: bool) -> void:
 	var ws1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
