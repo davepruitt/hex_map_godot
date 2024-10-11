@@ -810,7 +810,7 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 		_roads.commit_primitive(r1)
 		
 		var r2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
-		r2.add_triangle_perturbed_vertices(center, mR, mC)
+		r2.add_triangle_perturbed_vertices(center, mC, mR)
 		r2.add_triangle_uv1(Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
 		_roads.commit_primitive(r2)
 
