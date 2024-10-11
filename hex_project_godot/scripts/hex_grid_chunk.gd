@@ -992,12 +992,12 @@ func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
 			if (next_neighbor == null) or (not next_neighbor.is_underwater):
 				return
 			
-			var wquad2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
-			wquad2.add_triangle_perturbed_vertices(c2,
+			var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+			w2.add_triangle_perturbed_vertices(c2,
 				e2,
 				c2 + HexMetrics.get_water_bridge(HexDirectionsClass.next(direction))
 			)
-			_water.commit_primitive(wquad2)
+			_water.commit_primitive(w2)
 
 func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, neighbor: HexCell, center: Vector3) -> void:
