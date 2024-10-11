@@ -1,9 +1,24 @@
-[gd_scene load_steps=9 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=18 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_sv3ps"]
 [ext_resource type="Script" path="res://scripts/hex_map_camera.gd" id="2_roenc"]
 [ext_resource type="Script" path="res://scripts/debug_camera.gd" id="3_8bvhd"]
 [ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://scenes/hex_grid.tscn" id="3_t3wo0"]
+[ext_resource type="Texture2D" uid="uid://0kyxcfomk0lr" path="res://assets/sand.png" id="5_cf5ki"]
+[ext_resource type="Texture2D" uid="uid://ccxel0wem87gs" path="res://assets/grass.png" id="6_tasjk"]
+[ext_resource type="Texture2D" uid="uid://cob5qofvilgt0" path="res://assets/mud.png" id="7_gix1s"]
+[ext_resource type="Texture2D" uid="uid://bd15bj1mspfqr" path="res://assets/stone.png" id="8_lvkr7"]
+[ext_resource type="Texture2D" uid="uid://b5tsknljgmv24" path="res://assets/snow.png" id="9_gg6k1"]
+[ext_resource type="Shader" path="res://shaders/hex_cell_shader.gdshader" id="10_nph5f"]
+[ext_resource type="Shader" path="res://shaders/hex_cell_terrain_shader.gdshader" id="11_c2ox1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m1jh0"]
+render_priority = 0
+shader = ExtResource("10_nph5f")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gdj22"]
+render_priority = 0
+shader = ExtResource("11_c2ox1")
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_jp0eq"]
 resource_name = "ButtonGroup1"
@@ -42,8 +57,11 @@ light_energy = 10.0
 omni_range = 1000.0
 
 [node name="HexGrid" parent="." instance=ExtResource("3_t3wo0")]
+hex_textures = Array[Texture2D]([ExtResource("5_cf5ki"), ExtResource("6_tasjk"), ExtResource("7_gix1s"), ExtResource("8_lvkr7"), ExtResource("9_gg6k1")])
 cell_count_x = 20
 cell_count_z = 15
+colored_terrain_shader_material = SubResource("ShaderMaterial_m1jh0")
+textured_terrain_shader_material = SubResource("ShaderMaterial_gdj22")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

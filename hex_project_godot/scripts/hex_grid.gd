@@ -12,6 +12,8 @@ extends Node3D
 	Color.WHITE
 ]
 
+@export var hex_textures: Array[Texture2D]
+
 ## The number of cells in the X direction
 @export var cell_count_x: int = 0
 
@@ -22,7 +24,10 @@ extends Node3D
 @export var hex_cell_prefab: PackedScene
 
 ## This is the default ShaderMaterial that will be used for the terrain in the hex grid
-@export var terrain_shader_material: ShaderMaterial
+@export var colored_terrain_shader_material: ShaderMaterial
+
+## This is the default ShaderMaterial that will be used for textured terrain in the hex grid
+@export var textured_terrain_shader_material: ShaderMaterial
 
 ## This is the default ShaderMaterial that will be used for the rivers in the hex grid
 @export var river_shader_material: ShaderMaterial
@@ -41,6 +46,12 @@ extends Node3D
 
 ## This is the default material for walls
 @export var walls_material: StandardMaterial3D
+
+#endregion
+
+#region On-Ready variables
+
+#@onready var hex_texture: Texture2DArray = preload("res://assets/terrain.png")
 
 #endregion
 
@@ -118,7 +129,10 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 	_create_cells()
 	
 	for i in range(0, len(_hex_grid_chunks)):
-		_hex_grid_chunks[i].set_terrain_mesh_material(terrain_shader_material)
+		if (HexMetrics.display_mode == Enums.DisplayMode.TerrainTextures):
+			_hex_grid_chunks[i].set_terrain_mesh_material(textured_terrain_shader_material)
+		else:
+			_hex_grid_chunks[i].set_terrain_mesh_material(colored_terrain_shader_material)
 		_hex_grid_chunks[i].set_rivers_mesh_material(river_shader_material)
 		_hex_grid_chunks[i].set_road_mesh_material(road_shader_material)
 		_hex_grid_chunks[i].set_water_mesh_material(water_shader_material)

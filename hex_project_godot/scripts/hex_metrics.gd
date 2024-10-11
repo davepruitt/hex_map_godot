@@ -93,9 +93,10 @@ static var feature_thresholds: Array[float] = [
 	0.4, 0.6, 0.8			#High
 ]
 
-static var colors: Array[Color] = [
-	
-]
+## This array is populated upon initialization of the application
+static var colors: Array[Color] = []
+
+static var display_mode: Enums.DisplayMode = Enums.DisplayMode.TerrainTextures
 
 #endregion
 

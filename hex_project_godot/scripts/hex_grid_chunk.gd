@@ -1,6 +1,16 @@
 class_name HexGridChunk
 extends Node3D
 
+#region Public static data members
+
+static var splat_map_colors: Array[Color] = [
+	Color(255, 0, 0),
+	Color(0, 255, 0),
+	Color(0, 0, 255)
+]
+
+#endregion
+
 #region Private data members
 
 ## This is a list that contains each HexCell object in the grid
@@ -246,8 +256,11 @@ func _triangulate_with_river_begin_or_end (
 	m.v3.y = e.v3.y
 	
 	#Triangulate with a single edge strip and a fan.
-	_triangulate_edge_strip(m, cell.hex_color, e, cell.hex_color)
-	_triangulate_edge_fan(center, m, cell.hex_color)
+	var color_to_use = (
+		cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	_triangulate_edge_strip(m, color_to_use, e, color_to_use)
+	_triangulate_edge_fan(center, m, color_to_use)
 	
 	#Triangulate the river quads
 	if (not cell.is_underwater):
@@ -315,13 +328,16 @@ func _triangulate_with_river (
 	m.v3.y = e.v3.y
 	
 	#Fill the space between the middle and edge lines.
-	_triangulate_edge_strip(m, cell.hex_color, e, cell.hex_color)
+	var color_to_use = (
+		cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	_triangulate_edge_strip(m, color_to_use, e, color_to_use)
 	
 	#Second section of trapezoid
-	_terrain.add_perturbed_triangle(center_l, m.v2, m.v1, cell.hex_color, cell.hex_color, cell.hex_color)
-	_terrain.add_perturbed_quad(center_l, center, m.v2, m.v3, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
-	_terrain.add_perturbed_quad(center, center_r, m.v3, m.v4, cell.hex_color, cell.hex_color, cell.hex_color, cell.hex_color)
-	_terrain.add_perturbed_triangle(center_r, m.v5, m.v4, cell.hex_color, cell.hex_color, cell.hex_color)
+	_terrain.add_perturbed_triangle(center_l, m.v2, m.v1, color_to_use, color_to_use, color_to_use)
+	_terrain.add_perturbed_quad(center_l, center, m.v2, m.v3, color_to_use, color_to_use, color_to_use, color_to_use)
+	_terrain.add_perturbed_quad(center, center_r, m.v3, m.v4, color_to_use, color_to_use, color_to_use, color_to_use)
+	_terrain.add_perturbed_triangle(center_r, m.v5, m.v4, color_to_use, color_to_use, color_to_use)
 	
 	#Form the river quads
 	if (not cell.is_underwater):
@@ -354,8 +370,11 @@ func _triangulate_adjacent_to_river (
 		center.lerp(e.v5, 0.5)
 	)
 	
-	_triangulate_edge_strip(m, cell.hex_color, e, cell.hex_color)
-	_triangulate_edge_fan(center, m, cell.hex_color)
+	var color_to_use = (
+		cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	_triangulate_edge_strip(m, color_to_use, e, color_to_use)
+	_triangulate_edge_fan(center, m, color_to_use)
 	
 	#Add features to this hex
 	if (not cell.is_underwater) and (not cell.has_road_through_edge(direction)):
@@ -404,7 +423,13 @@ func _triangulate_connection (
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
 		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell, has_road)
 	else:
-		_triangulate_edge_strip(e1, cell.hex_color, e2, neighbor_cell.hex_color, has_road)
+		var color_to_use_1 = (
+			cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+			else HexGridChunk.splat_map_colors[0])
+		var color_to_use_2 = (
+			neighbor_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+			else HexGridChunk.splat_map_colors[1])
+		_triangulate_edge_strip(e1, color_to_use_1, e2, color_to_use_2, has_road)
 	
 	#Add walls
 	_features.add_wall(e1, cell, e2, neighbor_cell, has_river, has_road)
@@ -430,21 +455,29 @@ func _triangulate_edge_terraces (
 	begin: EdgeVertices, begin_cell: HexCell,
 	end: EdgeVertices, end_cell: HexCell,
 	has_road: bool = false):
-	
+
+	var color_to_use_1 = (
+		begin_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	var color_to_use_2 = (
+		end_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[1])
+
+
 	var e2: EdgeVertices = EdgeVertices.terrace_lerp(begin, end, 1)
-	var c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, 1)
-	
-	_triangulate_edge_strip(begin, begin_cell.hex_color, e2, c2, has_road)
+	var c2 = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_2, 1)
+
+	_triangulate_edge_strip(begin, color_to_use_1, e2, c2, has_road)
 		
 	for i in range(2, HexMetrics.TERRACE_STEPS):
 		var e1: EdgeVertices = e2
 		var c1: Color = c2
 		e2 = EdgeVertices.terrace_lerp(begin, end, i)
-		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, end_cell.hex_color, i)
+		c2 = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_2, i)
 		
 		_triangulate_edge_strip(e1, c1, e2, c2, has_road)
 	
-	_triangulate_edge_strip(e2, c2, end, end_cell.hex_color, has_road)
+	_triangulate_edge_strip(e2, c2, end, color_to_use_2, has_road)
 
 func _triangulate_corner (
 	bottom: Vector3, bottom_cell: HexCell, 
@@ -473,7 +506,17 @@ func _triangulate_corner (
 		else:
 			_triangulate_corner_terrace_cliff(left, left_cell, right, right_cell, bottom, bottom_cell)
 	else:
-		_terrain.add_perturbed_triangle(bottom, right, left, bottom_cell.hex_color, right_cell.hex_color, left_cell.hex_color)
+		var color_to_use_1 = (
+			bottom_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+			else HexGridChunk.splat_map_colors[0])
+		var color_to_use_2 = (
+			left_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+			else HexGridChunk.splat_map_colors[1])
+		var color_to_use_3 = (
+			right_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+			else HexGridChunk.splat_map_colors[2])
+		
+		_terrain.add_perturbed_triangle(bottom, right, left, color_to_use_1, color_to_use_3, color_to_use_2)
 	
 	#Add walls
 	_features.add_wall_three_cells(bottom, bottom_cell, left, left_cell, right, right_cell)
@@ -482,14 +525,24 @@ func _triangulate_corner_terraces (
 	begin: Vector3, begin_cell: HexCell,
 	left: Vector3, left_cell: HexCell,
 	right: Vector3, right_cell: HexCell) -> void:
-	
+
+	var color_to_use_1 = (
+		begin_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	var color_to_use_2 = (
+		left_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[1])
+	var color_to_use_3 = (
+		right_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[2])
+
 	var v3: Vector3 = HexMetrics.terrace_lerp(begin, left, 1)
 	var v4: Vector3 = HexMetrics.terrace_lerp(begin, right, 1)
-	var c3: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, 1)
-	var c4: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, right_cell.hex_color, 1)
+	var c3: Color = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_2, 1)
+	var c4: Color = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_3, 1)
 	
 	#The bottom triangle
-	_terrain.add_perturbed_triangle(begin, v4, v3, begin_cell.hex_color, c4, c3)
+	_terrain.add_perturbed_triangle(begin, v4, v3, color_to_use_1, c4, c3)
 	
 	#The steps inbetween
 	for i in range(2, HexMetrics.TERRACE_STEPS):
@@ -500,13 +553,13 @@ func _triangulate_corner_terraces (
 		
 		v3 = HexMetrics.terrace_lerp(begin, left, i)
 		v4 = HexMetrics.terrace_lerp(begin, right, i)
-		c3 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, i)
-		c4 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, right_cell.hex_color, i)
+		c3 = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_2, i)
+		c4 = HexMetrics.terrace_color_lerp(color_to_use_1, color_to_use_3, i)
 		
 		_terrain.add_perturbed_quad(v1, v2, v3, v4, c1, c2, c3, c4)
 	
 	#The top quad
-	_terrain.add_perturbed_quad(v3, v4, left, right, c3, c4, left_cell.hex_color, right_cell.hex_color)
+	_terrain.add_perturbed_quad(v3, v4, left, right, c3, c4, color_to_use_2, color_to_use_3)
 	
 func _triangulate_corner_terrace_cliff (
 	begin: Vector3, begin_cell: HexCell,
@@ -516,17 +569,27 @@ func _triangulate_corner_terrace_cliff (
 	var b: float = 1.0 / (right_cell.elevation - begin_cell.elevation)
 	if b < 0:
 		b = -b
-	
+
+	var color_to_use_1 = (
+		begin_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	var color_to_use_2 = (
+		left_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[1])
+	var color_to_use_3 = (
+		right_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[2])
+
 	var boundary: Vector3 = HexMetrics.perturb(begin).lerp(HexMetrics.perturb(right), b)
-	var boundary_color: Color = begin_cell.hex_color.lerp(right_cell.hex_color, b)
+	var boundary_color: Color = color_to_use_1.lerp(color_to_use_3, b)
 	
-	_triangulate_boundary_triangle(begin, begin_cell, left, left_cell, boundary, boundary_color)
+	_triangulate_boundary_triangle(begin, begin_cell, color_to_use_1, left, left_cell, color_to_use_2, boundary, boundary_color)
 	
 	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
-		_triangulate_boundary_triangle(left, left_cell, right, right_cell, boundary, boundary_color)
+		_triangulate_boundary_triangle(left, left_cell, color_to_use_2, right, right_cell, color_to_use_3, boundary, boundary_color)
 	else:
 		_terrain.add_triangle(HexMetrics.perturb(left), boundary, HexMetrics.perturb(right), 
-			left_cell.hex_color, boundary_color, right_cell.hex_color)
+			color_to_use_2, boundary_color, color_to_use_3)
 
 func _triangulate_corner_cliff_terrace (
 	begin: Vector3, begin_cell: HexCell,
@@ -536,38 +599,55 @@ func _triangulate_corner_cliff_terrace (
 	var b: float = 1.0 / (left_cell.elevation - begin_cell.elevation)
 	if b < 0:
 		b = -b
+		
+	var color_to_use_1 = (
+		begin_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	var color_to_use_2 = (
+		left_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[1])
+	var color_to_use_3 = (
+		right_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[2])
 	
 	var boundary: Vector3 = HexMetrics.perturb(begin).lerp(HexMetrics.perturb(left), b)
-	var boundary_color: Color = begin_cell.hex_color.lerp(left_cell.hex_color, b)
+	var boundary_color: Color = color_to_use_1.lerp(color_to_use_2, b)
 	
-	_triangulate_boundary_triangle(right, right_cell, begin, begin_cell, boundary, boundary_color)
+	_triangulate_boundary_triangle(right, right_cell, color_to_use_3, begin, begin_cell, color_to_use_1, boundary, boundary_color)
 	
 	if (left_cell.get_edge_type_from_other_cell(right_cell) == Enums.HexEdgeType.Slope):
-		_triangulate_boundary_triangle(left, left_cell, right, right_cell, boundary, boundary_color)
+		_triangulate_boundary_triangle(left, left_cell, color_to_use_2, right, right_cell, color_to_use_3, boundary, boundary_color)
 	else:
 		_terrain.add_triangle(HexMetrics.perturb(left), boundary, HexMetrics.perturb(right), 
-			left_cell.hex_color, boundary_color, right_cell.hex_color)
+			color_to_use_2, boundary_color, color_to_use_3)
 
 func _triangulate_boundary_triangle (
-	begin: Vector3, begin_cell: HexCell,
-	left: Vector3, left_cell: HexCell,
+	begin: Vector3, begin_cell: HexCell, begin_splat_color: Color,
+	left: Vector3, left_cell: HexCell, left_splat_color: Color,
 	boundary: Vector3, boundary_color: Color) -> void:
-	
+
+	var begin_color = (
+		begin_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else begin_splat_color)
+	var left_color = (
+		left_cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else left_splat_color)
+
 	var v2: Vector3 = HexMetrics.perturb(HexMetrics.terrace_lerp(begin, left, 1))
-	var c2: Color = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, 1)
+	var c2: Color = HexMetrics.terrace_color_lerp(begin_color, left_color, 1)
 	
-	_terrain.add_triangle(HexMetrics.perturb(begin), boundary, v2, begin_cell.hex_color, boundary_color, c2)
+	_terrain.add_triangle(HexMetrics.perturb(begin), boundary, v2, begin_color, boundary_color, c2)
 	
 	for i in range(2, HexMetrics.TERRACE_STEPS):
 		var v1: Vector3 = v2
 		var c1: Color = c2
 		
 		v2 = HexMetrics.perturb(HexMetrics.terrace_lerp(begin, left, i))
-		c2 = HexMetrics.terrace_color_lerp(begin_cell.hex_color, left_cell.hex_color, i)
+		c2 = HexMetrics.terrace_color_lerp(begin_color, left_color, i)
 		
 		_terrain.add_triangle(v1, boundary, v2, c1, boundary_color, c2)
 		
-	_terrain.add_triangle(v2, boundary, HexMetrics.perturb(left), c2, boundary_color, left_cell.hex_color)
+	_terrain.add_triangle(v2, boundary, HexMetrics.perturb(left), c2, boundary_color, left_color)
 
 func _triangulate_edge_fan (
 	center: Vector3, edge: EdgeVertices, color: Color) -> void:
@@ -656,7 +736,10 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 func _triangulate_without_river (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, center: Vector3, e: EdgeVertices) -> void:
 	
-	_triangulate_edge_fan(center, e, cell.hex_color)
+	var color_to_use = (
+		cell.hex_color if HexMetrics.display_mode == Enums.DisplayMode.TerrainColors
+		else HexGridChunk.splat_map_colors[0])
+	_triangulate_edge_fan(center, e, color_to_use)
 	
 	if (cell.has_roads):
 		var interpolators: Vector2 = _get_road_interpolators(direction, cell)
