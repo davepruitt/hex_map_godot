@@ -292,7 +292,9 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	v3.y = left_top
 	v4.y = right_top
 	
-	walls.add_quad(v1, v2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	w1.add_quad_unperturbed_vertices(v1, v2, v3, v4)
+	walls.commit_primitive(w1)
 	
 	#Wall top
 	var t1: Vector3 = v3
@@ -306,8 +308,13 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	v3.y = left_top
 	v4.y = right_top
 	
-	walls.add_quad(v2, v1, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
-	walls.add_quad(t1, t2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	w2.add_quad_unperturbed_vertices(v2, v1, v4, v3)
+	walls.commit_primitive(w2)
+	
+	var w3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	w3.add_quad_unperturbed_vertices(t1, t2, v3, v4)
+	walls.commit_primitive(w3)
 	
 	if (add_tower):
 		var tower_instance: Node3D = wall_tower_prefab.instantiate() as Node3D
@@ -339,7 +346,9 @@ func _add_wall_cap (near: Vector3, far: Vector3) -> void:
 	v3.y = center.y + HexMetrics.WALL_HEIGHT
 	v4.y = v3.y
 	
-	walls.add_quad(v1, v2, v3, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	w1.add_quad_unperturbed_vertices(v1, v2, v3, v4)
+	walls.commit_primitive(w1)
 
 func _add_wall_wedge (near: Vector3, far: Vector3, point: Vector3) -> void:
 	near = HexMetrics.perturb(near)
@@ -366,8 +375,16 @@ func _add_wall_wedge (near: Vector3, far: Vector3, point: Vector3) -> void:
 	v4.y = v3.y
 	point_top.y = v3.y
 	
-	walls.add_quad(v1, point, v3, point_top, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
-	walls.add_quad(point, v2, point_top, v4, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
-	walls.add_triangle(point_top, v4, v3, Color.WHITE, Color.WHITE, Color.WHITE)
+	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	w1.add_quad_unperturbed_vertices(v1, point, v3, point_top)
+	walls.commit_primitive(w1)
+
+	var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
+	w2.add_quad_unperturbed_vertices(point, v2, point_top, v4)
+	walls.commit_primitive(w2)
+	
+	var w3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
+	w3.add_triangle_unperturbed_vertices(point_top, v3, v4)
+	walls.commit_primitive(w3)
 
 #endregion
