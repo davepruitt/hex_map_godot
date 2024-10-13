@@ -17,6 +17,8 @@ var use_uv_coordinates: bool = false
 
 var use_uv2_coordinates: bool = false
 
+var use_terrain_types: bool = false
+
 #endregion
 
 #region Overrides
@@ -33,7 +35,8 @@ func begin () -> void:
 	_surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES);
 	
 	#Set the first custom channel to be RGB float
-	_surface_tool.set_custom_format(0, SurfaceTool.CUSTOM_RGB_FLOAT);
+	if (use_terrain_types):
+		_surface_tool.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT);
 	
 	#Set the smooth group to -1, which produces flat normals for the mesh
 	_surface_tool.set_smooth_group(-1)

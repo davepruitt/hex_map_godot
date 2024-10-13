@@ -18,7 +18,7 @@ var _uv1: Array[Vector2] = []
 
 var _uv2: Array[Vector2] = []
 
-var _terrain_type_index: Array[int] = []
+var _terrain_types: Array[Vector3] = []
 
 #endregion
 
@@ -102,16 +102,16 @@ func add_quad_uv2_vectors (v1: Vector2, v2: Vector2, v3: Vector2, v4: Vector2) -
 	_uv2.append(v3)
 	_uv2.append(v4)
 
-func add_triangle_terrain_index (t1: int, t2: int, t3: int) -> void:
-	_terrain_type_index.append(t1)
-	_terrain_type_index.append(t2)
-	_terrain_type_index.append(t3)
+func add_triangle_terrain_types (terrain_types: Vector3) -> void:
+	_terrain_types.append(terrain_types)
+	_terrain_types.append(terrain_types)
+	_terrain_types.append(terrain_types)
 
-func add_quad_terrain_index (t1: int, t2: int, t3: int, t4: int) -> void:
-	_terrain_type_index.append(t1)
-	_terrain_type_index.append(t2)
-	_terrain_type_index.append(t3)
-	_terrain_type_index.append(t4)
+func add_quad_terrain_types (terrain_types: Vector3) -> void:
+	_terrain_types.append(terrain_types)
+	_terrain_types.append(terrain_types)
+	_terrain_types.append(terrain_types)
+	_terrain_types.append(terrain_types)
 
 func commit (st: SurfaceTool) -> void:
 	if (_primitive_type == PrimitiveType.QUAD):
@@ -141,8 +141,10 @@ func _commit_vertex (st: SurfaceTool, vertex_idx: int) -> void:
 		st.set_uv2(uv2)
 	
 	#Set the terrain index of the vertex
-	if (len(_terrain_type_index) > vertex_idx):
-		pass
+	if (len(_terrain_types) > vertex_idx):
+		var t: Vector3 = _terrain_types[vertex_idx]
+		var c: Color = Color(t.x, t.y, t.z, 0);
+		st.set_custom(0, c)
 	
 	#Add the vertex itself
 	if (len(_vertices) > vertex_idx):
