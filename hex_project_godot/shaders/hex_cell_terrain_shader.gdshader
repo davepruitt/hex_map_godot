@@ -25,7 +25,7 @@ void vertex() {
 void fragment() {
 	//vec2 uv = (world_position.xz * 10.0) * 0.02;
 	//vec4 c = texture(terrain_texture_2d_array, vec3(uv, 0));
-	vec4 c = get_terrain_color(COLOR, world_position, 0); +
+	vec4 c = get_terrain_color(COLOR, world_position, 0) +
 		get_terrain_color(COLOR, world_position, 1) +
 		get_terrain_color(COLOR, world_position, 2);
 	ALBEDO = c.rgb;// * COLOR.rgb;
