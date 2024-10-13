@@ -22,5 +22,5 @@ compress/hdr_compression=1
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
-slices/horizontal=6
+slices/horizontal=5
 slices/vertical=1

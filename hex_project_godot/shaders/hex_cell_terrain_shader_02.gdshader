@@ -1,14 +1,39 @@
 shader_type spatial;
 
-uniform sampler2DArray terrain_texture_2d_array:source_color;
+uniform sampler2D texture_sand:source_color;
+uniform sampler2D texture_grass:source_color;
+uniform sampler2D texture_mud:source_color;
+uniform sampler2D texture_stone:source_color;
+uniform sampler2D texture_snow:source_color;
+
 varying vec3 world_position;
 varying vec3 terrain_index;
 
 vec4 get_terrain_color (vec4 color, vec3 wp, int index)
 {
 	vec2 uv = wp.xz * 10.0 * 0.02;
-	vec3 uvw = vec3(uv, terrain_index[index]);
-	vec4 c = texture(terrain_texture_2d_array, uvw);
+	
+	int t_idx = int(terrain_index[index]);
+	vec4 c;
+	switch(t_idx)
+	{
+		case 0:
+			c = texture(texture_sand, uv);
+			break;
+		case 1:
+			c = texture(texture_grass, uv);
+			break;
+		case 2:
+			c = texture(texture_mud, uv);
+			break;
+		case 3:
+			c = texture(texture_stone, uv);
+			break;
+		case 4:
+			c = texture(texture_snow, uv);
+			break;
+	}
+	
 	return c * color[index];
 }
 

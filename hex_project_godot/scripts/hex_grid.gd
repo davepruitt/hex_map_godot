@@ -29,6 +29,8 @@ extends Node3D
 ## This is the default ShaderMaterial that will be used for textured terrain in the hex grid
 @export var textured_terrain_shader_material: ShaderMaterial
 
+@export var textured_terrain_shader_material_02: ShaderMaterial
+
 ## This is the default ShaderMaterial that will be used for the rivers in the hex grid
 @export var river_shader_material: ShaderMaterial
 
