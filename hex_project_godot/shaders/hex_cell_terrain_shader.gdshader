@@ -1,6 +1,7 @@
 shader_type spatial;
 
 uniform sampler2DArray terrain_texture_2d_array:source_color;
+uniform sampler2D grid_texture:source_color;
 varying vec3 world_position;
 varying vec3 terrain_index;
 
@@ -24,6 +25,13 @@ void fragment() {
 	vec4 c = get_terrain_color(COLOR, world_position, 0) +
 		get_terrain_color(COLOR, world_position, 1) +
 		get_terrain_color(COLOR, world_position, 2);
-	ALBEDO = c.rgb;
+	
+	vec2 grid_uv = world_position.xz;
+	grid_uv.x *= 1.0 / (4.0 * 8.66025404);
+	grid_uv.y *= 1.0 / (2.0 * 15.0);
+	
+	vec4 grid = texture(grid_texture, grid_uv);
+	
+	ALBEDO = c.rgb * grid.rgb;
 	ALPHA = c.a;
 }

@@ -457,7 +457,7 @@ func _refresh_position () -> void:
 	position.y += perturbation_amount
 	
 	#Set the y-axis position of the "position label" for the cell
-	position_label.position.y = 0.01 + abs(perturbation_amount)
+	position_label.position.y = 0.1 + abs(perturbation_amount)
 
 func _is_valid_river_destination (neighbor: HexCell) -> bool:
 	if (neighbor != null):

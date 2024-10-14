@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=20 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_sv3ps"]
 [ext_resource type="Script" path="res://scripts/hex_map_camera.gd" id="2_roenc"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://b5tsknljgmv24" path="res://assets/snow.png" id="9_gg6k1"]
 [ext_resource type="Shader" path="res://shaders/hex_cell_shader.gdshader" id="10_nph5f"]
 [ext_resource type="Shader" path="res://shaders/hex_cell_terrain_shader.gdshader" id="11_c2ox1"]
+[ext_resource type="Texture2D" uid="uid://ca20grb2upor5" path="res://assets/grid.png" id="12_gv3gu"]
 [ext_resource type="CompressedTexture2DArray" uid="uid://bktbwtk345agh" path="res://assets/terrain.png" id="12_lmpao"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_m1jh0"]
@@ -21,6 +22,7 @@ shader = ExtResource("10_nph5f")
 render_priority = 0
 shader = ExtResource("11_c2ox1")
 shader_parameter/terrain_texture_2d_array = ExtResource("12_lmpao")
+shader_parameter/grid_texture = ExtResource("12_gv3gu")
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_jp0eq"]
 resource_name = "ButtonGroup1"

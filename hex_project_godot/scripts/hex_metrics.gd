@@ -22,7 +22,7 @@ const SOLID_FACTOR: float = 0.8
 
 const BLEND_FACTOR: float = 1.0 - SOLID_FACTOR
 
-const ELEVATION_STEP: float = 3.0
+const ELEVATION_STEP: float = 5.0
 
 const TERRACES_PER_SLOPE: int = 2
 
@@ -32,9 +32,9 @@ const HORIZONTAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACE_STEPS)
 
 const VERTICAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACES_PER_SLOPE + 1)
 
-const CELL_PERTURB_STRENGTH: float = 4.0
+const CELL_PERTURB_STRENGTH: float = 0.4
 
-const CELL_PERTURB_POSITION_MULTIPLIER: float = 100.0
+const CELL_PERTURB_POSITION_MULTIPLIER: float = 1.0 #100.0
 
 const NOISE_SCALE: float = 0.003
 
@@ -96,7 +96,7 @@ static var feature_thresholds: Array[float] = [
 ## This array is populated upon initialization of the application
 static var colors: Array[Color] = []
 
-static var display_mode: Enums.DisplayMode = Enums.DisplayMode.TerrainColors
+static var display_mode: Enums.DisplayMode = Enums.DisplayMode.TerrainTextures
 
 #endregion
 

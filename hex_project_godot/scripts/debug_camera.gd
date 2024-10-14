@@ -6,11 +6,11 @@ extends Camera3D
 #region Exported variables
 
 @export_range(0, 10, 0.01) var sensitivity : float = 3
-@export_range(0, 1000, 0.1) var default_velocity : float = 5
+@export_range(0, 1000, 0.1) var default_velocity : float = 50
 @export_range(0, 10, 0.01) var speed_scale : float = 1.17
 @export_range(1, 100, 0.1) var boost_speed_multiplier : float = 3.0
-@export var max_speed : float = 1000
-@export var min_speed : float = 0.2
+@export var max_speed : float = 10000
+@export var min_speed : float = 2
 
 #endregion
 

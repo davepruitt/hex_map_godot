@@ -6,8 +6,7 @@
 script = ExtResource("1_de0eb")
 position_label = NodePath("PositionLabel")
 
-[node name="Visualization" type="MeshInstance3D" parent="."]
-
 [node name="PositionLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+pixel_size = 0.05
 text = "HELLO"
