@@ -4,42 +4,42 @@
 
 [sub_resource type="BoxMesh" id="BoxMesh_xkt5f"]
 material = ExtResource("1_qmk23")
-size = Vector3(0.6, 0.4, 0.6)
+size = Vector3(6, 4, 6)
 
 [sub_resource type="BoxMesh" id="BoxMesh_kmjgj"]
 material = ExtResource("1_qmk23")
-size = Vector3(0.2, 0.6, 0.2)
+size = Vector3(2, 6, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_le3q8"]
 material = ExtResource("1_qmk23")
-size = Vector3(0.2, 0.6, 0.2)
+size = Vector3(2, 6, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_p1v8l"]
 material = ExtResource("1_qmk23")
-size = Vector3(0.2, 0.6, 0.2)
+size = Vector3(2, 6, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_hjjd3"]
 material = ExtResource("1_qmk23")
-size = Vector3(0.2, 0.6, 0.2)
+size = Vector3(2, 6, 2)
 
 [node name="Castle" type="Node3D"]
 
 [node name="CenterCube" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 mesh = SubResource("BoxMesh_xkt5f")
 
 [node name="TowerSW" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.3, -0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 3, -3)
 mesh = SubResource("BoxMesh_kmjgj")
 
 [node name="TowerSE" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.3, -0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 3, -3)
 mesh = SubResource("BoxMesh_le3q8")
 
 [node name="TowerNE" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.3, 0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 3, 3)
 mesh = SubResource("BoxMesh_p1v8l")
 
 [node name="TowerNW" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.3, 0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 3, 3)
 mesh = SubResource("BoxMesh_hjjd3")

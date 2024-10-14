@@ -4,4 +4,4 @@
 
 [resource]
 material = ExtResource("1_dhvs1")
-size = Vector3(0.25, 0.01, 0.25)
+size = Vector3(2.5, 0.1, 2.5)
