@@ -146,6 +146,9 @@ func _input(event: InputEvent) -> void:
 				current_camera_value_label.text = "Debug"
 			else:
 				current_camera_value_label.text = "NA"
+		
+		if event.keycode == KEY_G:
+			hex_grid.hex_grid_overlay_enabled = !hex_grid.hex_grid_overlay_enabled
 	
 	#If a mouse button was pressed...
 	elif event is InputEventMouseButton:

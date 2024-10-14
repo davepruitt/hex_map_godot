@@ -21,6 +21,7 @@ shader = ExtResource("10_nph5f")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gdj22"]
 render_priority = 0
 shader = ExtResource("11_c2ox1")
+shader_parameter/grid_on = false
 shader_parameter/terrain_texture_2d_array = ExtResource("12_lmpao")
 shader_parameter/grid_texture = ExtResource("12_gv3gu")
 
@@ -556,6 +557,11 @@ theme_override_constants/margin_bottom = 10
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer3/MarginContainer"]
 layout_mode = 2
+
+[node name="Label2" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Press 'G' to toggle grid"
+horizontal_alignment = 1
 
 [node name="Label" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer"]
 layout_mode = 2

@@ -69,6 +69,20 @@ var _chunk_count_x: int = 2
 ## This is the number of chunks in the y-direction of the hex grid
 var _chunk_count_z: int = 2
 
+var _hex_grid_overlay_enabled: bool = false
+
+#endregion
+
+#region Public data members
+
+var hex_grid_overlay_enabled: bool:
+	get:
+		return _hex_grid_overlay_enabled
+	set(value):
+		if (_hex_grid_overlay_enabled != value):
+			_hex_grid_overlay_enabled = value
+			textured_terrain_shader_material.set_shader_parameter("grid_on", _hex_grid_overlay_enabled)
+
 #endregion
 
 #region Method overrides
