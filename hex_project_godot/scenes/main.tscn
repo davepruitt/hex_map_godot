@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=19 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_sv3ps"]
 [ext_resource type="Script" path="res://scripts/hex_map_camera.gd" id="2_roenc"]
@@ -12,7 +12,6 @@
 [ext_resource type="Shader" path="res://shaders/hex_cell_shader.gdshader" id="10_nph5f"]
 [ext_resource type="Shader" path="res://shaders/hex_cell_terrain_shader.gdshader" id="11_c2ox1"]
 [ext_resource type="CompressedTexture2DArray" uid="uid://bktbwtk345agh" path="res://assets/terrain.png" id="12_lmpao"]
-[ext_resource type="Shader" path="res://shaders/hex_cell_terrain_shader_02.gdshader" id="13_aimsn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_m1jh0"]
 render_priority = 0
@@ -22,15 +21,6 @@ shader = ExtResource("10_nph5f")
 render_priority = 0
 shader = ExtResource("11_c2ox1")
 shader_parameter/terrain_texture_2d_array = ExtResource("12_lmpao")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_bx52y"]
-render_priority = 0
-shader = ExtResource("13_aimsn")
-shader_parameter/texture_sand = ExtResource("5_cf5ki")
-shader_parameter/texture_grass = ExtResource("6_tasjk")
-shader_parameter/texture_mud = ExtResource("7_gix1s")
-shader_parameter/texture_stone = ExtResource("8_lvkr7")
-shader_parameter/texture_snow = ExtResource("9_gg6k1")
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_jp0eq"]
 resource_name = "ButtonGroup1"
@@ -63,10 +53,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
 [node name="DebugCamera" type="Camera3D" parent="."]
 script = ExtResource("3_8bvhd")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
-light_energy = 10.0
-omni_range = 1000.0
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 100000, 0)
 
 [node name="HexGrid" parent="." instance=ExtResource("3_t3wo0")]
 hex_textures = Array[Texture2D]([ExtResource("5_cf5ki"), ExtResource("6_tasjk"), ExtResource("7_gix1s"), ExtResource("8_lvkr7"), ExtResource("9_gg6k1")])
@@ -74,7 +62,6 @@ cell_count_x = 20
 cell_count_z = 15
 colored_terrain_shader_material = SubResource("ShaderMaterial_m1jh0")
 textured_terrain_shader_material = SubResource("ShaderMaterial_gdj22")
-textured_terrain_shader_material_02 = SubResource("ShaderMaterial_bx52y")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -112,31 +99,31 @@ text = "---"
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
-text = "Yellow"
+text = "Sand"
 
 [node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
-text = "Green"
+text = "Grass"
 
 [node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
-text = "Blue"
+text = "Mud"
 
 [node name="CheckBox_ColorOrange" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
-text = "Orange"
+text = "Stone"
 
 [node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
-text = "White"
+text = "Snow"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2

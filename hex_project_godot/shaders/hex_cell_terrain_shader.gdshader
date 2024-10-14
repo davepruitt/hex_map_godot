@@ -6,7 +6,7 @@ varying vec3 terrain_index;
 
 vec4 get_terrain_color (vec4 color, vec3 wp, int index)
 {
-	vec2 uv = wp.xz * 10.0 * 0.02;
+	vec2 uv = wp.xz * 0.02;
 	vec3 uvw = vec3(uv, terrain_index[index]);
 	vec4 c = texture(terrain_texture_2d_array, uvw);
 	return c * color[index];
