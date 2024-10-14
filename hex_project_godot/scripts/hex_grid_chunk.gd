@@ -74,21 +74,27 @@ func add_cell (index: int, cell: HexCell) -> void:
 
 func set_terrain_mesh_material (mat: ShaderMaterial) -> void:
 	_terrain_shader_material = mat
+	_terrain_shader_material.set_render_priority(0)
 	
 func set_rivers_mesh_material (mat: ShaderMaterial) -> void:
 	_rivers_shader_material = mat
+	_rivers_shader_material.set_render_priority(1)
 	
 func set_road_mesh_material (mat: ShaderMaterial) -> void:
 	_road_shader_material = mat
+	_road_shader_material.set_render_priority(1)
 	
 func set_water_mesh_material (mat: ShaderMaterial) -> void:
 	_water_shader_material = mat
+	_water_shader_material.set_render_priority(1)
 	
 func set_water_shore_mesh_material (mat: ShaderMaterial) -> void:
 	_water_shore_shader_material = mat
+	_water_shore_shader_material.set_render_priority(1)
 
 func set_estuaries_mesh_material (mat: ShaderMaterial) -> void:
 	_estuaries_shader_material = mat
+	_estuaries_shader_material.set_render_priority(1)
 
 func set_walls_mesh_material (mat: StandardMaterial3D) -> void:
 	_walls_material = mat
@@ -126,6 +132,7 @@ func _triangulate_cells () -> void:
 	_roads.use_collider = false
 	_roads.use_uv_coordinates = true
 	_roads.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_roads.set_sorting_offset(10.0)
 	
 	#Begin creation of the water mesh
 	_water.begin()
@@ -133,6 +140,7 @@ func _triangulate_cells () -> void:
 	_water.use_collider = false
 	_water.use_uv_coordinates = true
 	_water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_water.set_sorting_offset(10.0)
 	
 	#Begin creation of the shore water mesh
 	_water_shore.begin()
@@ -140,6 +148,7 @@ func _triangulate_cells () -> void:
 	_water_shore.use_collider = false
 	_water_shore.use_uv_coordinates = true
 	_water_shore.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_water_shore.set_sorting_offset(10.0)
 	
 	#Begin creation of the estuaries water mesh
 	_estuaries.begin()
@@ -148,6 +157,7 @@ func _triangulate_cells () -> void:
 	_estuaries.use_uv_coordinates = true
 	_estuaries.use_uv2_coordinates = true
 	_estuaries.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_estuaries.set_sorting_offset(10.0)
 	
 	#Clear the features for the hex grid chunk
 	_features.clear()
