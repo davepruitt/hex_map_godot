@@ -260,7 +260,7 @@ var distance: int:
 		return _distance
 	set(value):
 		_distance = value
-		
+		_update_distance_label()
 
 #endregion
 

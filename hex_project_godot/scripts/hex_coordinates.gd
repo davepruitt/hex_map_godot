@@ -37,6 +37,15 @@ func _to_string() -> String:
 
 #region Methods
 
+func DistanceTo (other: HexCoordinates) -> int:
+	var result_x: int = abs(X - other.X)
+	var result_y: int = abs(Y - other.Y)
+	var result_z: int = abs(Z - other.Z)
+	
+	var result: int = (result_x + result_y + result_z) / 2
+	
+	return result
+
 func ToStringOnSeparateLines () -> String:
 	#Same as the _to_string function, except each value is seperated by a new-line character
 	return str(X) + "\n" + str(Y) + "\n" + str(Z)

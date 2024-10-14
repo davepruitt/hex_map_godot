@@ -224,7 +224,7 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 
 func find_distance_to_cell (cell: HexCell) -> void:
 	for i in range(0, len(_hex_cells)):
-		_hex_cells[i].distance = 0
+		_hex_cells[i].distance = cell.hex_coordinates.DistanceTo(_hex_cells[i].hex_coordinates)
 
 #endregion
 
