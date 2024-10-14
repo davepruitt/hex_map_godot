@@ -38,7 +38,7 @@ resource_name = "WallsButtonGroup"
 script = ExtResource("1_sv3ps")
 
 [node name="HexMapCamera" type="Node3D" parent="." node_paths=PackedStringArray("hex_grid")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 100)
 script = ExtResource("2_roenc")
 hex_grid = NodePath("../HexGrid")
 

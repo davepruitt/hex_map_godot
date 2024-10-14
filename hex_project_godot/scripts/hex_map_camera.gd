@@ -4,11 +4,11 @@ extends Node3D
 #region Exported data members
 
 @export var stick_min_zoom : float = 6.0
-@export var stick_max_zoom : float = 20.0
+@export var stick_max_zoom : float = 100.0
 @export var swivel_min_zoom : float = -0
 @export var swivel_max_zoom : float = -90
-@export var movement_speed_min_zoom : float = 25
-@export var movement_speed_max_zoom : float = 10
+@export var movement_speed_min_zoom : float = 250
+@export var movement_speed_max_zoom : float = 100
 @export var rotation_speed : float = 180
 
 

@@ -5,7 +5,7 @@ class_name HexMetrics
 const OUTER_TO_INNER: float = 0.866025404
 const INNER_TO_OUTER: float = 1.0 / OUTER_TO_INNER
 
-const OUTER_RADIUS: float = 1.0
+const OUTER_RADIUS: float = 10.0
 const INNER_RADIUS: float = OUTER_RADIUS * OUTER_TO_INNER
 
 const CORNERS = [
@@ -22,7 +22,7 @@ const SOLID_FACTOR: float = 0.8
 
 const BLEND_FACTOR: float = 1.0 - SOLID_FACTOR
 
-const ELEVATION_STEP: float = 0.5
+const ELEVATION_STEP: float = 3.0
 
 const TERRACES_PER_SLOPE: int = 2
 
@@ -32,23 +32,23 @@ const HORIZONTAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACE_STEPS)
 
 const VERTICAL_TERRACE_STEP_SIZE: float = 1.0 / float(TERRACES_PER_SLOPE + 1)
 
-const CELL_PERTURB_STRENGTH: float = 0.1
+const CELL_PERTURB_STRENGTH: float = 4.0
 
 const CELL_PERTURB_POSITION_MULTIPLIER: float = 100.0
 
-const NOISE_SCALE: float = 1.0
+const NOISE_SCALE: float = 0.003
 
-const ELEVATION_PERTURB_STRENGTH: float = 0.015
+const ELEVATION_PERTURB_STRENGTH: float = 1.5
 
 const CHUNK_SIZE_X: int = 5
 
 const CHUNK_SIZE_Z: int = 5
 
-const STREAM_BED_ELEVATION_OFFSET: float = -0.1
+const STREAM_BED_ELEVATION_OFFSET: float = -1.75
 
 const RIVER_SURFACE_ELEVATION_OFFSET: float = 0.5 * STREAM_BED_ELEVATION_OFFSET
 
-const WATER_ELEVATION_OFFSET: float = -0.1
+const WATER_ELEVATION_OFFSET: float = -0.5
 
 const WATER_FACTOR: float = 0.6
 
@@ -62,17 +62,17 @@ const FEATURE_THRESHOLD_LEVELS: int = 3
 
 const FEATURE_THRESHOLD_SUB_LEVELS: int = 3
 
-const WALL_HEIGHT: float = 0.4
+const WALL_HEIGHT: float = 4.0
 
-const WALL_Y_OFFSET: float = -0.1
+const WALL_Y_OFFSET: float = -1.0
 
-const WALL_THICKNESS: float = 0.075
+const WALL_THICKNESS: float = 0.75
 
 const WALL_ELEVATION_OFFSET: float = VERTICAL_TERRACE_STEP_SIZE
 
 const WALL_TOWER_THRESHOLD: float = 0.5
 
-const BRIDGE_DESIGN_LENGTH: float = 0.7
+const BRIDGE_DESIGN_LENGTH: float = 7.0
 
 #endregion
 
@@ -96,7 +96,7 @@ static var feature_thresholds: Array[float] = [
 ## This array is populated upon initialization of the application
 static var colors: Array[Color] = []
 
-static var display_mode: Enums.DisplayMode = Enums.DisplayMode.TerrainTextures
+static var display_mode: Enums.DisplayMode = Enums.DisplayMode.TerrainColors
 
 #endregion
 
