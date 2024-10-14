@@ -15,8 +15,6 @@ vec4 get_terrain_color (vec4 color, vec3 wp, int index)
 void vertex() {
 	//Get the world position
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	world_position.x *= 10.0;
-	world_position.z *= 10.0;
 
 	//Get the terrain index
 	terrain_index = CUSTOM0.xyz;
