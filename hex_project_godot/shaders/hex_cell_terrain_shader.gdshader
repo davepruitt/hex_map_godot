@@ -32,6 +32,6 @@ void fragment() {
 	
 	vec4 grid = texture(grid_texture, grid_uv);
 	
-	ALBEDO = c.rgb * grid.rgb;
+	ALBEDO = c.rgb;// * grid.rgb;
 	ALPHA = c.a;
 }

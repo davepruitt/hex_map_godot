@@ -452,7 +452,7 @@ func _refresh_position () -> void:
 	#Set the position of the cell
 	position.y = _elevation * HexMetrics.ELEVATION_STEP
 	
-	var noise_sample: Vector4 = HexMetrics.sample_noise(position * HexMetrics.CELL_PERTURB_POSITION_MULTIPLIER)
+	var noise_sample: Vector4 = HexMetrics.sample_noise(position)
 	var perturbation_amount: float = ((noise_sample.y * 2.0 - 1.0) * HexMetrics.ELEVATION_PERTURB_STRENGTH)
 	position.y += perturbation_amount
 	
