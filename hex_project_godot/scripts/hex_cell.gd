@@ -527,6 +527,9 @@ func _validate_rivers () -> void:
 
 func _update_distance_label () -> void:
 	if (_cell_label_mode == CellInformationLabelMode.Information):
-		cell_information_label.text = str(distance)
+		if (distance == GodotConstants.MAX_INT):
+			cell_information_label.text = ""
+		else:
+			cell_information_label.text = str(distance)
 
 #endregion

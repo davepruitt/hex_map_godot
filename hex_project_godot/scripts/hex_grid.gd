@@ -223,8 +223,46 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 		_hex_cells[i]._refresh()
 
 func find_distance_to_cell (cell: HexCell) -> void:
+	await _breadth_first_search(cell)
+
+func _breadth_first_search (cell: HexCell) -> void:
+	#Pre-fill each distance value to MAX_INT
 	for i in range(0, len(_hex_cells)):
-		_hex_cells[i].distance = cell.hex_coordinates.DistanceTo(_hex_cells[i].hex_coordinates)
+		_hex_cells[i].distance = GodotConstants.MAX_INT
+		
+	#Initialize a queue that holds the "frontier" or "open set" (the cells we need to visit)
+	var frontier: Array[HexCell] = []
+	
+	#Set the distance of the selected cell as 0
+	cell.distance = 0
+	
+	#Add the selected cell to the frontier queue
+	frontier.push_back(cell)
+	
+	#Iterate while the frontier queue has elements in it
+	while (len(frontier) > 0):
+		#Delay for animation purposes
+		await get_tree().create_timer(1.0 / 60.0).timeout
+		
+		#Dequeue the front
+		var current: HexCell = frontier.pop_front() as HexCell
+		
+		#Iterate over the cell's neighbors
+		var d: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
+		while (d <= HexDirectionsClass.HexDirections.NW):
+			#Get the neighbor
+			var neighbor: HexCell = current.get_neighbor(d)
+			
+			#Check if the neighbor exists
+			if (neighbor != null) and (neighbor.distance == GodotConstants.MAX_INT):
+				#Set the distance of the neighbor
+				neighbor.distance = current.distance + 1
+				
+				#Add the neighbor to the frontier queue
+				frontier.push_back(neighbor)
+			
+			#Increment the direction
+			d += 1
 
 #endregion
 
