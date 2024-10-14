@@ -68,272 +68,312 @@ textured_terrain_shader_material = SubResource("ShaderMaterial_gdj22")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer"]
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/HBoxContainer"]
 layout_mode = 2
 
-[node name="MarginContainer9" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer9" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 10
 
-[node name="Label" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Paint Color"
 
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 columns = 3
 
-[node name="CheckBox_NoColor" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+[node name="CheckBox_NoColor" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "---"
 
-[node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+[node name="CheckBox_ColorYellow" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Sand"
 
-[node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+[node name="CheckBox_ColorGreen" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Grass"
 
-[node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+[node name="CheckBox_ColorBlue" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Mud"
 
-[node name="CheckBox_ColorOrange" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+[node name="CheckBox_ColorOrange" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Stone"
 
-[node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/GridContainer"]
+[node name="CheckBox_ColorWhite" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_jp0eq")
 text = "Snow"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="MarginContainer3" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer3" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer3"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer3"]
 layout_mode = 2
 
-[node name="CheckButton_EnableElevation" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="CheckButton_EnableElevation" type="CheckButton" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 focus_mode = 0
 text = "Apply Elevation"
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 20
 
-[node name="ElevationSlider" type="HSlider" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer"]
+[node name="ElevationSlider" type="HSlider" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer"]
 layout_mode = 2
 focus_mode = 0
 max_value = 5.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="ElevationLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="ElevationLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Elevation: "
 
-[node name="ElevationValueLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="ElevationValueLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "0"
 
-[node name="MarginContainer10" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer10" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 10
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer10"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer10"]
 layout_mode = 2
 
-[node name="CheckButton_WaterLevel" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="CheckButton_WaterLevel" type="CheckButton" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 focus_mode = 0
 text = "Apply Water Level"
 
-[node name="MarginContainer11" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer11" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_right = 20
 
-[node name="WaterLevelSlider" type="HSlider" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer11"]
+[node name="WaterLevelSlider" type="HSlider" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer11"]
 layout_mode = 2
 focus_mode = 0
 max_value = 5.0
 
-[node name="HBoxContainer5" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="HBoxContainer5" type="HBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="WaterLevelLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer5"]
+[node name="WaterLevelLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer5"]
 layout_mode = 2
 text = "Water Level: "
 
-[node name="WaterLevelValueLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer5"]
+[node name="WaterLevelValueLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer5"]
 layout_mode = 2
 text = "0"
 
-[node name="MarginContainer4" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer4" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
-[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer4"]
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer4"]
 layout_mode = 2
 
-[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_right = 20
 
-[node name="BrushSizeSlider" type="HSlider" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer2"]
+[node name="BrushSizeSlider" type="HSlider" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer2"]
 layout_mode = 2
 focus_mode = 0
 max_value = 4.0
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="BrushSizeLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2"]
+[node name="BrushSizeLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 text = "Brush Radius:"
 
-[node name="BrushSizeValueLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2"]
+[node name="BrushSizeValueLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 text = "0"
 
-[node name="MarginContainer5" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer5" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer5"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer5"]
 layout_mode = 2
 
-[node name="CheckButton_ShowLabels" type="CheckButton" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="CheckButton_ShowLabels" type="CheckButton" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 focus_mode = 0
 text = "Show Labels"
 
-[node name="MarginContainer6" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer6" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 10
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer6"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer6"]
 layout_mode = 2
 
-[node name="RiversSectionLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="RiversSectionLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Rivers"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="CheckBox_RiversIgnore" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3"]
+[node name="CheckBox_RiversIgnore" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_3jin2")
 text = "---"
 
-[node name="CheckBox_RiversYes" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3"]
+[node name="CheckBox_RiversYes" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_3jin2")
 text = "Yes"
 
-[node name="CheckBox_RiversNo" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3"]
+[node name="CheckBox_RiversNo" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_3jin2")
 text = "No"
 
-[node name="MarginContainer7" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer7" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 10
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer7"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer7"]
 layout_mode = 2
 
-[node name="RoadsSectionLabel" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="RoadsSectionLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Roads"
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="HBoxContainer4" type="HBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="CheckBox_RoadsIgnore" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4"]
+[node name="CheckBox_RoadsIgnore" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_gu8w8")
 text = "---"
 
-[node name="CheckBox_RoadsYes" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4"]
+[node name="CheckBox_RoadsYes" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_gu8w8")
 text = "Yes"
 
-[node name="CheckBox_RoadsNo" type="CheckBox" parent="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4"]
+[node name="CheckBox_RoadsNo" type="CheckBox" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
 focus_mode = 0
 button_group = SubResource("ButtonGroup_gu8w8")
 text = "No"
 
-[node name="MarginContainer8" type="MarginContainer" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="MarginContainer8" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 10
+
+[node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HBoxContainer/PanelContainer3"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Press 'G' to toggle grid"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Press 'C' to change camera"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Label" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Current camera: "
+
+[node name="CurrentCameraValueLabel" type="Label" parent="CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "NA"
 
 [node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer"]
 anchors_preset = 1
@@ -535,50 +575,12 @@ theme_override_constants/margin_right = 15
 layout_mode = 2
 text = "New Map"
 
-[node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer"]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -40.0
-grow_horizontal = 0
-grow_vertical = 0
-size_flags_horizontal = 8
-size_flags_vertical = 8
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer3"]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer3/MarginContainer"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Press 'G' to toggle grid"
-horizontal_alignment = 1
-
-[node name="Label" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer"]
+[node name="CheckButton_EditMode" type="CheckButton" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Press 'C' to change camera"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="Label" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-text = "Current camera: "
-
-[node name="CurrentCameraValueLabel" type="Label" parent="CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-text = "NA"
+focus_mode = 0
+button_pressed = true
+text = "Edit Mode"
 
 [node name="PopupMenu" type="PopupMenu" parent="CanvasLayer"]
 initial_position = 1
@@ -604,24 +606,24 @@ file_mode = 0
 access = 1
 use_native_dialog = true
 
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorOrange" to="." method="_on_check_box_color_orange_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
-[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation" to="." method="_on_check_button_enable_elevation_toggled"]
-[connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
-[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_WaterLevel" to="." method="_on_check_button_water_level_toggled"]
-[connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer11/WaterLevelSlider" to="." method="_on_water_level_slider_value_changed"]
-[connection signal="value_changed" from="CanvasLayer/PanelContainer/VBoxContainer/MarginContainer2/BrushSizeSlider" to="." method="_on_brush_size_slider_value_changed"]
-[connection signal="toggled" from="CanvasLayer/PanelContainer/VBoxContainer/CheckButton_ShowLabels" to="." method="_on_check_button_show_labels_toggled"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversIgnore" to="." method="_on_check_box_rivers_ignore_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversYes" to="." method="_on_check_box_rivers_yes_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversNo" to="." method="_on_check_box_rivers_no_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsIgnore" to="." method="_on_check_box_roads_ignore_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsYes" to="." method="_on_check_box_roads_yes_pressed"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo" to="." method="_on_check_box_roads_no_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen" to="." method="_on_check_box_color_green_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorBlue" to="." method="_on_check_box_color_blue_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorOrange" to="." method="_on_check_box_color_orange_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorWhite" to="." method="_on_check_box_color_white_pressed"]
+[connection signal="toggled" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/CheckButton_EnableElevation" to="." method="_on_check_button_enable_elevation_toggled"]
+[connection signal="value_changed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer/ElevationSlider" to="." method="_on_elevation_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/CheckButton_WaterLevel" to="." method="_on_check_button_water_level_toggled"]
+[connection signal="value_changed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer11/WaterLevelSlider" to="." method="_on_water_level_slider_value_changed"]
+[connection signal="value_changed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/MarginContainer2/BrushSizeSlider" to="." method="_on_brush_size_slider_value_changed"]
+[connection signal="toggled" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/CheckButton_ShowLabels" to="." method="_on_check_button_show_labels_toggled"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversIgnore" to="." method="_on_check_box_rivers_ignore_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversYes" to="." method="_on_check_box_rivers_yes_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversNo" to="." method="_on_check_box_rivers_no_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsIgnore" to="." method="_on_check_box_roads_ignore_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsYes" to="." method="_on_check_box_roads_yes_pressed"]
+[connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo" to="." method="_on_check_box_roads_no_pressed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_UrbanLevel" to="." method="_on_check_button_urban_level_toggled"]
 [connection signal="value_changed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer/UrbanLevelSlider" to="." method="_on_urban_level_slider_value_changed"]
 [connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_FarmLevel" to="." method="_on_check_button_farm_level_toggled"]
@@ -636,6 +638,7 @@ use_native_dialog = true
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/SaveButton" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer5/NewMapButton" to="." method="_on_new_map_button_pressed"]
+[connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_EditMode" to="." method="_on_check_button_edit_mode_toggled"]
 [connection signal="index_pressed" from="CanvasLayer/PopupMenu" to="." method="_on_popup_menu_index_pressed"]
 [connection signal="canceled" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_canceled"]
 [connection signal="file_selected" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]

@@ -185,9 +185,9 @@ func get_cell (position: Vector3) -> HexCell:
 	#Return the cell
 	return cell
 	
-func show_ui (visible: bool) -> void:
+func set_all_cell_label_modes (label_mode: HexCell.CellInformationLabelMode) -> void:
 	for i in range(0, len(_hex_cells)):
-		_hex_cells[i].show_ui_label(visible)
+		_hex_cells[i].cell_label_mode = label_mode
 
 func save_hex_grid (file_writer: FileAccess) -> void:
 	#Save the map size
@@ -221,6 +221,10 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 	#Refresh each cell
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i]._refresh()
+
+func find_distance_to_cell (cell: HexCell) -> void:
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i].distance = 0
 
 #endregion
 
@@ -302,7 +306,7 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	hex_cell.hex_coordinates = HexCoordinates.FromOffsetCoordinates(x, z)
 	
 	#Set the coordinates/position label on the hex cell
-	hex_cell.position_label.text = str(hex_cell.hex_coordinates)
+	hex_cell.cell_label_mode = HexCell.CellInformationLabelMode.Position
 	
 	#Add the cell to the array of cells
 	_hex_cells.append(hex_cell)

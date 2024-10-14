@@ -3,7 +3,7 @@ extends Node3D
 
 #region Public data members
 
-var camera_speed: float = 0.1
+var edit_mode: bool = true
 
 var paint_terrain_elevation_enabled: bool = false
 var apply_water_level: bool = false
@@ -30,30 +30,30 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 #region OnReady public data members
 
-@onready var hex_grid := $HexGrid
+@onready var hex_grid := $HexGrid as HexGrid
 
-@onready var elevation_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer/ElevationValueLabel
-@onready var check_button_enable_elevation := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
-@onready var brush_size_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer2/BrushSizeValueLabel
-@onready var check_button_show_labels := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_ShowLabels
+@onready var elevation_label := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer/ElevationValueLabel
+@onready var check_button_enable_elevation := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/CheckButton_EnableElevation
+@onready var brush_size_value_label := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer2/BrushSizeValueLabel
+@onready var check_button_show_labels := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/CheckButton_ShowLabels
 
-@onready var check_button_color_none := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor
-@onready var check_button_color_yellow := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow
-@onready var check_button_color_green := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen
-@onready var check_button_color_blue := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorBlue
-@onready var check_button_color_orange := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorOrange
-@onready var check_button_color_white := $CanvasLayer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorWhite
+@onready var check_button_color_none := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor
+@onready var check_button_color_yellow := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow
+@onready var check_button_color_green := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorGreen
+@onready var check_button_color_blue := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorBlue
+@onready var check_button_color_orange := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorOrange
+@onready var check_button_color_white := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorWhite
 
-@onready var check_button_rivers_ignore := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversIgnore
-@onready var check_button_rivers_yes := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversYes
-@onready var check_button_rivers_no := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversNo
+@onready var check_button_rivers_ignore := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversIgnore
+@onready var check_button_rivers_yes := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversYes
+@onready var check_button_rivers_no := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer3/CheckBox_RiversNo
 
-@onready var check_button_roads_ignore := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsIgnore
-@onready var check_button_roads_yes := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsYes
-@onready var check_button_roads_no := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo
+@onready var check_button_roads_ignore := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsIgnore
+@onready var check_button_roads_yes := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsYes
+@onready var check_button_roads_no := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer4/CheckBox_RoadsNo
 
-@onready var check_button_water_level := $CanvasLayer/PanelContainer/VBoxContainer/CheckButton_WaterLevel
-@onready var water_level_value_label := $CanvasLayer/PanelContainer/VBoxContainer/HBoxContainer5/WaterLevelValueLabel
+@onready var check_button_water_level := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/CheckButton_WaterLevel
+@onready var water_level_value_label := $CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/HBoxContainer5/WaterLevelValueLabel
 
 @onready var check_button_urban_level := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_UrbanLevel
 @onready var urban_level_value_label := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/UrbanLevelValueLabel
@@ -83,7 +83,8 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 @onready var main_camera_assembly = $HexMapCamera
 @onready var debug_camera = $DebugCamera
 
-@onready var current_camera_value_label := $CanvasLayer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer/CurrentCameraValueLabel
+@onready var current_camera_value_label := $CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer/CurrentCameraValueLabel
+@onready var check_button_edit_mode := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_EditMode
 
 #endregion
 
@@ -183,7 +184,10 @@ func _input(event: InputEvent) -> void:
 						_is_drag = false
 					
 					#Edit the cells
-					_edit_cells(cell)
+					if (edit_mode):
+						_edit_cells(cell)
+					else:
+						hex_grid.find_distance_to_cell(cell)
 
 #endregion
 
@@ -399,6 +403,10 @@ func _on_load_file_dialog_canceled() -> void:
 	debug_camera.locked = false
 
 
+func _on_check_button_edit_mode_toggled(toggled_on: bool) -> void:
+	_set_edit_mode(toggled_on)
+
+
 #endregion
 
 #region Private methods
@@ -451,9 +459,14 @@ func _initialize_ui () -> void:
 		check_button_walls_yes.set_pressed_no_signal(true)
 	elif (walls_mode == Enums.OptionalToggle.No):
 		check_button_walls_no.set_pressed_no_signal(true)
+	
+	check_button_edit_mode.set_pressed_no_signal(edit_mode)
 
 func show_ui (visible: bool) -> void:
-	hex_grid.show_ui(visible)
+	if (visible):
+		hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Position)
+	else:
+		hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Off)
 
 func _edit_cells (center_cell: HexCell) -> void:
 	var center_x: int = center_cell.hex_coordinates.X
@@ -592,6 +605,19 @@ func _set_apply_special_feature (toggle: bool) -> void:
 
 func _set_special_feature_index (index: float) -> void:
 	active_special_feature = index
+
+func _set_edit_mode (toggle: bool) -> void:
+	edit_mode = toggle
+	
+	#Set the label mode
+	if (edit_mode):
+		if (active_show_labels):
+			hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Position)
+		else:
+			hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Off)
+	else:
+		hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Information)
+		
 	
 func _validate_drag () -> void:
 	#Set the initial drag direction

@@ -1,14 +1,22 @@
 class_name HexCell
 extends Node3D
 
+#region Hex cell enumerations
+
+enum CellInformationLabelMode { Off, Position, Information }
+
+#endregion
+
 #region Exported variables
 
 ## This is a Label3D node that will be used to display the hex cell's position within the hex grid
-@export var position_label: Label3D
+@export var cell_information_label: Label3D
 
 #endregion
 
 #region Private data members
+
+var _cell_label_mode: CellInformationLabelMode = CellInformationLabelMode.Off
 
 ## This is the terrain type for this cell
 var _terrain_type_index: int = 0
@@ -38,6 +46,9 @@ var _walled: bool = false
 
 var _special_index: int = 0
 
+## Distance from the selected cell to this cell
+var _distance: int = 0
+
 #endregion
 
 #region Public data members
@@ -51,6 +62,31 @@ var hex_coordinates: HexCoordinates
 ## This is an array of all neighbors of this hex cell
 var hex_neighbors: Array[HexCell] = [null, null, null, null, null, null]
 
+#endregion
+
+#region Public properties
+
+## The mode for this cell's label
+var cell_label_mode: CellInformationLabelMode:
+	get:
+		return _cell_label_mode
+	set(value):
+		#Set the private data member
+		_cell_label_mode = value
+		
+		#Make changes to the label
+		if (_cell_label_mode == CellInformationLabelMode.Off):
+			cell_information_label.visible = false
+		elif (_cell_label_mode == CellInformationLabelMode.Position):
+			cell_information_label.visible = true
+			cell_information_label.font_size = 32
+			cell_information_label.text = str(self.hex_coordinates)
+		elif (_cell_label_mode == CellInformationLabelMode.Information):
+			cell_information_label.visible = true
+			cell_information_label.font_size = 128
+			cell_information_label.text = str(distance)
+
+## The elevation level of this cell
 var elevation: int:
 	get:
 		return _elevation
@@ -127,14 +163,17 @@ var stream_bed_y: float:
 	get:
 		return ((_elevation + HexMetrics.STREAM_BED_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP)
 
+## The height of the river surface for this hex cell
 var river_surface_y: float:
 	get:
 		return ((_elevation + HexMetrics.RIVER_SURFACE_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP)
 
+## A boolean value indicating whether this cell contains roads
 var has_roads: bool:
 	get:
 		return _roads.any(func(x): return x)
 
+## If this cell contains the beginning or end of a river, this indicates the direction of it
 var river_begin_or_end_direction: HexDirectionsClass.HexDirections:
 	get:
 		if (has_incoming_river):
@@ -142,6 +181,7 @@ var river_begin_or_end_direction: HexDirectionsClass.HexDirections:
 		else:
 			return outgoing_river_direction
 
+## The water level of this cell
 var water_level: int:
 	get:
 		return _water_level
@@ -154,14 +194,17 @@ var water_level: int:
 		_validate_rivers()
 		_refresh()
 
+## A boolean value indicating whether this cell is underwater
 var is_underwater: bool:
 	get:
 		return (_water_level > _elevation)
-		
+
+## The height of the water surface for this cell
 var water_surface_y: float:
 	get:
 		return (_water_level + HexMetrics.WATER_ELEVATION_OFFSET) * HexMetrics.ELEVATION_STEP
 
+## The urban level of this cell - how "urban" this cell is
 var urban_level: int:
 	get:
 		return _urban_level
@@ -170,6 +213,7 @@ var urban_level: int:
 			_urban_level = value
 			_refresh_self_only()
 
+## The farm level of this cell - how much "farm" is this cell
 var farm_level: int:
 	get:
 		return _farm_level
@@ -178,6 +222,7 @@ var farm_level: int:
 			_farm_level = value
 			_refresh_self_only()
 
+## The plant level of this cell - how much "plant life" is this cell
 var plant_level: int:
 	get:
 		return _plant_level
@@ -186,6 +231,7 @@ var plant_level: int:
 			_plant_level = value
 			_refresh_self_only()
 
+## Whether this cell is walled or not
 var walled: bool:
 	get:
 		return _walled
@@ -194,6 +240,7 @@ var walled: bool:
 			_walled = value
 			_refresh()
 
+## If this cell contains a special prefab, the identiy of that special prefab as an index into the list of special prefabs
 var special_index: int:
 	get:
 		return _special_index
@@ -203,9 +250,17 @@ var special_index: int:
 			remove_roads()
 			_refresh_self_only()
 
+## A boolean value indicating whether this cell contains a special prefab
 var is_special: bool:
 	get:
 		return (_special_index > 0)
+
+var distance: int:
+	get:
+		return _distance
+	set(value):
+		_distance = value
+		
 
 #endregion
 
@@ -239,12 +294,6 @@ func get_edge_type_from_direction (direction: HexDirectionsClass.HexDirections) 
 
 func get_edge_type_from_other_cell (other_cell: HexCell) -> Enums.HexEdgeType:
 	return HexMetrics.get_edge_type(_elevation, other_cell.elevation)
-
-func show_ui_label (should_show_ui: bool) -> void:
-	if (should_show_ui):
-		position_label.visible = true
-	else:
-		position_label.visible = false
 
 func has_river_through_edge (direction: HexDirectionsClass.HexDirections) -> bool:
 	var condition_01: bool = _has_incoming_river and _incoming_river_direction == direction
@@ -457,7 +506,7 @@ func _refresh_position () -> void:
 	position.y += perturbation_amount
 	
 	#Set the y-axis position of the "position label" for the cell
-	position_label.position.y = 0.1 + abs(perturbation_amount)
+	cell_information_label.position.y = 0.1 + abs(perturbation_amount)
 
 func _is_valid_river_destination (neighbor: HexCell) -> bool:
 	if (neighbor != null):
@@ -475,5 +524,9 @@ func _validate_rivers () -> void:
 	var incoming_neighbor: HexCell = get_neighbor(incoming_river_direction)
 	if (has_incoming_river and (not incoming_neighbor._is_valid_river_destination(self))):
 		remove_incoming_river()
+
+func _update_distance_label () -> void:
+	if (_cell_label_mode == CellInformationLabelMode.Information):
+		cell_information_label.text = str(distance)
 
 #endregion
