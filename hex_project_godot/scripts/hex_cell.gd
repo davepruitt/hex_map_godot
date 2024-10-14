@@ -84,7 +84,7 @@ var cell_label_mode: CellInformationLabelMode:
 		elif (_cell_label_mode == CellInformationLabelMode.Information):
 			cell_information_label.visible = true
 			cell_information_label.font_size = 128
-			cell_information_label.text = str(distance)
+			_update_distance_label()
 
 ## The elevation level of this cell
 var elevation: int:

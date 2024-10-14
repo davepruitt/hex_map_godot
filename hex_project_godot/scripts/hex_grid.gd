@@ -253,8 +253,15 @@ func _breadth_first_search (cell: HexCell) -> void:
 			#Get the neighbor
 			var neighbor: HexCell = current.get_neighbor(d)
 			
-			#Check if the neighbor exists
-			if (neighbor != null) and (neighbor.distance == GodotConstants.MAX_INT):
+			##Skip the neighbor if certain criteria are met
+			var should_skip_neighbor: bool = (
+				(neighbor == null) or
+				(neighbor.distance != GodotConstants.MAX_INT) or
+				(neighbor.is_underwater) or
+				(current.get_edge_type_from_other_cell(neighbor) == Enums.HexEdgeType.Cliff)
+			)
+			
+			if (not should_skip_neighbor):
 				#Set the distance of the neighbor
 				neighbor.distance = current.distance + 1
 				
@@ -342,6 +349,9 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	
 	#Set the coordinates of the hex cell within the grid
 	hex_cell.hex_coordinates = HexCoordinates.FromOffsetCoordinates(x, z)
+	
+	#Set the initial distance value to max int
+	hex_cell.distance = GodotConstants.MAX_INT
 	
 	#Set the coordinates/position label on the hex cell
 	hex_cell.cell_label_mode = HexCell.CellInformationLabelMode.Position
