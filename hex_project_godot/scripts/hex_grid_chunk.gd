@@ -871,10 +871,10 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 		_triangulate_road_segment(mL, mC, mR, e.v2, e.v3, e.v4)
 		
 		#Raise the road from the terrain slightly
-		center.y += 0.01;
-		mC.y += 0.01;
-		mL.y += 0.01;
-		mR.y += 0.01;
+		center.y += 0.1;
+		mC.y += 0.1;
+		mL.y += 0.1;
+		mR.y += 0.1;
 		
 		#The colors will be ignored for roads
 		var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
@@ -909,9 +909,9 @@ func _triangulate_without_river (direction: HexDirectionsClass.HexDirections,
 
 func _triangulate_road_edge (center: Vector3, mL: Vector3, mR: Vector3) -> void:
 	#Raise the road from the terrain slightly
-	center.y += 0.01;
-	mR.y += 0.01;
-	mL.y += 0.01;
+	center.y += 0.1;
+	mR.y += 0.1;
+	mL.y += 0.1;
 	
 	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	r1.add_triangle_perturbed_vertices(center, mL, mR)

@@ -223,9 +223,9 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 		_hex_cells[i]._refresh()
 
 func find_distance_to_cell (cell: HexCell) -> void:
-	await _breadth_first_search(cell)
+	await _dijkstra_search(cell)
 
-func _breadth_first_search (cell: HexCell) -> void:
+func _dijkstra_search (cell: HexCell) -> void:
 	#Pre-fill each distance value to MAX_INT
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].distance = GodotConstants.MAX_INT
@@ -248,28 +248,55 @@ func _breadth_first_search (cell: HexCell) -> void:
 		var current: HexCell = frontier.pop_front() as HexCell
 		
 		#Iterate over the cell's neighbors
-		var d: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
-		while (d <= HexDirectionsClass.HexDirections.NW):
+		for d in range(0, 6):
 			#Get the neighbor
 			var neighbor: HexCell = current.get_neighbor(d)
 			
 			##Skip the neighbor if certain criteria are met
-			var should_skip_neighbor: bool = (
-				(neighbor == null) or
-				(neighbor.distance != GodotConstants.MAX_INT) or
-				(neighbor.is_underwater) or
-				(current.get_edge_type_from_other_cell(neighbor) == Enums.HexEdgeType.Cliff)
-			)
+			if (neighbor == null):
+				continue
 			
-			if (not should_skip_neighbor):
-				#Set the distance of the neighbor
-				neighbor.distance = current.distance + 1
+			if (neighbor.is_underwater):
+				continue
+
+			var edge_type: Enums.HexEdgeType = current.get_edge_type_from_other_cell(neighbor)
+			if (edge_type == Enums.HexEdgeType.Cliff):
+				continue
+			
+			#Grab the distance of the current cell
+			var distance: int = current.distance
+			
+			#If there is a road going through the edge of the direction of travel, 
+			#then increase the distance by 1 (roads provide fast travel)
+			if (current.has_road_through_edge(d)):
+				distance += 1
+			elif (current.walled != neighbor.walled):
+				#Walls block movement if there is no road
+				continue
+			else:
+				if (edge_type == Enums.HexEdgeType.Flat):
+					#If the terrain is flat, increase distance by 5
+					distance += 5
+				else:
+					#Otherwise, increase the distance by 10 (slower travel)
+					distance += 10
 				
-				#Add the neighbor to the frontier queue
-				frontier.push_back(neighbor)
+				#If there are any terrain features (buildings, trees, etc), then add
+				#some extra distance for traversing through that cell
+				distance += neighbor.urban_level + neighbor.farm_level + neighbor.plant_level
 			
-			#Increment the direction
-			d += 1
+			#If the neighbor cell has no computed distance yet, 
+			#set the distance and add it to the frontier
+			if (neighbor.distance == GodotConstants.MAX_INT):
+				neighbor.distance = distance
+				frontier.push_back(neighbor)
+			elif (distance < neighbor.distance):
+				#Otherwise, if the newly computed distance is less than a previously computed
+				#distance, then set it
+				neighbor.distance = distance
+			
+			#Sort the frontier
+			frontier.sort_custom(func(a, b): return a.distance < b.distance)
 
 #endregion
 
