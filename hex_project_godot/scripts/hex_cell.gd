@@ -69,6 +69,10 @@ var hex_neighbors: Array[HexCell] = [null, null, null, null, null, null]
 
 var path_from: HexCell = null
 
+var search_heuristic: int = 0
+
+var next_with_same_priority: HexCell = null
+
 #endregion
 
 #region Public properties
@@ -268,6 +272,10 @@ var distance: int:
 	set(value):
 		_distance = value
 		_update_distance_label()
+
+var search_priority: int:
+	get:
+		return (distance + search_heuristic)
 
 #endregion
 

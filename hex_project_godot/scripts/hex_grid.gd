@@ -69,7 +69,11 @@ var _chunk_count_x: int = 2
 ## This is the number of chunks in the y-direction of the hex grid
 var _chunk_count_z: int = 2
 
+## This boolean value indicates whether the hex grid overlay is currently enabled
 var _hex_grid_overlay_enabled: bool = false
+
+## This priority queue contains the search frontier for the currently active search operation
+var _search_frontier: HexCellPriorityQueue
 
 #endregion
 
@@ -222,9 +226,6 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i]._refresh()
 
-func find_distance_to_cell (cell: HexCell) -> void:
-	await _dijkstra_search(cell)
-
 func find_path (from_cell: HexCell, to_cell: HexCell) -> void:
 	_dijkstra_search_from_to(from_cell, to_cell)
 
@@ -348,80 +349,13 @@ func _add_cell_to_chunk (x: int, z: int, cell: HexCell) -> void:
 	
 	chunk.add_cell(local_x + local_z * HexMetrics.CHUNK_SIZE_X, cell)
 
-func _dijkstra_search (cell: HexCell) -> void:
-	#Pre-fill each distance value to MAX_INT
-	for i in range(0, len(_hex_cells)):
-		_hex_cells[i].distance = GodotConstants.MAX_INT
-		
-	#Initialize a queue that holds the "frontier" or "open set" (the cells we need to visit)
-	var frontier: Array[HexCell] = []
-	
-	#Set the distance of the selected cell as 0
-	cell.distance = 0
-	
-	#Add the selected cell to the frontier queue
-	frontier.push_back(cell)
-	
-	#Iterate while the frontier queue has elements in it
-	while (len(frontier) > 0):
-		#Delay for animation purposes
-		await get_tree().create_timer(1.0 / 60.0).timeout
-		
-		#Dequeue the front
-		var current: HexCell = frontier.pop_front() as HexCell
-		
-		#Iterate over the cell's neighbors
-		for d in range(0, 6):
-			#Get the neighbor
-			var neighbor: HexCell = current.get_neighbor(d)
-			
-			##Skip the neighbor if certain criteria are met
-			if (neighbor == null):
-				continue
-			
-			if (neighbor.is_underwater):
-				continue
-
-			var edge_type: Enums.HexEdgeType = current.get_edge_type_from_other_cell(neighbor)
-			if (edge_type == Enums.HexEdgeType.Cliff):
-				continue
-			
-			#Grab the distance of the current cell
-			var distance: int = current.distance
-			
-			#If there is a road going through the edge of the direction of travel, 
-			#then increase the distance by 1 (roads provide fast travel)
-			if (current.has_road_through_edge(d)):
-				distance += 1
-			elif (current.walled != neighbor.walled):
-				#Walls block movement if there is no road
-				continue
-			else:
-				if (edge_type == Enums.HexEdgeType.Flat):
-					#If the terrain is flat, increase distance by 5
-					distance += 5
-				else:
-					#Otherwise, increase the distance by 10 (slower travel)
-					distance += 10
-				
-				#If there are any terrain features (buildings, trees, etc), then add
-				#some extra distance for traversing through that cell
-				distance += neighbor.urban_level + neighbor.farm_level + neighbor.plant_level
-			
-			#If the neighbor cell has no computed distance yet, 
-			#set the distance and add it to the frontier
-			if (neighbor.distance == GodotConstants.MAX_INT):
-				neighbor.distance = distance
-				frontier.push_back(neighbor)
-			elif (distance < neighbor.distance):
-				#Otherwise, if the newly computed distance is less than a previously computed
-				#distance, then set it
-				neighbor.distance = distance
-			
-			#Sort the frontier
-			frontier.sort_custom(func(a, b): return a.distance < b.distance)
-
 func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
+	#Instantiate the search frontier
+	if (_search_frontier == null):
+		_search_frontier = HexCellPriorityQueue.new()
+	else:
+		_search_frontier.clear()
+	
 	#Pre-fill each distance value to MAX_INT
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].distance = GodotConstants.MAX_INT
@@ -430,23 +364,20 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
 	#Enable the highlight on the from cell and the to cell
 	from_cell.enable_highlight(Color.BLUE)
 	to_cell.enable_highlight(Color.RED)
-		
-	#Initialize a queue that holds the "frontier" or "open set" (the cells we need to visit)
-	var frontier: Array[HexCell] = []
 	
 	#Set the distance of the selected cell as 0
 	from_cell.distance = 0
 	
 	#Add the selected cell to the frontier queue
-	frontier.push_back(from_cell)
+	_search_frontier.enqueue(from_cell)
 	
 	#Iterate while the frontier queue has elements in it
-	while (len(frontier) > 0):
+	while (_search_frontier.count > 0):
 		#Delay for animation purposes
 		await get_tree().create_timer(1.0 / 60.0).timeout
 		
 		#Dequeue the front
-		var current: HexCell = frontier.pop_front() as HexCell
+		var current: HexCell = _search_frontier.dequeue() as HexCell
 		
 		#Break if the current cell is the destination
 		if (current == to_cell):
@@ -500,14 +431,15 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
 			if (neighbor.distance == GodotConstants.MAX_INT):
 				neighbor.distance = distance
 				neighbor.path_from = current
-				frontier.push_back(neighbor)
+				neighbor.search_heuristic = neighbor.hex_coordinates.DistanceTo(to_cell.hex_coordinates)
+				_search_frontier.enqueue(neighbor)
 			elif (distance < neighbor.distance):
 				#Otherwise, if the newly computed distance is less than a previously computed
 				#distance, then set it
+				var old_priority: int = neighbor.search_priority
 				neighbor.distance = distance
 				neighbor.path_from = current
+				_search_frontier.change(neighbor, old_priority)
 			
-			#Sort the frontier
-			frontier.sort_custom(func(a, b): return a.distance < b.distance)
 
 #endregion
