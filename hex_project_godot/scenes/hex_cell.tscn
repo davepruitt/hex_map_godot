@@ -20,7 +20,7 @@ outline_modulate = Color(1, 1, 1, 1)
 text = "HELLO"
 
 [node name="HexSelectionOutline" type="Sprite3D" parent="CellContent"]
-transform = Transform3D(5, 0, 0, 0, -2.18557e-07, 5, 0, -5, -2.18557e-07, 0, 0, 0)
+transform = Transform3D(7, 0, 0, 0, -3.0598e-07, 7, 0, -7, -3.0598e-07, 0, 0, 0)
 visible = false
 sorting_offset = 50.0
 modulate = Color(0, 0, 0, 1)

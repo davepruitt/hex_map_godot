@@ -95,6 +95,7 @@ var _drag_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDi
 var _mouse_down_cell: HexCell = null
 var _mouse_up_cell: HexCell = null
 var _search_from_cell: HexCell = null
+var _search_to_cell: HexCell = null
 
 var _selected_camera: int = 0
 
@@ -204,13 +205,17 @@ func _input(event: InputEvent) -> void:
 					#Edit the cells
 					if (edit_mode):
 						_edit_cells(cell)
-					elif (_is_left_shift_pressed):
+					elif (_is_left_shift_pressed) and (_search_to_cell != cell):
 						if (_search_from_cell):
 							_search_from_cell.disable_highlight()
 						_search_from_cell = cell
 						_search_from_cell.enable_highlight(Color.BLUE)
-					else:
-						hex_grid.find_distance_to_cell(cell)
+						
+						if (_search_to_cell):
+							hex_grid.find_path(_search_from_cell, _search_to_cell)
+					elif (_search_from_cell) and (_search_from_cell != cell):
+						_search_to_cell = cell
+						hex_grid.find_path(_search_from_cell, _search_to_cell)
 						
 
 #endregion
@@ -635,8 +640,8 @@ func _set_edit_mode (toggle: bool) -> void:
 	
 	#Set the label mode
 	if (edit_mode):
-		if (_search_from_cell):
-			_search_from_cell.disable_highlight()
+		hex_grid.disable_all_cell_highlights()
+		hex_grid.reset_all_cell_distances()
 		
 		if (active_show_labels):
 			hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Position)

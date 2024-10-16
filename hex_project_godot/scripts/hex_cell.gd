@@ -67,6 +67,8 @@ var hex_coordinates: HexCoordinates
 ## This is an array of all neighbors of this hex cell
 var hex_neighbors: Array[HexCell] = [null, null, null, null, null, null]
 
+var path_from: HexCell = null
+
 #endregion
 
 #region Public properties
