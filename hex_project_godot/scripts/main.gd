@@ -94,8 +94,11 @@ var _is_drag: bool = false
 var _drag_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
 var _mouse_down_cell: HexCell = null
 var _mouse_up_cell: HexCell = null
+var _search_from_cell: HexCell = null
 
 var _selected_camera: int = 0
+
+var _is_left_shift_pressed: bool = false
 
 #endregion
 
@@ -150,6 +153,21 @@ func _input(event: InputEvent) -> void:
 		
 		if event.keycode == KEY_G:
 			hex_grid.hex_grid_overlay_enabled = !hex_grid.hex_grid_overlay_enabled
+		
+		if event.keycode == KEY_T:
+			for i in range(0, len(hex_grid._hex_cells)):
+				hex_grid._hex_cells[i].cell_content.position.y += 0.1
+				print_debug(str(hex_grid._hex_cells[i].cell_content.position.y))
+		if event.keycode == KEY_Y:
+			for i in range(0, len(hex_grid._hex_cells)):
+				hex_grid._hex_cells[i].cell_content.position.y -= 0.1
+		if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
+			_is_left_shift_pressed = true
+	
+	elif event is InputEventKey and not event.pressed:
+		
+		if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
+			_is_left_shift_pressed = false
 	
 	#If a mouse button was pressed...
 	elif event is InputEventMouseButton:
@@ -186,8 +204,14 @@ func _input(event: InputEvent) -> void:
 					#Edit the cells
 					if (edit_mode):
 						_edit_cells(cell)
+					elif (_is_left_shift_pressed):
+						if (_search_from_cell):
+							_search_from_cell.disable_highlight()
+						_search_from_cell = cell
+						_search_from_cell.enable_highlight(Color.BLUE)
 					else:
 						hex_grid.find_distance_to_cell(cell)
+						
 
 #endregion
 
@@ -611,6 +635,9 @@ func _set_edit_mode (toggle: bool) -> void:
 	
 	#Set the label mode
 	if (edit_mode):
+		if (_search_from_cell):
+			_search_from_cell.disable_highlight()
+		
 		if (active_show_labels):
 			hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Position)
 		else:

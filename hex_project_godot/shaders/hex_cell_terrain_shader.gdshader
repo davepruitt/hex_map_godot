@@ -26,15 +26,15 @@ void fragment() {
 	vec4 c = get_terrain_color(COLOR, world_position, 0) +
 		get_terrain_color(COLOR, world_position, 1) +
 		get_terrain_color(COLOR, world_position, 2);
-	
+
 	if (grid_on)
 	{
 		vec2 grid_uv = world_position.xz;
 		grid_uv.x *= 1.0 / (4.0 * 8.66025404);
 		grid_uv.y *= 1.0 / (2.0 * 15.0);
-		
+
 		vec4 grid = texture(grid_texture, grid_uv);
-		
+
 		ALBEDO = c.rgb * grid.rgb;
 	}
 	else

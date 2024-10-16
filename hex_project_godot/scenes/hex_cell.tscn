@@ -1,15 +1,28 @@
-[gd_scene load_steps=2 format=3 uid="uid://r8nfx0vsi5ah"]
+[gd_scene load_steps=3 format=3 uid="uid://r8nfx0vsi5ah"]
 
 [ext_resource type="Script" path="res://scripts/hex_cell.gd" id="1_de0eb"]
+[ext_resource type="Texture2D" uid="uid://frq3kla6kkp5" path="res://assets/cell-outline.png" id="2_1f2bq"]
 
-[node name="HexCell" type="Node3D" node_paths=PackedStringArray("cell_information_label")]
+[node name="HexCell" type="Node3D" node_paths=PackedStringArray("cell_content", "cell_information_label", "cell_selection_outline")]
 script = ExtResource("1_de0eb")
-cell_information_label = NodePath("PositionLabel")
+cell_content = NodePath("CellContent")
+cell_information_label = NodePath("CellContent/PositionLabel")
+cell_selection_outline = NodePath("CellContent/HexSelectionOutline")
 
-[node name="PositionLabel" type="Label3D" parent="."]
+[node name="CellContent" type="Node3D" parent="."]
+
+[node name="PositionLabel" type="Label3D" parent="CellContent"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
 pixel_size = 0.05
 render_priority = 1
 modulate = Color(0, 0, 0, 1)
 outline_modulate = Color(1, 1, 1, 1)
 text = "HELLO"
+
+[node name="HexSelectionOutline" type="Sprite3D" parent="CellContent"]
+transform = Transform3D(5, 0, 0, 0, -2.18557e-07, 5, 0, -5, -2.18557e-07, 0, 0, 0)
+visible = false
+sorting_offset = 50.0
+modulate = Color(0, 0, 0, 1)
+no_depth_test = true
+texture = ExtResource("2_1f2bq")

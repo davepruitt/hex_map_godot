@@ -53,7 +53,7 @@ const CELL_PERTURB_STRENGTH: float = 0.4
 const NOISE_SCALE: float = 10.0
 
 ## Strength of vertical elevation perturbation
-const ELEVATION_PERTURB_STRENGTH: float = 0.75
+const ELEVATION_PERTURB_STRENGTH: float = 0.0 #0.75
 
 ## The number of hexes in the x dimension of a hex chunk
 const CHUNK_SIZE_X: int = 5

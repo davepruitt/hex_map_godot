@@ -9,8 +9,13 @@ enum CellInformationLabelMode { Off, Position, Information }
 
 #region Exported variables
 
+@export var cell_content: Node3D
+
 ## This is a Label3D node that will be used to display the hex cell's position within the hex grid
 @export var cell_information_label: Label3D
+
+## This is the selection outline of the cell
+@export var cell_selection_outline: Sprite3D
 
 #endregion
 
@@ -480,6 +485,13 @@ func load_hex_cell (file_reader: FileAccess) -> void:
 	for i in range(0, len(_roads)):
 		_roads[i] = ((road_flags & (1 << i)) != 0)
 
+func enable_highlight (highlight_color: Color) -> void:
+	cell_selection_outline.visible = true
+	cell_selection_outline.modulate = highlight_color
+
+func disable_highlight () -> void:
+	cell_selection_outline.visible = false
+
 #endregion
 
 #region Private methods
@@ -506,7 +518,7 @@ func _refresh_position () -> void:
 	position.y += perturbation_amount
 	
 	#Set the y-axis position of the "position label" for the cell
-	cell_information_label.position.y = 0.1 + abs(perturbation_amount)
+	cell_content.position.y = 0.1 + abs(perturbation_amount)
 
 func _is_valid_river_destination (neighbor: HexCell) -> bool:
 	if (neighbor != null):
