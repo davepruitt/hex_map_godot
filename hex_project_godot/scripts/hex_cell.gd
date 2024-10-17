@@ -73,6 +73,8 @@ var search_heuristic: int = 0
 
 var next_with_same_priority: HexCell = null
 
+var search_phase: int = 0
+
 #endregion
 
 #region Public properties
@@ -95,7 +97,6 @@ var cell_label_mode: CellInformationLabelMode:
 		elif (_cell_label_mode == CellInformationLabelMode.Information):
 			cell_information_label.visible = true
 			cell_information_label.font_size = 128
-			_update_distance_label()
 
 ## The elevation level of this cell
 var elevation: int:
@@ -271,7 +272,6 @@ var distance: int:
 		return _distance
 	set(value):
 		_distance = value
-		_update_distance_label()
 
 var search_priority: int:
 	get:
@@ -502,6 +502,9 @@ func enable_highlight (highlight_color: Color) -> void:
 func disable_highlight () -> void:
 	cell_selection_outline.visible = false
 
+func set_label (text: String) -> void:
+	cell_information_label.text = text
+
 #endregion
 
 #region Private methods
@@ -547,11 +550,5 @@ func _validate_rivers () -> void:
 	if (has_incoming_river and (not incoming_neighbor._is_valid_river_destination(self))):
 		remove_incoming_river()
 
-func _update_distance_label () -> void:
-	if (_cell_label_mode == CellInformationLabelMode.Information):
-		if (distance == GodotConstants.MAX_INT):
-			cell_information_label.text = ""
-		else:
-			cell_information_label.text = str(distance)
 
 #endregion

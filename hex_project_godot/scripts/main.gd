@@ -206,16 +206,18 @@ func _input(event: InputEvent) -> void:
 					if (edit_mode):
 						_edit_cells(cell)
 					elif (_is_left_shift_pressed) and (_search_to_cell != cell):
-						if (_search_from_cell):
-							_search_from_cell.disable_highlight()
-						_search_from_cell = cell
-						_search_from_cell.enable_highlight(Color.BLUE)
-						
-						if (_search_to_cell):
-							hex_grid.find_path(_search_from_cell, _search_to_cell)
+						if (_search_from_cell != cell):
+							if (_search_from_cell):
+								_search_from_cell.disable_highlight()
+							_search_from_cell = cell
+							_search_from_cell.enable_highlight(Color.BLUE)
+							
+							if (_search_to_cell):
+								hex_grid.find_path(_search_from_cell, _search_to_cell, 24)
 					elif (_search_from_cell) and (_search_from_cell != cell):
-						_search_to_cell = cell
-						hex_grid.find_path(_search_from_cell, _search_to_cell)
+						if (_search_to_cell != cell):
+							_search_to_cell = cell
+							hex_grid.find_path(_search_from_cell, _search_to_cell, 24)
 						
 
 #endregion
@@ -638,11 +640,12 @@ func _set_special_feature_index (index: float) -> void:
 func _set_edit_mode (toggle: bool) -> void:
 	edit_mode = toggle
 	
+	hex_grid.disable_all_cell_highlights()
+	hex_grid.reset_all_cell_distances()
+	hex_grid.reset_all_cell_labels()
+	
 	#Set the label mode
 	if (edit_mode):
-		hex_grid.disable_all_cell_highlights()
-		hex_grid.reset_all_cell_distances()
-		
 		if (active_show_labels):
 			hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Position)
 		else:

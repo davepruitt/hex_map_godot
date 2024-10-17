@@ -75,6 +75,14 @@ var _hex_grid_overlay_enabled: bool = false
 ## This priority queue contains the search frontier for the currently active search operation
 var _search_frontier: HexCellPriorityQueue
 
+var _search_frontier_phase: int = 0
+
+var _current_path_from: HexCell = null
+
+var _current_path_to: HexCell = null
+
+var _current_path_exists: bool = false
+
 #endregion
 
 #region Public data members
@@ -203,6 +211,9 @@ func save_hex_grid (file_writer: FileAccess) -> void:
 		_hex_cells[i].save_hex_cell(file_writer)
 	
 func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
+	#Clear any path visualization that may currently exist
+	_clear_path()
+	
 	#Set the default map size
 	var new_map_size_x: int = 20
 	var new_map_size_z: int = 15
@@ -226,8 +237,17 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i]._refresh()
 
-func find_path (from_cell: HexCell, to_cell: HexCell) -> void:
-	_dijkstra_search_from_to(from_cell, to_cell)
+func find_path (from_cell: HexCell, to_cell: HexCell, speed: int) -> void:
+	#Clear any old path visualization that may exist
+	_clear_path()
+	
+	#Run the path finding algorithm
+	_current_path_from = from_cell
+	_current_path_to = to_cell
+	_current_path_exists = _dijkstra_search_from_to(from_cell, to_cell, speed)
+	
+	#If a path was found, display the visualization on the hex map
+	_show_path(speed)
 
 func disable_all_cell_highlights () -> void:
 	for i in range(0, len(_hex_cells)):
@@ -236,6 +256,10 @@ func disable_all_cell_highlights () -> void:
 func reset_all_cell_distances () -> void:
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].distance = GodotConstants.MAX_INT
+
+func reset_all_cell_labels () -> void:
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i].set_label("")
 
 #endregion
 
@@ -349,23 +373,49 @@ func _add_cell_to_chunk (x: int, z: int, cell: HexCell) -> void:
 	
 	chunk.add_cell(local_x + local_z * HexMetrics.CHUNK_SIZE_X, cell)
 
-func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
+func _clear_path () -> void:
+	if (_current_path_exists):
+		var current: HexCell = _current_path_to
+		while (current != _current_path_from):
+			current.set_label("")
+			current.disable_highlight()
+			current = current.path_from
+		
+		current.disable_highlight()
+		_current_path_exists = false
+	elif (_current_path_from):
+		_current_path_from.disable_highlight()
+		_current_path_to.disable_highlight()
+	
+	_current_path_from = null
+	_current_path_to = null
+
+func _show_path (speed: int) -> void:
+	if (_current_path_exists):
+		var current: HexCell = _current_path_to
+		while (current != _current_path_from):
+			var turn: int = current.distance / speed
+			current.set_label(str(turn))
+			current.enable_highlight(Color.WHITE)
+			current = current.path_from
+	
+	_current_path_from.enable_highlight(Color.BLUE)
+	_current_path_to.enable_highlight(Color.RED)
+
+func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int) -> bool:
+	_search_frontier_phase += 2
+	
 	#Instantiate the search frontier
 	if (_search_frontier == null):
 		_search_frontier = HexCellPriorityQueue.new()
 	else:
 		_search_frontier.clear()
 	
-	#Pre-fill each distance value to MAX_INT
-	for i in range(0, len(_hex_cells)):
-		_hex_cells[i].distance = GodotConstants.MAX_INT
-		_hex_cells[i].disable_highlight()
-	
-	#Enable the highlight on the from cell and the to cell
+	#Enable the highlight on the from cell
 	from_cell.enable_highlight(Color.BLUE)
-	to_cell.enable_highlight(Color.RED)
 	
 	#Set the distance of the selected cell as 0
+	from_cell.search_phase = _search_frontier_phase
 	from_cell.distance = 0
 	
 	#Add the selected cell to the frontier queue
@@ -373,20 +423,16 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
 	
 	#Iterate while the frontier queue has elements in it
 	while (_search_frontier.count > 0):
-		#Delay for animation purposes
-		await get_tree().create_timer(1.0 / 60.0).timeout
-		
 		#Dequeue the front
 		var current: HexCell = _search_frontier.dequeue() as HexCell
+		current.search_phase += 1
 		
-		#Break if the current cell is the destination
+		#If the current cell is the destination cell
 		if (current == to_cell):
-			current = current.path_from
-			while (current) and (current != from_cell):
-				current.enable_highlight(Color.WHITE)
-				current = current.path_from
-			
-			break
+			#Return true, indicating a path was found
+			return true
+		
+		var current_turn: int = current.distance / speed
 		
 		#Iterate over the cell's neighbors
 		for d in range(0, 6):
@@ -394,7 +440,7 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
 			var neighbor: HexCell = current.get_neighbor(d)
 			
 			##Skip the neighbor if certain criteria are met
-			if (neighbor == null):
+			if (neighbor == null) or (neighbor.search_phase > _search_frontier_phase):
 				continue
 			
 			if (neighbor.is_underwater):
@@ -404,31 +450,36 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
 			if (edge_type == Enums.HexEdgeType.Cliff):
 				continue
 			
-			#Grab the distance of the current cell
-			var distance: int = current.distance
+			var movement_cost: int = 0
 			
 			#If there is a road going through the edge of the direction of travel, 
 			#then increase the distance by 1 (roads provide fast travel)
 			if (current.has_road_through_edge(d)):
-				distance += 1
+				movement_cost = 1
 			elif (current.walled != neighbor.walled):
 				#Walls block movement if there is no road
 				continue
 			else:
 				if (edge_type == Enums.HexEdgeType.Flat):
 					#If the terrain is flat, increase distance by 5
-					distance += 5
+					movement_cost = 5
 				else:
 					#Otherwise, increase the distance by 10 (slower travel)
-					distance += 10
+					movement_cost = 10
 				
 				#If there are any terrain features (buildings, trees, etc), then add
 				#some extra distance for traversing through that cell
-				distance += neighbor.urban_level + neighbor.farm_level + neighbor.plant_level
+				movement_cost += neighbor.urban_level + neighbor.farm_level + neighbor.plant_level
+			
+			var distance: int = current.distance + movement_cost
+			var turn: int = distance / speed
+			if (turn > current_turn):
+				distance = turn * speed + movement_cost
 			
 			#If the neighbor cell has no computed distance yet, 
 			#set the distance and add it to the frontier
-			if (neighbor.distance == GodotConstants.MAX_INT):
+			if (neighbor.search_phase < _search_frontier_phase):
+				neighbor.search_phase = _search_frontier_phase
 				neighbor.distance = distance
 				neighbor.path_from = current
 				neighbor.search_heuristic = neighbor.hex_coordinates.DistanceTo(to_cell.hex_coordinates)
@@ -441,5 +492,7 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell) -> void:
 				neighbor.path_from = current
 				_search_frontier.change(neighbor, old_priority)
 			
+	#Return false, indicating no path was found
+	return false
 
 #endregion
