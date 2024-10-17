@@ -514,6 +514,9 @@ func set_label (text: String) -> void:
 func _refresh_self_only () -> void:
 	if (hex_chunk):
 		hex_chunk.request_refresh()
+	
+	if (unit):
+		unit.validation_location()
 
 func _refresh () -> void:
 	if (hex_chunk):
@@ -523,6 +526,9 @@ func _refresh () -> void:
 			var neighbor: HexCell = hex_neighbors[i]
 			if (neighbor != null) and (neighbor.hex_chunk != hex_chunk):
 				neighbor.hex_chunk.request_refresh()
+		
+		if (unit):
+			unit.validation_location()
 
 func _refresh_position () -> void:
 	#Set the position of the cell

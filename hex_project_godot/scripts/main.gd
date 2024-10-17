@@ -171,7 +171,10 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
 			_is_left_shift_pressed = true
 		if event.keycode == KEY_U:
-			_create_unit()
+			if (_is_left_shift_pressed):
+				_destroy_unit()
+			else:
+				_create_unit()
 	
 	elif event is InputEventKey and not event.pressed:
 		
@@ -728,5 +731,10 @@ func _create_unit () -> void:
 		unit.location = cell
 		unit.orientation = randf_range(0.0, 360.0)
 		hex_grid.add_child(unit)
+
+func _destroy_unit () -> void:
+	var cell: HexCell = _get_cell_under_cursor()
+	if (cell) and (cell.unit):
+		cell.unit.die()
 
 #endregion

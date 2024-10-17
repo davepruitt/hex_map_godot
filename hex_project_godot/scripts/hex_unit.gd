@@ -40,3 +40,14 @@ var orientation: float:
 		self.quaternion = Quaternion.from_euler(Vector3(0, value, 0))
 
 #endregion
+
+#region Methods
+
+func die () -> void:
+	location.unit = null
+	self.queue_free()
+
+func validation_location () -> void:
+	self.position = location.position
+
+#endregion
