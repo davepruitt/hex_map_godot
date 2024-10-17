@@ -3,7 +3,7 @@ extends Node3D
 
 #region Public data members
 
-var edit_mode: bool = true
+var edit_mode: bool = false
 
 var paint_terrain_elevation_enabled: bool = false
 var apply_water_level: bool = false
@@ -94,8 +94,6 @@ var _is_drag: bool = false
 var _drag_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
 var _mouse_down_cell: HexCell = null
 var _mouse_up_cell: HexCell = null
-var _search_from_cell: HexCell = null
-var _search_to_cell: HexCell = null
 
 var _selected_camera: int = 0
 
@@ -199,19 +197,6 @@ func _input(event: InputEvent) -> void:
 					#Edit the cells
 					if (edit_mode):
 						_edit_cells(cell)
-					elif (_is_left_shift_pressed) and (_search_to_cell != cell):
-						if (_search_from_cell != cell):
-							if (_search_from_cell):
-								_search_from_cell.disable_highlight()
-							_search_from_cell = cell
-							_search_from_cell.enable_highlight(Color.BLUE)
-							
-							if (_search_to_cell):
-								hex_grid.find_path(_search_from_cell, _search_to_cell, 24)
-					elif (_search_from_cell) and (_search_from_cell != cell):
-						if (_search_to_cell != cell):
-							_search_to_cell = cell
-							hex_grid.find_path(_search_from_cell, _search_to_cell, 24)
 						
 
 #endregion
@@ -486,6 +471,7 @@ func _initialize_ui () -> void:
 		check_button_walls_no.set_pressed_no_signal(true)
 	
 	check_button_edit_mode.set_pressed_no_signal(edit_mode)
+	_set_edit_mode(edit_mode)
 
 func show_ui (visible: bool) -> void:
 	if (visible):
@@ -649,23 +635,27 @@ func _set_edit_mode (toggle: bool) -> void:
 		
 
 func _get_cell_under_cursor () -> HexCell:
-	#Shoot a ray through a cell in the hex grid to see what cell was touched by the user
+	#Set the ray length
 	var RAY_LENGTH = 1000
-	var space_state = get_world_3d().direct_space_state
+	
+	#Get the current mouse position
 	var mousepos = get_viewport().get_mouse_position()
 
+	#Determine the start and end points of the ray
 	var scene_camera: Camera3D = cameras[_selected_camera]
-	var origin = scene_camera.project_ray_origin(mousepos)
-	var end = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
-	var query = PhysicsRayQueryParameters3D.create(origin, end)
-	query.collide_with_areas = true
-
-	var result = space_state.intersect_ray(query)
-	if result:
-		var cell = hex_grid.get_cell(result.position)
-		return cell
+	var origin: Vector3 = scene_camera.project_ray_origin(mousepos)
+	var end: Vector3 = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
 	
-	return null
+	#Create a ray query object
+	var ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
+	ray_query.collide_with_areas = true
+
+	#Send the ray query object to the hex grid to determine which cell the ray is hitting (if any)
+	var result_cell: HexCell = hex_grid.get_cell_from_ray(ray_query)
+	
+	#Return the resulting cell
+	return result_cell
+
 
 func _validate_drag () -> void:
 	#Set the initial drag direction

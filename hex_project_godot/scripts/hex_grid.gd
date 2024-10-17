@@ -196,6 +196,16 @@ func get_cell_from_coordinates (coordinates: HexCoordinates) -> HexCell:
 	var result: HexCell = _hex_cells[x + z * cell_count_x]
 	return result
 
+func get_cell_from_ray (ray_query: PhysicsRayQueryParameters3D) -> HexCell:
+	var space_state = get_world_3d().direct_space_state
+	
+	var result = space_state.intersect_ray(ray_query)
+	if result:
+		var cell = get_cell(result.position)
+		return cell
+	
+	return null
+
 func get_cell (position: Vector3) -> HexCell:
 	#Convert the global position to a position within the hex grid
 	var inverse_transform_point = position * global_transform
