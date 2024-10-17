@@ -51,8 +51,8 @@ func ToStringOnSeparateLines () -> String:
 	return str(X) + "\n" + str(Y) + "\n" + str(Z)
 
 func save_to_file (writer: FileAccess) -> void:
-	writer.store_32(X)
-	writer.store_32(Z)
+	writer.store_64(X)
+	writer.store_64(Z)
 
 #endregion
 
@@ -88,8 +88,8 @@ static func FromPosition(position: Vector3) -> HexCoordinates:
 	return HexCoordinates.new(iX, iZ)
 
 static func load_from_file (reader: FileAccess) -> HexCoordinates:
-	var x: int = reader.get_32()
-	var z: int = reader.get_32()
+	var x: int = reader.get_64()
+	var z: int = reader.get_64()
 	var c: HexCoordinates = HexCoordinates.new(x, z)
 	
 	return c

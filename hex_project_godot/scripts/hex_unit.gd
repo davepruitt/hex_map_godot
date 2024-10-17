@@ -34,7 +34,7 @@ var location: HexCell:
 	get:
 		return _location
 	set(value):
-		if (value):
+		if(value):
 			_location = value
 			value.unit = self
 			self.position = value.position

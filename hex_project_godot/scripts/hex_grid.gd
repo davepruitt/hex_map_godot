@@ -193,7 +193,8 @@ func get_cell_from_coordinates (coordinates: HexCoordinates) -> HexCell:
 	if (x < 0) or (x >= cell_count_x):
 		return null
 	
-	return _hex_cells[x + z * cell_count_x]
+	var result: HexCell = _hex_cells[x + z * cell_count_x]
+	return result
 
 func get_cell (position: Vector3) -> HexCell:
 	#Convert the global position to a position within the hex grid
