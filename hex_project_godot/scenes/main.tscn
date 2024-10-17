@@ -1,6 +1,7 @@
-[gd_scene load_steps=20 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=21 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_sv3ps"]
+[ext_resource type="PackedScene" uid="uid://ntx8bgtllrbv" path="res://scenes/hex_unit.tscn" id="2_lq3am"]
 [ext_resource type="Script" path="res://scripts/hex_map_camera.gd" id="2_roenc"]
 [ext_resource type="Script" path="res://scripts/debug_camera.gd" id="3_8bvhd"]
 [ext_resource type="PackedScene" uid="uid://bumgasrkg2l7p" path="res://scenes/hex_grid.tscn" id="3_t3wo0"]
@@ -39,6 +40,7 @@ resource_name = "WallsButtonGroup"
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_sv3ps")
+unit_prefab = ExtResource("2_lq3am")
 
 [node name="HexMapCamera" type="Node3D" parent="." node_paths=PackedStringArray("hex_grid")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 100)

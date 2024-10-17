@@ -75,6 +75,8 @@ var next_with_same_priority: HexCell = null
 
 var search_phase: int = 0
 
+var unit: HexUnit = null
+
 #endregion
 
 #region Public properties

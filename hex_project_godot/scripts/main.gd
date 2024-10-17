@@ -28,6 +28,12 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 #endregion
 
+#region Exported public data members
+
+@export var unit_prefab: PackedScene
+
+#endregion
+
 #region OnReady public data members
 
 @onready var hex_grid := $HexGrid as HexGrid
@@ -164,6 +170,8 @@ func _input(event: InputEvent) -> void:
 				hex_grid._hex_cells[i].cell_content.position.y -= 0.1
 		if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
 			_is_left_shift_pressed = true
+		if event.keycode == KEY_U:
+			_create_unit()
 	
 	elif event is InputEventKey and not event.pressed:
 		
@@ -174,20 +182,8 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		#If the left mouse button was pressed...
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			#Shoot a ray through a cell in the hex grid to see what cell was touched by the user
-			var RAY_LENGTH = 1000
-			var space_state = get_world_3d().direct_space_state
-			var mousepos = get_viewport().get_mouse_position()
-
-			var scene_camera: Camera3D = cameras[_selected_camera]
-			var origin = scene_camera.project_ray_origin(mousepos)
-			var end = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
-			var query = PhysicsRayQueryParameters3D.create(origin, end)
-			query.collide_with_areas = true
-
-			var result = space_state.intersect_ray(query)
-			if result:
-				var cell = hex_grid.get_cell(result.position)
+			var cell: HexCell = _get_cell_under_cursor()
+			if (cell):
 				
 				if event.pressed:
 					#Set the cell object that was initially pressed
@@ -653,7 +649,26 @@ func _set_edit_mode (toggle: bool) -> void:
 	else:
 		hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Information)
 		
+
+func _get_cell_under_cursor () -> HexCell:
+	#Shoot a ray through a cell in the hex grid to see what cell was touched by the user
+	var RAY_LENGTH = 1000
+	var space_state = get_world_3d().direct_space_state
+	var mousepos = get_viewport().get_mouse_position()
+
+	var scene_camera: Camera3D = cameras[_selected_camera]
+	var origin = scene_camera.project_ray_origin(mousepos)
+	var end = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
+	var query = PhysicsRayQueryParameters3D.create(origin, end)
+	query.collide_with_areas = true
+
+	var result = space_state.intersect_ray(query)
+	if result:
+		var cell = hex_grid.get_cell(result.position)
+		return cell
 	
+	return null
+
 func _validate_drag () -> void:
 	#Set the initial drag direction
 	_drag_direction = HexDirectionsClass.HexDirections.NE
@@ -705,5 +720,13 @@ func _load_map_file (file_path_and_name: String) -> void:
 	
 	#Close the file
 	load_file.close()
+
+func _create_unit () -> void:
+	var cell: HexCell = _get_cell_under_cursor()
+	if (cell) and (not cell.unit):
+		var unit: HexUnit = unit_prefab.instantiate() as HexUnit
+		unit.location = cell
+		unit.orientation = randf_range(0.0, 360.0)
+		hex_grid.add_child(unit)
 
 #endregion
