@@ -3,6 +3,9 @@ extends Node3D
 
 #region Exported variables
 
+## This is the prefab used for instantiating units
+@export var unit_prefab: PackedScene
+
 ## These are colors available for hex cells
 @export var hex_colors: Array[Color] = [
 	Color.YELLOW,
@@ -83,6 +86,8 @@ var _current_path_to: HexCell = null
 
 var _current_path_exists: bool = false
 
+var _units: Array[HexUnit] = []
+
 #endregion
 
 #region Public data members
@@ -110,6 +115,9 @@ func _ready() -> void:
 	#Initialize the hash grid
 	HexMetrics.initialize_hash_grid()
 	
+	#Set the unit prefab on the HexUnit class
+	HexUnit.unit_prefab = unit_prefab
+	
 	#Create the map
 	create_map(cell_count_x, cell_count_z)
 	
@@ -133,6 +141,12 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 		(map_size_z % HexMetrics.CHUNK_SIZE_Z != 0)):
 		
 		return false
+	
+	#Clear any existing path
+	_clear_path()
+	
+	#Clear any existing units
+	_clear_units()
 	
 	#Destroy existing chunks
 	if (_hex_grid_chunks != null):
@@ -210,9 +224,19 @@ func save_hex_grid (file_writer: FileAccess) -> void:
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].save_hex_cell(file_writer)
 	
+	#Save the number of units
+	file_writer.store_32(len(_units))
+	
+	#Save each unit
+	for i in range(0, len(_units)):
+		_units[i].save_to_file(file_writer)
+	
 func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 	#Clear any path visualization that may currently exist
 	_clear_path()
+
+	#Clear any existing units
+	_clear_units()
 	
 	#Set the default map size
 	var new_map_size_x: int = 20
@@ -236,6 +260,15 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 	#Refresh each cell
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i]._refresh()
+	
+	#If this is file version 2 or greater...
+	if (file_version >= 2):
+		#Read how many units to load from the file
+		var unit_count: int = file_reader.get_32()
+		
+		#Read in each unit
+		for i in range(0, unit_count):
+			HexUnit.load_from_file(file_reader, self)
 
 func find_path (from_cell: HexCell, to_cell: HexCell, speed: int) -> void:
 	#Clear any old path visualization that may exist
@@ -260,6 +293,21 @@ func reset_all_cell_distances () -> void:
 func reset_all_cell_labels () -> void:
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].set_label("")
+
+func add_unit (unit: HexUnit, location: HexCell, orientation: float) -> void:
+	#Add the unit to the list of units for the hex map
+	_units.append(unit)
+	
+	#Add the unit as a child of the hex map scene
+	add_child(unit)
+	
+	#Set the location and orientation of the unit
+	unit.location = location
+	unit.orientation = orientation
+
+func remove_unit (unit: HexUnit) -> void:
+	_units.erase(unit)
+	unit.die()
 
 #endregion
 
@@ -494,5 +542,10 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int)
 			
 	#Return false, indicating no path was found
 	return false
+
+func _clear_units () -> void:
+	for i in range(0, len(_units)):
+		_units[i].die()
+	_units.clear()
 
 #endregion

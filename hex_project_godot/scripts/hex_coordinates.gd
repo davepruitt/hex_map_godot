@@ -50,6 +50,10 @@ func ToStringOnSeparateLines () -> String:
 	#Same as the _to_string function, except each value is seperated by a new-line character
 	return str(X) + "\n" + str(Y) + "\n" + str(Z)
 
+func save_to_file (writer: FileAccess) -> void:
+	writer.store_32(X)
+	writer.store_32(Z)
+
 #endregion
 
 #region Static methods
@@ -82,5 +86,12 @@ static func FromPosition(position: Vector3) -> HexCoordinates:
 			iZ = -iX - iY
 	
 	return HexCoordinates.new(iX, iZ)
+
+static func load_from_file (reader: FileAccess) -> HexCoordinates:
+	var x: int = reader.get_32()
+	var z: int = reader.get_32()
+	var c: HexCoordinates = HexCoordinates.new(x, z)
+	
+	return c
 
 #endregion

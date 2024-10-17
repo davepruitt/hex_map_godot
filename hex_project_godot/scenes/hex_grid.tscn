@@ -1,6 +1,7 @@
-[gd_scene load_steps=15 format=3 uid="uid://bumgasrkg2l7p"]
+[gd_scene load_steps=16 format=3 uid="uid://bumgasrkg2l7p"]
 
 [ext_resource type="Script" path="res://scripts/hex_grid.gd" id="1_byfya"]
+[ext_resource type="PackedScene" uid="uid://ntx8bgtllrbv" path="res://scenes/hex_unit.tscn" id="2_od4dn"]
 [ext_resource type="PackedScene" uid="uid://r8nfx0vsi5ah" path="res://scenes/hex_cell.tscn" id="2_ud45i"]
 [ext_resource type="Shader" path="res://shaders/river_shader.gdshader" id="4_703fq"]
 [ext_resource type="Texture2D" uid="uid://btho5i7eejpuh" path="res://assets/tiling-perlin-noise-rgb.png" id="5_cm4mn"]
@@ -44,6 +45,7 @@ albedo_color = Color(1, 0, 0, 1)
 
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
+unit_prefab = ExtResource("2_od4dn")
 hex_cell_prefab = ExtResource("2_ud45i")
 river_shader_material = SubResource("ShaderMaterial_6crjs")
 road_shader_material = SubResource("ShaderMaterial_lf52a")

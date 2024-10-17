@@ -9,6 +9,12 @@ var _orientation: float
 
 #endregion
 
+#region Public static data members
+
+static var unit_prefab: PackedScene
+
+#endregion
+
 #region Overrides
 
 # Called when the node enters the scene tree for the first time.
@@ -28,9 +34,10 @@ var location: HexCell:
 	get:
 		return _location
 	set(value):
-		_location = value
-		value.unit = self
-		self.position = value.position
+		if (value):
+			_location = value
+			value.unit = self
+			self.position = value.position
 
 var orientation: float:
 	get:
@@ -49,5 +56,20 @@ func die () -> void:
 
 func validation_location () -> void:
 	self.position = location.position
+
+func save_to_file (writer: FileAccess) -> void:
+	location.hex_coordinates.save_to_file(writer)
+	writer.store_float(orientation)
+
+#endregion
+
+#region Static Methods
+
+static func load_from_file (reader: FileAccess, grid: HexGrid) -> void:
+	var coordinates: HexCoordinates = HexCoordinates.load_from_file(reader)
+	var orientation: float = reader.get_float()
+	
+	var unit: HexUnit = HexUnit.unit_prefab.instantiate() as HexUnit
+	grid.add_unit(unit, grid.get_cell_from_coordinates(coordinates), orientation)
 
 #endregion

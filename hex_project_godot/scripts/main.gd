@@ -28,12 +28,6 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 
 #endregion
 
-#region Exported public data members
-
-@export var unit_prefab: PackedScene
-
-#endregion
-
 #region OnReady public data members
 
 @onready var hex_grid := $HexGrid as HexGrid
@@ -125,6 +119,7 @@ func _ready() -> void:
 	
 	#Set the default camera
 	cameras[_selected_camera].make_current()
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -698,7 +693,7 @@ func _save_map_file (file_path_and_name: String) -> void:
 	var save_file: FileAccess = FileAccess.open(file_path_and_name, FileAccess.WRITE)
 	
 	#File version
-	save_file.store_32(1)
+	save_file.store_32(2)
 	
 	#Save the hex grid
 	hex_grid.save_hex_grid(save_file)
@@ -714,7 +709,7 @@ func _load_map_file (file_path_and_name: String) -> void:
 	var file_version: int = load_file.get_32()
 	
 	#If the file version is 0...
-	if (file_version <= 1):
+	if (file_version <= 2):
 		#Load the hex grid
 		hex_grid.load_hex_grid(load_file, file_version)
 		
@@ -727,14 +722,12 @@ func _load_map_file (file_path_and_name: String) -> void:
 func _create_unit () -> void:
 	var cell: HexCell = _get_cell_under_cursor()
 	if (cell) and (not cell.unit):
-		var unit: HexUnit = unit_prefab.instantiate() as HexUnit
-		unit.location = cell
-		unit.orientation = randf_range(0.0, 360.0)
-		hex_grid.add_child(unit)
+		var unit: HexUnit = HexUnit.unit_prefab.instantiate() as HexUnit
+		hex_grid.add_unit(unit, cell, randf_range(0.0, 36.0))
 
 func _destroy_unit () -> void:
 	var cell: HexCell = _get_cell_under_cursor()
 	if (cell) and (cell.unit):
-		cell.unit.die()
+		hex_grid.remove_unit(cell.unit)
 
 #endregion
