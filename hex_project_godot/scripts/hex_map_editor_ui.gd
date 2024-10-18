@@ -1,6 +1,12 @@
 class_name HexMapEditorUi
 extends Node3D
 
+#region Signals
+
+signal edit_mode_exited
+
+#endregion
+
 #region Public data members
 
 var paint_terrain_elevation_enabled: bool = false
@@ -93,6 +99,8 @@ var _mouse_up_cell: HexCell = null
 
 var _is_left_shift_pressed: bool = false
 
+var _enabled: bool = false
+
 #endregion
 
 #region Overrides
@@ -147,6 +155,34 @@ func _unhandled_input(event: InputEvent) -> void:
 					#Edit the cells
 					_edit_cells(cell)
 						
+
+#endregion
+
+#region Public methods
+
+func enable () -> void:
+	if (not _enabled):
+		_enabled = true
+		$CanvasLayer.visible = true
+		
+		if (active_show_labels):
+			hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Position)
+		else:
+			hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Off)
+
+func disable () -> void:
+	if (_enabled):
+		_enabled = false
+		
+		hex_grid.disable_all_cell_highlights()
+		hex_grid.reset_all_cell_distances()
+		hex_grid.reset_all_cell_labels()
+		
+		#Set the label mode
+		hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Information)
+		
+		#Emit the signal to exit edit mode
+		$CanvasLayer.visible = false
 
 #endregion
 
@@ -363,9 +399,8 @@ func _on_load_file_dialog_canceled() -> void:
 	debug_camera.locked = false
 
 
-func _on_check_button_edit_mode_toggled(toggled_on: bool) -> void:
-	#_set_edit_mode(toggled_on)
-	return
+func _on_exit_edit_mode_button_pressed() -> void:
+	edit_mode_exited.emit()
 
 
 #endregion
@@ -567,23 +602,6 @@ func _set_apply_special_feature (toggle: bool) -> void:
 
 func _set_special_feature_index (index: float) -> void:
 	active_special_feature = index
-
-#func _set_edit_mode (toggle: bool) -> void:
-	#edit_mode = toggle
-	#
-	#hex_grid.disable_all_cell_highlights()
-	#hex_grid.reset_all_cell_distances()
-	#hex_grid.reset_all_cell_labels()
-	#
-	##Set the label mode
-	#if (edit_mode):
-		#if (active_show_labels):
-			#hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Position)
-		#else:
-			#hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Off)
-	#else:
-		#hex_grid.set_all_cell_label_modes(HexCell.CellInformationLabelMode.Information)
-		
 
 func _get_cell_under_cursor () -> HexCell:
 	#Set the ray length

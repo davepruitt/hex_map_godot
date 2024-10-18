@@ -1,7 +1,15 @@
 class_name HexGameUi
 extends Node3D
 
+#region Signals
+
+signal edit_mode_enabled
+
+#endregion
+
 #region Private data members
+
+var _enabled: bool = false
 
 var _current_cell: HexCell = null
 
@@ -30,8 +38,15 @@ func _process(delta: float) -> void:
 
 #region Methods
 
-func set_edit_mode (toggle: bool) -> void:
-	pass
+func enable () -> void:
+	if (not _enabled):
+		_enabled = true
+		$CanvasLayer.visible = true
+
+func disable () -> void:
+	if (_enabled):
+		_enabled = false
+		$CanvasLayer.visible = false
 
 #endregion
 
@@ -68,4 +83,11 @@ func _update_current_cell () -> bool:
 	#Return the resulting cell
 	return false
 
+#endregion
+
+#region UI event handlers
+
+func _on_enable_edit_mode_button_pressed() -> void:
+	edit_mode_enabled.emit()
+	
 #endregion

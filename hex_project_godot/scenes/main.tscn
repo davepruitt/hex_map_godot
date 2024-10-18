@@ -14,7 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://ca20grb2upor5" path="res://assets/grid.png" id="12_gv3gu"]
 [ext_resource type="CompressedTexture2DArray" uid="uid://bktbwtk345agh" path="res://assets/terrain.png" id="12_lmpao"]
 [ext_resource type="PackedScene" uid="uid://dstaybgovslw2" path="res://scenes/hex_map_editor_ui.tscn" id="14_ll164"]
-[ext_resource type="Script" path="res://scripts/hex_game_ui.gd" id="14_virgf"]
+[ext_resource type="PackedScene" uid="uid://gucv0pvo4683" path="res://scenes/hex_game_ui.tscn" id="15_ohjg2"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_m1jh0"]
 render_priority = 0
@@ -67,7 +67,4 @@ hex_grid = NodePath("../../HexGrid")
 main_camera_assembly = NodePath("../../HexMapCamera")
 debug_camera = NodePath("../../DebugCamera")
 
-[node name="HexGameUi" type="Node3D" parent="UI"]
-script = ExtResource("14_virgf")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="UI/HexGameUi"]
+[node name="HexGameUi" parent="UI" instance=ExtResource("15_ohjg2")]

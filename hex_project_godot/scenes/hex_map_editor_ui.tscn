@@ -526,12 +526,14 @@ theme_override_constants/margin_right = 15
 layout_mode = 2
 text = "New Map"
 
-[node name="CheckButton_EditMode" type="CheckButton" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="MarginContainer6" type="MarginContainer" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 0
-button_pressed = true
-text = "Edit Mode"
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 15
+
+[node name="ExitEditModeButton" type="Button" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer6"]
+layout_mode = 2
+text = "Exit Edit Mode"
 
 [node name="PopupMenu" type="PopupMenu" parent="CanvasLayer"]
 auto_translate_mode = 1
@@ -593,4 +595,4 @@ use_native_dialog = true
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/SaveButton" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer5/NewMapButton" to="." method="_on_new_map_button_pressed"]
-[connection signal="toggled" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_EditMode" to="." method="_on_check_button_edit_mode_toggled"]
+[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer6/ExitEditModeButton" to="." method="_on_exit_edit_mode_button_pressed"]
