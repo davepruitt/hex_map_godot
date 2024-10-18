@@ -6,6 +6,7 @@
 script = ExtResource("1_avp0t")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+visible = false
 
 [node name="EnableEditModeButton" type="Button" parent="CanvasLayer"]
 offset_right = 8.0
