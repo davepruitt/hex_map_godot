@@ -117,44 +117,45 @@ func _process(delta: float) -> void:
 	
 	
 func _unhandled_input(event: InputEvent) -> void:
-	#Check for user input...
-	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
-			_is_left_shift_pressed = true
-		if event.keycode == KEY_U:
-			if (_is_left_shift_pressed):
-				_destroy_unit()
-			else:
-				_create_unit()
-	
-	elif event is InputEventKey and not event.pressed:
-		
-		if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
-			_is_left_shift_pressed = false
-	
-	#If a mouse button was pressed...
-	elif event is InputEventMouseButton:
-		#If the left mouse button was pressed...
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			var cell: HexCell = _get_cell_under_cursor()
-			if (cell):
-				
-				if event.pressed:
-					#Set the cell object that was initially pressed
-					_mouse_down_cell = cell
+	if _enabled:
+		#Check for user input...
+		if event is InputEventKey and event.pressed:
+			if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
+				_is_left_shift_pressed = true
+			if event.keycode == KEY_U:
+				if (_is_left_shift_pressed):
+					_destroy_unit()
 				else:
-					#Set the cell object that received the end of the press event
-					_mouse_up_cell = cell
+					_create_unit()
+		
+		elif event is InputEventKey and not event.pressed:
+			
+			if event.keycode == KEY_SHIFT and (event as InputEventKey).location == KEY_LOCATION_LEFT:
+				_is_left_shift_pressed = false
+		
+		#If a mouse button was pressed...
+		elif event is InputEventMouseButton:
+			#If the left mouse button was pressed...
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				var cell: HexCell = _get_cell_under_cursor()
+				if (cell):
 					
-					#Check to see if a drag event occurred
-					if (_mouse_down_cell and _mouse_up_cell and (_mouse_down_cell != _mouse_up_cell)):
-						_validate_drag()
+					if event.pressed:
+						#Set the cell object that was initially pressed
+						_mouse_down_cell = cell
 					else:
-						_is_drag = false
-					
-					#Edit the cells
-					_edit_cells(cell)
+						#Set the cell object that received the end of the press event
+						_mouse_up_cell = cell
 						
+						#Check to see if a drag event occurred
+						if (_mouse_down_cell and _mouse_up_cell and (_mouse_down_cell != _mouse_up_cell)):
+							_validate_drag()
+						else:
+							_is_drag = false
+						
+						#Edit the cells
+						_edit_cells(cell)
+							
 
 #endregion
 

@@ -7,6 +7,12 @@ signal edit_mode_enabled
 
 #endregion
 
+#region Exported data members
+
+@export var grid: HexGrid
+
+#endregion
+
 #region Private data members
 
 var _enabled: bool = false
@@ -14,12 +20,6 @@ var _enabled: bool = false
 var _current_cell: HexCell = null
 
 var _selected_unit: HexUnit = null
-
-#endregion
-
-#region Public data members
-
-var grid: HexGrid = null
 
 #endregion
 
@@ -33,6 +33,14 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _enabled:
+		#If a mouse button was pressed...
+		if event is InputEventMouseButton:
+			#If the left mouse button was pressed...
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				_do_selection()
 
 #endregion
 

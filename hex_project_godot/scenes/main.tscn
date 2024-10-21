@@ -67,4 +67,5 @@ hex_grid = NodePath("../../HexGrid")
 main_camera_assembly = NodePath("../../HexMapCamera")
 debug_camera = NodePath("../../DebugCamera")
 
-[node name="HexGameUi" parent="UI" instance=ExtResource("15_ohjg2")]
+[node name="HexGameUi" parent="UI" node_paths=PackedStringArray("grid") instance=ExtResource("15_ohjg2")]
+grid = NodePath("../../HexGrid")
