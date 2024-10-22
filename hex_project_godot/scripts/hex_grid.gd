@@ -465,7 +465,7 @@ func _show_path (speed: int) -> void:
 	if (_current_path_exists):
 		var current: HexCell = _current_path_to
 		while (current != _current_path_from):
-			var turn: int = current.distance / speed
+			var turn: int = (current.distance - 1) / speed
 			current.set_label(str(turn))
 			current.enable_highlight(Color.WHITE)
 			current = current.path_from
@@ -503,7 +503,7 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int)
 			#Return true, indicating a path was found
 			return true
 		
-		var current_turn: int = current.distance / speed
+		var current_turn: int = (current.distance - 1) / speed
 		
 		#Iterate over the cell's neighbors
 		for d in range(0, 6):
@@ -543,7 +543,7 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int)
 				movement_cost += neighbor.urban_level + neighbor.farm_level + neighbor.plant_level
 			
 			var distance: int = current.distance + movement_cost
-			var turn: int = distance / speed
+			var turn: int = (distance - 1) / speed
 			if (turn > current_turn):
 				distance = turn * speed + movement_cost
 			
