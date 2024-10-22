@@ -596,3 +596,8 @@ use_native_dialog = true
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/SaveButton" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer5/NewMapButton" to="." method="_on_new_map_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer6/ExitEditModeButton" to="." method="_on_exit_edit_mode_button_pressed"]
+[connection signal="index_pressed" from="CanvasLayer/PopupMenu" to="." method="_on_popup_menu_index_pressed"]
+[connection signal="canceled" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_canceled"]
+[connection signal="file_selected" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]
+[connection signal="canceled" from="CanvasLayer/LoadFileDialog" to="." method="_on_load_file_dialog_canceled"]
+[connection signal="file_selected" from="CanvasLayer/LoadFileDialog" to="." method="_on_load_file_dialog_file_selected"]

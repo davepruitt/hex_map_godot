@@ -322,6 +322,21 @@ func clear_path () -> void:
 	_current_path_from = null
 	_current_path_to = null
 
+func get_unit_path () -> Array[HexCell]:
+	if (not _current_path_exists):
+		return []
+	
+	var path: Array[HexCell] = []
+	var c: HexCell = _current_path_to
+	while (c != _current_path_from):
+		path.append(c)
+		c = c.path_from
+	
+	path.append(_current_path_from)
+	path.reverse()
+	
+	return path
+
 func disable_all_cell_highlights () -> void:
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].disable_highlight()

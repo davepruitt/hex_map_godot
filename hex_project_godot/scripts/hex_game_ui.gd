@@ -65,7 +65,7 @@ func disable () -> void:
 
 func _do_move () -> void:
 	if (grid.has_path):
-		_selected_unit.location = _current_cell
+		_selected_unit.travel(grid.get_unit_path())
 		grid.clear_path()
 
 func _do_pathfinding () -> void:

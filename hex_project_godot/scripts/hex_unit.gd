@@ -1,11 +1,19 @@
 class_name HexUnit
 extends Node3D
 
+#region Constants
+
+const _TRAVEL_SPEED: int = 4.0;
+
+#endregion
+
 #region Private data members
 
 var _location: HexCell
 
 var _orientation: float
+
+var _path_to_travel: Array[HexCell] = []
 
 #endregion
 
@@ -52,6 +60,12 @@ var orientation: float:
 
 #region Methods
 
+func travel (path: Array[HexCell]) -> void:
+	location = path[len(path) - 1]
+	_path_to_travel = path
+	
+	_travel_path()
+
 func die () -> void:
 	location.unit = null
 	self.queue_free()
@@ -65,6 +79,41 @@ func save_to_file (writer: FileAccess) -> void:
 
 func is_valid_destination (cell: HexCell) -> bool:
 	return (not cell.is_underwater) and (not cell.unit)
+
+#endregion
+
+#region Private Methods
+
+func _travel_path () -> void:
+	for i in range(0, len(_path_to_travel)):
+		var a: Vector3 = _path_to_travel[i - 1].position
+		var b: Vector3 = _path_to_travel[i].position
+		
+		var t: float = 0.0
+		while t < 1.0:
+			#Set the position
+			self.position = a.lerp(b, t)
+			
+			#Get the current microseconds timestamp
+			var start_us: int = Time.get_ticks_usec()
+			
+			#Wait until the next frame
+			await get_tree().process_frame
+			
+			#Get the current microseconds timestamp
+			var end_us: int = Time.get_ticks_usec()
+			
+			#Calculate the difference in time
+			var elapsed_us: int = end_us - start_us
+			
+			#Convert the elapsed time to ms
+			var elapsed_ms: float = float(elapsed_us) / 1000.0
+			
+			#Convert the elapsed time to seconds
+			var elapsed_sec: float = elapsed_ms / 1000.0
+			
+			#Increment t by the amount of time that elapsed
+			t += elapsed_sec * _TRAVEL_SPEED
 
 #endregion
 
