@@ -5,6 +5,8 @@ extends Node3D
 
 const _TRAVEL_SPEED: int = 4.0;
 
+const _ROTATION_SPEED: float = 180.0
+
 #endregion
 
 #region Private data members
@@ -84,6 +86,28 @@ func is_valid_destination (cell: HexCell) -> bool:
 
 #region Private Methods
 
+func _look_at (point: Vector3) -> void:
+	point.y =  self.position.y
+	
+	var from_rotation: Quaternion = self.quaternion
+	var to_rotation: Quaternion = Transform3D.IDENTITY.looking_at(point - self.position).basis
+	var angle: float = from_rotation.angle_to(to_rotation)
+	var speed: float = _ROTATION_SPEED / angle
+	
+	if (angle > 0.0):
+		var t: float = 0
+		while t < 1.0:
+			self.quaternion = from_rotation.slerp(to_rotation, t)
+			
+			#Wait for the next frame
+			var delta_time: float = await _wait_for_next_frame()
+			
+			#Increment t
+			t += delta_time * speed
+	
+	self.look_at(point)
+	orientation = self.rotation_degrees.y
+
 func _wait_for_next_frame () -> float:
 	#Get the current microseconds timestamp
 	var start_us: int = Time.get_ticks_usec()
@@ -111,6 +135,9 @@ func _travel_path () -> void:
 	var b: Vector3 = a
 	var c: Vector3 = a
 	
+	self.position = c
+	await _look_at(_path_to_travel[1].position)
+	
 	var t: float = 0
 	for i in range(1, len(_path_to_travel)):
 		a = c
@@ -121,7 +148,11 @@ func _travel_path () -> void:
 			#Set the position
 			var bezier_point: Vector3 = Bezier.get_point(a, b, c, t)
 			self.position = bezier_point
-			print_debug(str(bezier_point))
+			
+			#Set the rotation
+			var d: Vector3 = Bezier.get_derivative(a, b, c, t)
+			d.y = 0
+			self.look_at(d)
 			
 			#Convert the elapsed time to seconds
 			var elapsed_sec: float = await _wait_for_next_frame()
@@ -135,11 +166,24 @@ func _travel_path () -> void:
 	b = _path_to_travel[len(_path_to_travel) - 1].position
 	c = b
 	while t < 1.0:
+		#Set the position
 		self.position = Bezier.get_point(a, b, c, t)
+		
+		#Set the rotation
+		var d: Vector3 = Bezier.get_derivative(a, b, c, t)
+		d.y = 0
+		self.look_at(d)
+		
+		#Wait for the next frame
 		var elapsed_sec: float = await _wait_for_next_frame()
 		t += elapsed_sec * _TRAVEL_SPEED
 	
+	#Set the final position and orientation
 	self.position = location.position
+	self.orientation = self.rotation_degrees.y
+	
+	#Clear the path to travel
+	_path_to_travel.clear()
 
 #endregion
 
