@@ -61,10 +61,11 @@ var orientation: float:
 #region Methods
 
 func travel (path: Array[HexCell]) -> void:
-	location = path[len(path) - 1]
 	_path_to_travel = path
 	
 	_travel_path()
+	
+	#location = path[len(path) - 1]
 
 func die () -> void:
 	location.unit = null
@@ -84,36 +85,61 @@ func is_valid_destination (cell: HexCell) -> bool:
 
 #region Private Methods
 
+func _wait_for_next_frame () -> float:
+	#Get the current microseconds timestamp
+	var start_us: int = Time.get_ticks_usec()
+	
+	#Wait until the next frame
+	await get_tree().process_frame
+	
+	#Get the current microseconds timestamp
+	var end_us: int = Time.get_ticks_usec()
+	
+	#Calculate the difference in time
+	var elapsed_us: int = end_us - start_us
+	
+	#Convert the elapsed time to ms
+	var elapsed_ms: float = float(elapsed_us) / 1000.0
+	
+	#Convert the elapsed time to seconds
+	var elapsed_sec: float = elapsed_ms / 1000.0
+
+	#Return the amount of elapsed time in units of seconds
+	return elapsed_sec
+
 func _travel_path () -> void:
+	var a: Vector3 = _path_to_travel[0].position
+	var b: Vector3 = a
+	var c: Vector3 = a
+	
+	var t: float = 0
 	for i in range(0, len(_path_to_travel)):
-		var a: Vector3 = _path_to_travel[i - 1].position
-		var b: Vector3 = _path_to_travel[i].position
+		a = c
+		b = _path_to_travel[i - 1].position
+		c = (b + _path_to_travel[i].position) * 0.5
 		
-		var t: float = 0.0
 		while t < 1.0:
 			#Set the position
-			self.position = a.lerp(b, t)
-			
-			#Get the current microseconds timestamp
-			var start_us: int = Time.get_ticks_usec()
-			
-			#Wait until the next frame
-			await get_tree().process_frame
-			
-			#Get the current microseconds timestamp
-			var end_us: int = Time.get_ticks_usec()
-			
-			#Calculate the difference in time
-			var elapsed_us: int = end_us - start_us
-			
-			#Convert the elapsed time to ms
-			var elapsed_ms: float = float(elapsed_us) / 1000.0
+			self.position = Bezier.get_point(a, b, c, t)
 			
 			#Convert the elapsed time to seconds
-			var elapsed_sec: float = elapsed_ms / 1000.0
+			var elapsed_sec: float = await _wait_for_next_frame()
 			
 			#Increment t by the amount of time that elapsed
 			t += elapsed_sec * _TRAVEL_SPEED
+		
+		t -= 1.0
+		
+	a = c
+	b = _path_to_travel[len(_path_to_travel) - 1].position
+	c = b
+	while t < 1.0:
+		self.position = Bezier.get_point(a, b, c, t)
+		var elapsed_sec: float = await _wait_for_next_frame()
+		t += elapsed_sec * _TRAVEL_SPEED
+	
+	self.position = location.position
+	#self.location = _path_to_travel[len(_path_to_travel) - 1]
 
 #endregion
 
