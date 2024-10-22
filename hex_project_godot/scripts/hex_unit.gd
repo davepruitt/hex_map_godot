@@ -61,11 +61,10 @@ var orientation: float:
 #region Methods
 
 func travel (path: Array[HexCell]) -> void:
+	location = path[len(path) - 1]
 	_path_to_travel = path
 	
 	_travel_path()
-	
-	#location = path[len(path) - 1]
 
 func die () -> void:
 	location.unit = null
@@ -113,14 +112,16 @@ func _travel_path () -> void:
 	var c: Vector3 = a
 	
 	var t: float = 0
-	for i in range(0, len(_path_to_travel)):
+	for i in range(1, len(_path_to_travel)):
 		a = c
 		b = _path_to_travel[i - 1].position
 		c = (b + _path_to_travel[i].position) * 0.5
 		
 		while t < 1.0:
 			#Set the position
-			self.position = Bezier.get_point(a, b, c, t)
+			var bezier_point: Vector3 = Bezier.get_point(a, b, c, t)
+			self.position = bezier_point
+			print_debug(str(bezier_point))
 			
 			#Convert the elapsed time to seconds
 			var elapsed_sec: float = await _wait_for_next_frame()
@@ -139,7 +140,6 @@ func _travel_path () -> void:
 		t += elapsed_sec * _TRAVEL_SPEED
 	
 	self.position = location.position
-	#self.location = _path_to_travel[len(_path_to_travel) - 1]
 
 #endregion
 
