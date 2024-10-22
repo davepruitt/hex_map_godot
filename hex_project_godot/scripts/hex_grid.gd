@@ -131,6 +131,14 @@ func _process(delta: float) -> void:
 	
 #endregion
 
+#region Properties
+
+var has_path: bool:
+	get:
+		return _current_path_exists
+
+#endregion
+
 #region Public methods
 
 func create_map (map_size_x: int, map_size_z: int) -> bool:
@@ -143,7 +151,7 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 		return false
 	
 	#Clear any existing path
-	_clear_path()
+	clear_path()
 	
 	#Clear any existing units
 	_clear_units()
@@ -244,7 +252,7 @@ func save_hex_grid (file_writer: FileAccess) -> void:
 	
 func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 	#Clear any path visualization that may currently exist
-	_clear_path()
+	clear_path()
 
 	#Clear any existing units
 	_clear_units()
@@ -282,8 +290,12 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 			HexUnit.load_from_file(file_reader, self)
 
 func find_path (from_cell: HexCell, to_cell: HexCell, speed: int) -> void:
+	#Return immediatley if either the start or destination is null
+	if (from_cell == null) or (to_cell == null):
+		return
+	
 	#Clear any old path visualization that may exist
-	_clear_path()
+	clear_path()
 	
 	#Run the path finding algorithm
 	_current_path_from = from_cell
@@ -292,6 +304,23 @@ func find_path (from_cell: HexCell, to_cell: HexCell, speed: int) -> void:
 	
 	#If a path was found, display the visualization on the hex map
 	_show_path(speed)
+
+func clear_path () -> void:
+	if (_current_path_exists):
+		var current: HexCell = _current_path_to
+		while (current != _current_path_from):
+			current.set_label("")
+			current.disable_highlight()
+			current = current.path_from
+		
+		current.disable_highlight()
+		_current_path_exists = false
+	elif (_current_path_from):
+		_current_path_from.disable_highlight()
+		_current_path_to.disable_highlight()
+	
+	_current_path_from = null
+	_current_path_to = null
 
 func disable_all_cell_highlights () -> void:
 	for i in range(0, len(_hex_cells)):
@@ -432,23 +461,6 @@ func _add_cell_to_chunk (x: int, z: int, cell: HexCell) -> void:
 	
 	chunk.add_cell(local_x + local_z * HexMetrics.CHUNK_SIZE_X, cell)
 
-func _clear_path () -> void:
-	if (_current_path_exists):
-		var current: HexCell = _current_path_to
-		while (current != _current_path_from):
-			current.set_label("")
-			current.disable_highlight()
-			current = current.path_from
-		
-		current.disable_highlight()
-		_current_path_exists = false
-	elif (_current_path_from):
-		_current_path_from.disable_highlight()
-		_current_path_to.disable_highlight()
-	
-	_current_path_from = null
-	_current_path_to = null
-
 func _show_path (speed: int) -> void:
 	if (_current_path_exists):
 		var current: HexCell = _current_path_to
@@ -502,7 +514,7 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int)
 			if (neighbor == null) or (neighbor.search_phase > _search_frontier_phase):
 				continue
 			
-			if (neighbor.is_underwater):
+			if (neighbor.is_underwater) or (neighbor.unit):
 				continue
 
 			var edge_type: Enums.HexEdgeType = current.get_edge_type_from_other_cell(neighbor)

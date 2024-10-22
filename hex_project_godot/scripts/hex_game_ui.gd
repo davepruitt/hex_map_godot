@@ -32,7 +32,8 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	if (_selected_unit):
+		_do_pathfinding()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _enabled:
@@ -41,6 +42,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			#If the left mouse button was pressed...
 			if event.button_index == MOUSE_BUTTON_LEFT:
 				_do_selection()
+			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				_do_move()
 
 #endregion
 
@@ -59,6 +62,18 @@ func disable () -> void:
 #endregion
 
 #region Private methods
+
+func _do_move () -> void:
+	if (grid.has_path):
+		_selected_unit.location = _current_cell
+		grid.clear_path()
+
+func _do_pathfinding () -> void:
+	if (_update_current_cell()):
+		if (_current_cell) and (_selected_unit.is_valid_destination(_current_cell)):
+			grid.find_path(_selected_unit.location, _current_cell, 24)
+		else:
+			grid.clear_path()
 
 func _do_selection () -> void:
 	_update_current_cell()

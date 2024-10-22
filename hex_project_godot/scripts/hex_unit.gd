@@ -35,6 +35,8 @@ var location: HexCell:
 		return _location
 	set(value):
 		if(value):
+			if (_location):
+				_location.unit = null
 			_location = value
 			value.unit = self
 			self.position = value.position
@@ -60,6 +62,9 @@ func validation_location () -> void:
 func save_to_file (writer: FileAccess) -> void:
 	location.hex_coordinates.save_to_file(writer)
 	writer.store_float(orientation)
+
+func is_valid_destination (cell: HexCell) -> bool:
+	return (not cell.is_underwater) and (not cell.unit)
 
 #endregion
 
