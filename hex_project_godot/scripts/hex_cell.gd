@@ -77,6 +77,10 @@ var search_phase: int = 0
 
 var unit: HexUnit = null
 
+var shader_data: HexCellShaderData = null
+
+var index: int = 0
+
 #endregion
 
 #region Public properties
@@ -140,7 +144,7 @@ var terrain_type_index: int:
 	set(value):
 		if (_terrain_type_index != value):
 			_terrain_type_index = value
-			_refresh()
+			shader_data.refresh_terrain(self)
 
 ## This is a property indicating whether this cell has an incoming river
 var has_incoming_river: bool:
@@ -467,6 +471,7 @@ func save_hex_cell (file_writer: FileAccess) -> void:
 
 func load_hex_cell (file_reader: FileAccess) -> void:
 	_terrain_type_index = file_reader.get_8()
+	shader_data.refresh_terrain(self)
 	
 	_elevation = file_reader.get_8()
 	_refresh_position()

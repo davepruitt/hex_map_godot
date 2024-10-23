@@ -88,6 +88,8 @@ var _current_path_exists: bool = false
 
 var _units: Array[HexUnit] = []
 
+var _cell_shader_data: HexCellShaderData = null
+
 #endregion
 
 #region Public data members
@@ -172,6 +174,10 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 	#Calculate the chunk count count in the x and z directions
 	_chunk_count_x = cell_count_x / HexMetrics.CHUNK_SIZE_X
 	_chunk_count_z = cell_count_z / HexMetrics.CHUNK_SIZE_Z
+	
+	if (_cell_shader_data == null):
+		_cell_shader_data = HexCellShaderData.new()
+	_cell_shader_data.initialize(cell_count_x, cell_count_z)
 	
 	_create_chunks()
 	_create_cells()
@@ -442,6 +448,12 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	
 	#Set the coordinates of the hex cell within the grid
 	hex_cell.hex_coordinates = HexCoordinates.FromOffsetCoordinates(x, z)
+	
+	#Set the cell index
+	hex_cell.index = i
+	
+	#Set the shader data
+	hex_cell.shader_data = _cell_shader_data
 	
 	#Set the initial distance value to max int
 	hex_cell.distance = GodotConstants.MAX_INT
