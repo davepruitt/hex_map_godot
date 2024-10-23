@@ -11,6 +11,9 @@ static func get_point (a: Vector3, b: Vector3, c: Vector3, t: float) -> Vector3:
 			(t * t * c))
 
 static func get_derivative (a: Vector3, b: Vector3, c: Vector3, t: float) -> Vector3:
-	return (2.0 * ((1.0 - t) * (b - a) + (t * (c - b))))
+	var part1: Vector3 = ((1.0 - t) * (b - a))
+	var part2: Vector3 = t * (c - b)
+	var result: Vector3 = 2.0 * (part1 + part2)
+	return result
 
 #endregion

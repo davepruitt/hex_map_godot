@@ -5,7 +5,7 @@ extends Node3D
 
 const _TRAVEL_SPEED: int = 4.0;
 
-const _ROTATION_SPEED: float = 180.0
+const _ROTATION_SPEED: float = 5.0 #180.0
 
 #endregion
 
@@ -90,7 +90,7 @@ func _look_at (point: Vector3) -> void:
 	point.y =  self.position.y
 	
 	var from_rotation: Quaternion = self.quaternion
-	var to_rotation: Quaternion = Transform3D.IDENTITY.looking_at(point - self.position).basis
+	var to_rotation: Quaternion = Transform3D.IDENTITY.looking_at(point - self.position).basis.get_rotation_quaternion()
 	var angle: float = from_rotation.angle_to(to_rotation)
 	var speed: float = _ROTATION_SPEED / angle
 	
@@ -106,7 +106,7 @@ func _look_at (point: Vector3) -> void:
 			t += delta_time * speed
 	
 	self.look_at(point)
-	orientation = self.rotation_degrees.y
+	_orientation = self.rotation_degrees.y
 
 func _wait_for_next_frame () -> float:
 	#Get the current microseconds timestamp
@@ -138,7 +138,7 @@ func _travel_path () -> void:
 	self.position = c
 	await _look_at(_path_to_travel[1].position)
 	
-	var t: float = 0
+	var t: float = 0.01
 	for i in range(1, len(_path_to_travel)):
 		a = c
 		b = _path_to_travel[i - 1].position
@@ -152,7 +152,7 @@ func _travel_path () -> void:
 			#Set the rotation
 			var d: Vector3 = Bezier.get_derivative(a, b, c, t)
 			d.y = 0
-			self.look_at(d)
+			self.orientation = Transform3D.IDENTITY.looking_at(d, Vector3.UP).basis.get_euler().y
 			
 			#Convert the elapsed time to seconds
 			var elapsed_sec: float = await _wait_for_next_frame()
@@ -172,7 +172,7 @@ func _travel_path () -> void:
 		#Set the rotation
 		var d: Vector3 = Bezier.get_derivative(a, b, c, t)
 		d.y = 0
-		self.look_at(d)
+		self.orientation = Transform3D.IDENTITY.looking_at(d, Vector3.UP).basis.get_euler().y
 		
 		#Wait for the next frame
 		var elapsed_sec: float = await _wait_for_next_frame()
@@ -180,7 +180,6 @@ func _travel_path () -> void:
 	
 	#Set the final position and orientation
 	self.position = location.position
-	self.orientation = self.rotation_degrees.y
 	
 	#Clear the path to travel
 	_path_to_travel.clear()

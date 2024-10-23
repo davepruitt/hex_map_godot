@@ -113,7 +113,12 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	if (_enabled):
+		var pos = _get_world_position_under_cursor()
+		for i in range(0, len(hex_grid._units)):
+			var current_unit: HexUnit = hex_grid._units[i] as HexUnit
+			if (current_unit):
+				current_unit.look_at(pos)
 	
 	
 func _unhandled_input(event: InputEvent) -> void:
@@ -626,6 +631,32 @@ func _get_cell_under_cursor () -> HexCell:
 	#Return the resulting cell
 	return result_cell
 
+func _get_world_position_under_cursor () -> Vector3:
+	#Set the ray length
+	var RAY_LENGTH = 1000
+	
+	#Get the current mouse position
+	var mousepos = get_viewport().get_mouse_position()
+
+	#Determine the start and end points of the ray
+	var scene_camera: Camera3D = get_viewport().get_camera_3d()
+	var origin: Vector3 = scene_camera.project_ray_origin(mousepos)
+	var end: Vector3 = origin + scene_camera.project_ray_normal(mousepos) * RAY_LENGTH
+	
+	#Create a ray query object
+	var ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
+	ray_query.collide_with_areas = true
+
+	return get_world_position_from_ray(ray_query)
+
+func get_world_position_from_ray (ray_query: PhysicsRayQueryParameters3D) -> Vector3:
+	var space_state = get_world_3d().direct_space_state
+	
+	var result = space_state.intersect_ray(ray_query)
+	if result:
+		return result.position
+	else:
+		return Vector3.ZERO
 
 func _validate_drag () -> void:
 	#Set the initial drag direction
