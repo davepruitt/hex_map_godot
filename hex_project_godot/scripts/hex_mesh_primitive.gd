@@ -12,13 +12,13 @@ var _primitive_type: PrimitiveType = PrimitiveType.TRIANGLE
 
 var _vertices: Array[Vector3] = []
 
-var _colors: Array[Color] = []
-
 var _uv1: Array[Vector2] = []
 
 var _uv2: Array[Vector2] = []
 
-var _terrain_types: Array[Vector3] = []
+var _cell_indices: Array[Vector3] = []
+
+var _cell_weights: Array[Color] = []
 
 #endregion
 
@@ -52,17 +52,6 @@ func add_quad_perturbed_vertices (v1: Vector3, v2: Vector3, v3: Vector3, v4: Vec
 	_vertices.append(HexMetrics.perturb(v2))
 	_vertices.append(HexMetrics.perturb(v3))
 	_vertices.append(HexMetrics.perturb(v4))
-	
-func add_triangle_colors (c1: Color, c2: Color, c3: Color) -> void:
-	_colors.append(c1)
-	_colors.append(c2)
-	_colors.append(c3)
-
-func add_quad_colors (c1: Color, c2: Color, c3: Color, c4: Color) -> void:
-	_colors.append(c1)
-	_colors.append(c2)
-	_colors.append(c3)
-	_colors.append(c4)
 
 func add_triangle_uv1 (v1: Vector2, v2: Vector2, v3: Vector2) -> void:
 	_uv1.append(v1)
@@ -102,16 +91,32 @@ func add_quad_uv2_vectors (v1: Vector2, v2: Vector2, v3: Vector2, v4: Vector2) -
 	_uv2.append(v3)
 	_uv2.append(v4)
 
-func add_triangle_terrain_types (terrain_types: Vector3) -> void:
-	_terrain_types.append(terrain_types)
-	_terrain_types.append(terrain_types)
-	_terrain_types.append(terrain_types)
+func add_triangle_cell_data (indices: Vector3, weights1: Color, weights2: Color, weights3: Color) -> void:
+	_cell_indices.append(indices)
+	_cell_indices.append(indices)
+	_cell_indices.append(indices)
+	_cell_weights.append(weights1)
+	_cell_weights.append(weights2)
+	_cell_weights.append(weights3)
 
-func add_quad_terrain_types (terrain_types: Vector3) -> void:
-	_terrain_types.append(terrain_types)
-	_terrain_types.append(terrain_types)
-	_terrain_types.append(terrain_types)
-	_terrain_types.append(terrain_types)
+func add_triangle_cell_data_uniform (indices: Vector3, weights: Color) -> void:
+	add_triangle_cell_data(indices, weights, weights, weights)
+
+func add_quad_cell_data (indices: Vector3, weights1: Color, weights2: Color, weights3: Color, weights4: Color) -> void:
+	_cell_indices.append(indices)
+	_cell_indices.append(indices)
+	_cell_indices.append(indices)
+	_cell_indices.append(indices)
+	_cell_weights.append(weights1)
+	_cell_weights.append(weights2)
+	_cell_weights.append(weights3)
+	_cell_weights.append(weights4)
+
+func add_quad_cell_data_dual (indices: Vector3, weights1: Color, weights2: Color) -> void:
+	add_quad_cell_data(indices, weights1, weights1, weights2, weights2)
+
+func add_quad_cell_data_unified (indices: Vector3, weights: Color) -> void:
+	add_quad_cell_data(indices, weights, weights, weights, weights)
 
 func commit (st: SurfaceTool) -> void:
 	if (_primitive_type == PrimitiveType.QUAD):
@@ -126,8 +131,8 @@ func commit (st: SurfaceTool) -> void:
 func _commit_vertex (st: SurfaceTool, vertex_idx: int) -> void:
 	
 	#Set the color of the vertex
-	if (len(_colors) > vertex_idx):
-		var c: Color = _colors[vertex_idx];
+	if (len(_cell_weights) > vertex_idx):
+		var c: Color = _cell_weights[vertex_idx];
 		st.set_color(c)
 	
 	#Set the uv1 of the vertex
@@ -141,8 +146,8 @@ func _commit_vertex (st: SurfaceTool, vertex_idx: int) -> void:
 		st.set_uv2(uv2)
 	
 	#Set the terrain index of the vertex
-	if (len(_terrain_types) > vertex_idx):
-		var t: Vector3 = _terrain_types[vertex_idx]
+	if (len(_cell_indices) > vertex_idx):
+		var t: Vector3 = _cell_indices[vertex_idx]
 		var c: Color = Color(t.x, t.y, t.z, 0);
 		st.set_custom(0, c)
 	

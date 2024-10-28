@@ -11,13 +11,11 @@ var _surface_tool: SurfaceTool = SurfaceTool.new()
 
 var use_collider: bool = true
 
-var use_colors: bool = true
-
 var use_uv_coordinates: bool = false
 
 var use_uv2_coordinates: bool = false
 
-var use_terrain_types: bool = false
+var use_cell_data: bool = false
 
 #endregion
 
@@ -35,7 +33,7 @@ func begin () -> void:
 	_surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES);
 	
 	#Set the first custom channel to be RGB float
-	if (use_terrain_types):
+	if (use_cell_data):
 		_surface_tool.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT);
 	
 	#Set the smooth group to -1, which produces flat normals for the mesh
