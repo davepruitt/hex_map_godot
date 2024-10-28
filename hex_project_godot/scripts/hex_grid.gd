@@ -26,9 +26,6 @@ extends Node3D
 ## This is the scene that will be used for each hex cell in the grid
 @export var hex_cell_prefab: PackedScene
 
-## This is the default ShaderMaterial that will be used for the terrain in the hex grid
-@export var colored_terrain_shader_material: ShaderMaterial
-
 ## This is the default ShaderMaterial that will be used for textured terrain in the hex grid
 @export var textured_terrain_shader_material: ShaderMaterial
 
@@ -131,6 +128,9 @@ func _process(delta: float) -> void:
 		if (current_chunk.update_needed):
 			current_chunk.refresh()
 	
+	if (_cell_shader_data):
+		_cell_shader_data.late_update()
+	
 #endregion
 
 #region Properties
@@ -183,10 +183,7 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 	_create_cells()
 	
 	for i in range(0, len(_hex_grid_chunks)):
-		if (HexMetrics.display_mode == Enums.DisplayMode.TerrainTextures):
-			_hex_grid_chunks[i].set_terrain_mesh_material(textured_terrain_shader_material)
-		else:
-			_hex_grid_chunks[i].set_terrain_mesh_material(colored_terrain_shader_material)
+		_hex_grid_chunks[i].set_terrain_mesh_material(textured_terrain_shader_material)
 		_hex_grid_chunks[i].set_rivers_mesh_material(river_shader_material)
 		_hex_grid_chunks[i].set_road_mesh_material(road_shader_material)
 		_hex_grid_chunks[i].set_water_mesh_material(water_shader_material)
