@@ -88,14 +88,7 @@ func _adjust_zoom (zoom_delta: float) -> void:
 	_swivel.rotation_degrees = Vector3(angle, 0.0, 0.0)
 
 func _adjust_position (x_delta: float, z_delta: float, time_delta: float) -> void:
-	
-	print_debug("rotation = " + str(self.rotation))
-	print_debug("rotation (deg) = " + str(self.rotation_degrees))
-	
 	var direction: Vector3 = self.quaternion * Vector3(x_delta, 0.0, z_delta).normalized()
-	
-	print_debug("Direction: " + str(direction))
-	
 	var damping: float = maxf(absf(x_delta), absf(z_delta))
 	var movement_speed: float = lerpf(movement_speed_min_zoom, movement_speed_max_zoom, _zoom)
 	var distance: float = movement_speed * damping * time_delta
