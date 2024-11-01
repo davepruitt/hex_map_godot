@@ -25,6 +25,11 @@ func initialize (x: int, z: int) -> void:
 	else:
 		_cell_texture_source_image = Image.create_empty(x, z, false, Image.FORMAT_RGBA8)	
 		_cell_texture = ImageTexture.create_from_image(_cell_texture_source_image)
+		
+		RenderingServer.global_shader_parameter_set("_HexCellData", _cell_texture)
+	
+	var texel_size: Vector4 = Vector4(1.0 / float(x), 1.0 / float(z), x, z)
+	RenderingServer.global_shader_parameter_set("_HexCellData_TexelSize", texel_size)
 	
 	if (len(_cell_texture_data) != (x * z)):
 		_cell_texture_data.resize(x * z)
@@ -41,5 +46,6 @@ func late_update () -> void:
 	
 	_cell_texture_source_image.set_data(x, z, false, Image.FORMAT_RGBA8, _cell_texture_data.to_byte_array())
 	_cell_texture.update(_cell_texture_source_image)
+	
 
 #endregion

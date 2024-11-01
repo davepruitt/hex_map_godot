@@ -191,6 +191,13 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 		_hex_grid_chunks[i].set_estuaries_mesh_material(estuaries_shader_material)
 		_hex_grid_chunks[i].set_walls_mesh_material(walls_material)
 		_hex_grid_chunks[i].refresh()
+		
+		#TO DO: bug.
+		#Currently encountering a bug that requires me to call request refresh even though
+		#we just finished calling the refresh function. This amounts to a double-refresh operation
+		#after creating a new map. Not sure why this is necessary as of this moment. 
+		#Needs investigation.
+		_hex_grid_chunks[i].request_refresh()
 	
 	#Return true, indicating the map was created successfully
 	return true

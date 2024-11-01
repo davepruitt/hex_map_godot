@@ -1,5 +1,7 @@
 shader_type spatial;
 
+#include "hex_cell_data.gdshaderinc"
+
 uniform sampler2DArray terrain_texture_2d_array:source_color;
 uniform sampler2D grid_texture:source_color;
 uniform bool grid_on = false;
@@ -17,8 +19,17 @@ vec4 get_terrain_color (vec4 color, vec3 wp, int index)
 void vertex() {
 	//Get the world position
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	
+	/*
+	//Get the terrain index
+	vec4 cell0 = GetCellData(CUSTOM0.xyz, 0);
+	vec4 cell1 = GetCellData(CUSTOM0.xyz, 1);
+	vec4 cell2 = GetCellData(CUSTOM0.xyz, 2);
 
 	//Get the terrain index
+	terrain_index = vec3(cell0.w, cell1.w, cell2.w);
+	*/
+	
 	terrain_index = CUSTOM0.xyz;
 }
 
