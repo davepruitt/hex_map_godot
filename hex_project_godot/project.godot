@@ -45,3 +45,14 @@ ui_rotate_down={
 [rendering]
 
 renderer/rendering_method="mobile"
+
+[shader_globals]
+
+_HexCellData={
+"type": "sampler2D",
+"value": ""
+}
+_HexCellData_TexelSize={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}

@@ -20,7 +20,6 @@ void vertex() {
 	//Get the world position
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	
-	/*
 	//Get the terrain index
 	vec4 cell0 = GetCellData(CUSTOM0.xyz, 0);
 	vec4 cell1 = GetCellData(CUSTOM0.xyz, 1);
@@ -28,16 +27,13 @@ void vertex() {
 
 	//Get the terrain index
 	terrain_index = vec3(cell0.w, cell1.w, cell2.w);
-	*/
-	
-	terrain_index = CUSTOM0.xyz;
 }
 
 void fragment() {
 	vec4 c = get_terrain_color(COLOR, world_position, 0) +
 		get_terrain_color(COLOR, world_position, 1) +
 		get_terrain_color(COLOR, world_position, 2);
-
+	
 	if (grid_on)
 	{
 		vec2 grid_uv = world_position.xz;
