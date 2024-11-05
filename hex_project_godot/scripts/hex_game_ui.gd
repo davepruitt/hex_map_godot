@@ -70,7 +70,7 @@ func _do_move () -> void:
 
 func _do_pathfinding () -> void:
 	if (_update_current_cell()):
-		if (_current_cell) and (_selected_unit.is_valid_destination(_current_cell)):
+		if (_current_cell) and (_selected_unit) and (_selected_unit.is_valid_destination(_current_cell)):
 			grid.find_path(_selected_unit.location, _current_cell, 24)
 		else:
 			grid.clear_path()
@@ -79,11 +79,21 @@ func _do_pathfinding () -> void:
 func _do_selection () -> void:
 	_update_current_cell()
 	
+	#If a cell was selected...
 	if (_current_cell):
+		#If a unit was previously selected...
 		if (_selected_unit):
+			#Disable the highlight on the previously selected unit
 			_selected_unit.location.disable_highlight()
+			
+		#Update the selected unit to be the unit in the newly selected cell
+		#(Assuming a unit exists in the newly selected cell)
 		_selected_unit = _current_cell.unit
-		_selected_unit.location.enable_highlight(Color.BLUE)
+		
+		#If there exists a newly selected unit...
+		if (_selected_unit):
+			#Update the newly selected unit's location to be highlighted
+			_selected_unit.location.enable_highlight(Color.BLUE)
 
 func _update_current_cell () -> bool:
 	#Set the ray length

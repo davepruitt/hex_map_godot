@@ -366,6 +366,9 @@ func add_unit (unit: HexUnit, location: HexCell, orientation: float) -> void:
 	#Add the unit as a child of the hex map scene
 	add_child(unit)
 	
+	#Set the grid property on the unit
+	unit.hex_grid = self
+	
 	#Set the location and orientation of the unit
 	unit.location = location
 	unit.orientation = orientation
@@ -373,6 +376,16 @@ func add_unit (unit: HexUnit, location: HexCell, orientation: float) -> void:
 func remove_unit (unit: HexUnit) -> void:
 	_units.erase(unit)
 	unit.die()
+
+func increase_visibility_in_game (from_cell: HexCell, visibility_range: int) -> void:
+	var cells: Array[HexCell] = _dijkstra_get_visible_cells(from_cell, visibility_range)
+	for i in range(0, len(cells)):
+		cells[i].increase_visibility_in_game()
+	
+func decrease_visibility_in_game (from_cell: HexCell, visibility_range: int) -> void:
+	var cells: Array[HexCell] = _dijkstra_get_visible_cells(from_cell, visibility_range)
+	for i in range(0, len(cells)):
+		cells[i].decrease_visibility_in_game()
 
 #endregion
 
@@ -597,9 +610,98 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int)
 	#Return false, indicating no path was found
 	return false
 
+func _dijkstra_get_visible_cells (from_cell: HexCell, vision_range: int) -> Array[HexCell]:
+	#Initialize an empty result list
+	var visible_cells: Array[HexCell] = []
+	
+	#Initialize the search frontier
+	_search_frontier_phase += 2
+	if (_search_frontier == null):
+		_search_frontier = HexCellPriorityQueue.new()
+	else:
+		_search_frontier.clear()
+	
+	from_cell.search_phase = _search_frontier_phase
+	from_cell.distance = 0
+	_search_frontier.enqueue(from_cell)
+	
+	#Iterate over the frontier
+	while (_search_frontier.count > 0):
+		#Get the next cell from the search frontier
+		var current: HexCell = _search_frontier.dequeue()
+		current.search_phase += 1
+		
+		#Add the current cell to the list of visible cells
+		visible_cells.append(current)
+		
+		#Iterate over each direction
+		for d in range(0, 6):
+			#Get the neighbor in the specified direction
+			var neighbor: HexCell = current.get_neighbor(d) as HexCell
+			
+			#Exit the loop if no neighbor exists, or if this is beyond the search phase
+			if (neighbor == null) or (neighbor.search_phase > _search_frontier_phase):
+				continue
+			
+			var distance: int = current.distance + 1
+			if (distance > vision_range):
+				continue
+			
+			if (neighbor.search_phase < _search_frontier_phase):
+				neighbor.search_phase = _search_frontier_phase
+				neighbor.distance = distance
+				neighbor.search_heuristic = 0
+				_search_frontier.enqueue(neighbor)
+			elif (distance < neighbor.distance):
+				var old_priority: int = neighbor.search_priority
+				neighbor.distance = distance
+				_search_frontier.change(neighbor, old_priority)
+	
+	return visible_cells
+
 func _clear_units () -> void:
 	for i in range(0, len(_units)):
 		_units[i].die()
 	_units.clear()
 
+#endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#region long_file_region
 #endregion

@@ -81,6 +81,8 @@ var shader_data: HexCellShaderData = null
 
 var index: int = 0
 
+var _visibility_in_game: int = 0
+
 #endregion
 
 #region Public properties
@@ -282,6 +284,10 @@ var distance: int:
 var search_priority: int:
 	get:
 		return (distance + search_heuristic)
+
+var is_visible_in_game: bool:
+	get:
+		return (_visibility_in_game > 0)
 
 #endregion
 
@@ -511,6 +517,18 @@ func disable_highlight () -> void:
 
 func set_label (text: String) -> void:
 	cell_information_label.text = text
+
+func increase_visibility_in_game () -> void:
+	_visibility_in_game += 1
+	
+	if (_visibility_in_game == 1):
+		shader_data.refresh_visibility(self)
+
+func decrease_visibility_in_game () -> void:
+	_visibility_in_game -= 1
+	
+	if (_visibility_in_game <= 0):
+		shader_data.refresh_visibility(self)
 
 #endregion
 

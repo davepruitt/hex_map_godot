@@ -51,6 +51,10 @@ func initialize (x: int, z: int) -> void:
 func refresh_terrain (cell: HexCell) -> void:
 	_cell_texture_data[cell.index].a = cell.terrain_type_index
 	_requires_update = true
+	
+func refresh_visibility (cell: HexCell) -> void:
+	_cell_texture_data[cell.index].r = int(cell.is_visible_in_game)
+	_requires_update = true
 
 func late_update () -> void:
 	if _requires_update:

@@ -3,15 +3,25 @@ extends Node3D
 
 #region Constants
 
-const _TRAVEL_SPEED: int = 4.0;
+const _TRAVEL_SPEED: int = 4
 
-const _ROTATION_SPEED: float = 5.0 #180.0
+const _ROTATION_SPEED: float = 5.0
+
+const _VISION_RANGE: int = 3
+
+#endregion
+
+#region Public data members
+
+var hex_grid: HexGrid
 
 #endregion
 
 #region Private data members
 
 var _location: HexCell
+
+var _current_travel_location: HexCell
 
 var _orientation: float
 
@@ -45,10 +55,24 @@ var location: HexCell:
 		return _location
 	set(value):
 		if(value):
+			#Check if there is a location previously set
 			if (_location):
+				#Decrease the visibility of the previous location as we leave that location
+				hex_grid.decrease_visibility_in_game(location, _VISION_RANGE)
+				
+				#Set the previous location's unit reference to null
 				_location.unit = null
+			
+			#Update the location to the new location
 			_location = value
+			
+			#Set the unit reference of the new location to be the current unit
 			value.unit = self
+			
+			#Increase the visibility of the new location
+			hex_grid.increase_visibility_in_game(value, _VISION_RANGE)
+			
+			#Set the position of the unit to be the position of the hex cell location
 			self.position = value.position
 
 var orientation: float:
@@ -63,12 +87,25 @@ var orientation: float:
 #region Methods
 
 func travel (path: Array[HexCell]) -> void:
+	#Unset the location's unit
+	location.unit = null
+	
+	#Set the location to be the end of the path to travel
 	location = path[len(path) - 1]
+	
+	#Set the location's unit to be this unit
+	location.unit = self
+	
+	#Set the path to travel
 	_path_to_travel = path
 	
+	#Travel the path
 	_travel_path()
 
 func die () -> void:
+	if (location):
+		hex_grid.decrease_visibility_in_game(location, _VISION_RANGE)
+	
 	location.unit = null
 	self.queue_free()
 
@@ -138,11 +175,24 @@ func _travel_path () -> void:
 	self.position = c
 	await _look_at(_path_to_travel[1].position)
 	
+	#Decrease the visibility of the initial cell after we have looked away from it
+	if (_current_travel_location != null):
+		hex_grid.decrease_visibility_in_game(_current_travel_location, _VISION_RANGE)
+	else:
+		hex_grid.decrease_visibility_in_game(_path_to_travel[0], _VISION_RANGE)
+	
 	var t: float = 0.01
 	for i in range(1, len(_path_to_travel)):
+		#Set the current travel location
+		_current_travel_location = _path_to_travel[i]
+		
+		#Get position information for the bezier curve generation
 		a = c
 		b = _path_to_travel[i - 1].position
-		c = (b + _path_to_travel[i].position) * 0.5
+		c = (b + _current_travel_location.position) * 0.5
+		
+		#Increase visibility of the path to travel cell
+		hex_grid.increase_visibility_in_game(_path_to_travel[i], _VISION_RANGE)
 		
 		while t < 1.0:
 			#Set the position
@@ -160,11 +210,22 @@ func _travel_path () -> void:
 			#Increment t by the amount of time that elapsed
 			t += elapsed_sec * _TRAVEL_SPEED
 		
-		t -= 1.0
+		#Decrease visibility of the path to travel cell
+		hex_grid.decrease_visibility_in_game(_path_to_travel[i], _VISION_RANGE)
 		
+		t -= 1.0
+	
+	#Unset the current travel location
+	_current_travel_location = null
+	
+	#Set the final bezier curve position information
 	a = c
-	b = _path_to_travel[len(_path_to_travel) - 1].position
+	b = location.position
 	c = b
+	
+	#Increase visibility of the end location
+	hex_grid.increase_visibility_in_game(location, _VISION_RANGE)
+	
 	while t < 1.0:
 		#Set the position
 		self.position = Bezier.get_point(a, b, c, t)
