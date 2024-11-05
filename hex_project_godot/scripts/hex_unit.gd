@@ -88,13 +88,13 @@ var orientation: float:
 
 func travel (path: Array[HexCell]) -> void:
 	#Unset the location's unit
-	location.unit = null
+	_location.unit = null
 	
 	#Set the location to be the end of the path to travel
-	location = path[len(path) - 1]
+	_location = path[len(path) - 1]
 	
 	#Set the location's unit to be this unit
-	location.unit = self
+	_location.unit = self
 	
 	#Set the path to travel
 	_path_to_travel = path
