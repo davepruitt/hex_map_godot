@@ -1,15 +1,23 @@
 shader_type spatial;
 
+#include "hex_cell_data.gdshaderinc"
 #include "water.gdshaderinc"
 
 uniform vec4 base_color : source_color;
 uniform sampler2D noise_texture;
 
 varying vec3 world_position;
+varying float visibility;
 
 void vertex()
 {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	
+	vec4 cell0 = GetCellData(CUSTOM0.xyz, 0);
+	vec4 cell1 = GetCellData(CUSTOM0.xyz, 1);
+	
+	visibility = (cell0.x * COLOR.x) + (cell1.x * COLOR.y);
+	visibility = mix(0.25, 1.0, visibility);
 }
 
 void fragment()
@@ -26,7 +34,7 @@ void fragment()
 
 	//vec4 c = vec4(UV2, 1, 1);
 	vec4 c = clamp(base_color + water, 0.0, 1.0);
-	ALBEDO = c.rgb;
+	ALBEDO = c.rgb * visibility;
 	ALPHA = c.a;
 }
 

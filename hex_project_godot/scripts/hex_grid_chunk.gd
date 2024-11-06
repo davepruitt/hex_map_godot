@@ -1014,7 +1014,7 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		center + HexMetrics.get_second_water_corner(direction)
 	)
 	
-	var indices: Vector3 = Vector3(cell.index, cell.index, cell.index)
+	var indices: Vector3 = Vector3(cell.index, neighbor.index, cell.index)
 	
 	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	w1.add_triangle_perturbed_vertices(center, e1.v1, e1.v2)
@@ -1044,26 +1044,30 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	)
 	
 	if (cell.has_river_through_edge(direction)):
-		_triangulate_estuary(e1, e2, cell.incoming_river_direction == direction)
+		_triangulate_estuary(e1, e2, cell.incoming_river_direction == direction, indices)
 	else:
 		var ws1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		ws1.add_quad_perturbed_vertices(e1.v1, e1.v2, e2.v1, e2.v2)
 		ws1.add_quad_uv1_floats(0, 0, 0, 1)
+		ws1.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_water_shore.commit_primitive(ws1)
 
 		var ws2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		ws2.add_quad_perturbed_vertices(e1.v2, e1.v3, e2.v2, e2.v3)
 		ws2.add_quad_uv1_floats(0, 0, 0, 1)
+		ws2.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_water_shore.commit_primitive(ws2)
 
 		var ws3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		ws3.add_quad_perturbed_vertices(e1.v3, e1.v4, e2.v3, e2.v4)
 		ws3.add_quad_uv1_floats(0, 0, 0, 1)
+		ws3.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_water_shore.commit_primitive(ws3)
 
 		var ws4: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		ws4.add_quad_perturbed_vertices(e1.v4, e1.v5, e2.v4, e2.v5)
 		ws4.add_quad_uv1_floats(0, 0, 0, 1)
+		ws4.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_water_shore.commit_primitive(ws4)
 		
 	var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
@@ -1078,10 +1082,13 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		var v_val: float = 1.0
 		if (next_neighbor.is_underwater):
 			v_val = 0.0
+			
+		indices.z = next_neighbor.index
 		
 		var ws_tri: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 		ws_tri.add_triangle_perturbed_vertices(e1.v5, e2.v5, v3)
 		ws_tri.add_triangle_uv1(Vector2(0, 0), Vector2(0, 1), Vector2(0, v_val))
+		ws_tri.add_triangle_cell_data(indices, splat_weights_1, splat_weights_2, splat_weights_3)
 		_water_shore.commit_primitive(ws_tri)
 
 func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
@@ -1106,15 +1113,17 @@ func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4:
 	r1.add_quad_uv1_floats(0, 1, 0.8, 1)
 	_rivers.commit_primitive(r1)
 
-func _triangulate_estuary (e1: EdgeVertices, e2: EdgeVertices, incoming_river: bool) -> void:
+func _triangulate_estuary (e1: EdgeVertices, e2: EdgeVertices, incoming_river: bool, indices: Vector3) -> void:
 	var ws1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	ws1.add_triangle_perturbed_vertices(e2.v1, e1.v2, e1.v1)
 	ws1.add_triangle_uv1(Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
+	ws1.add_triangle_cell_data(indices, splat_weights_2, splat_weights_1, splat_weights_1)
 	_water_shore.commit_primitive(ws1)
 
 	var ws2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	ws2.add_triangle_perturbed_vertices(e2.v5, e1.v5, e1.v4)
 	ws2.add_triangle_uv1(Vector2(0, 1), Vector2(0, 0), Vector2(0, 0))
+	ws2.add_triangle_cell_data(indices, splat_weights_2, splat_weights_1, splat_weights_1)
 	_water_shore.commit_primitive(ws2)
 	
 	if (incoming_river):
@@ -1122,36 +1131,42 @@ func _triangulate_estuary (e1: EdgeVertices, e2: EdgeVertices, incoming_river: b
 		est1.add_quad_perturbed_vertices(e2.v1, e1.v2, e2.v2, e1.v3)
 		est1.add_quad_uv1_vectors(Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0))
 		est1.add_quad_uv2_vectors(Vector2(1.5, 1), Vector2(0.7, 1.15), Vector2(1, 0.8), Vector2(0.5, 1.1))
+		est1.add_quad_cell_data(indices, splat_weights_2, splat_weights_1, splat_weights_2, splat_weights_1)
 		_estuaries.commit_primitive(est1)
 
 		var est2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 		est2.add_triangle_perturbed_vertices(e1.v3, e2.v2, e2.v4)
 		est2.add_triangle_uv1(Vector2(0, 0), Vector2(1, 1), Vector2(1, 1))
 		est2.add_triangle_uv2(Vector2(0.5, 1.1), Vector2(1, 0.8), Vector2(0, 0.8))
+		est2.add_triangle_cell_data(indices, splat_weights_1, splat_weights_2, splat_weights_2)
 		_estuaries.commit_primitive(est2)
 		
 		var est3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		est3.add_quad_perturbed_vertices(e1.v3, e1.v4, e2.v4, e2.v5)
 		est3.add_quad_uv1_vectors(Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1))
 		est3.add_quad_uv2_vectors(Vector2(0.5, 1.1), Vector2(0.3, 1.15), Vector2(0, 0.8), Vector2(-0.5, 1))
+		est3.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_estuaries.commit_primitive(est3)
 	else:
 		var est1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		est1.add_quad_perturbed_vertices(e2.v1, e1.v2, e2.v2, e1.v3)
 		est1.add_quad_uv1_vectors(Vector2(0, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 0))
 		est1.add_quad_uv2_vectors(Vector2(-0.5, -0.2), Vector2(0.3, -0.35), Vector2(0, 0), Vector2(0.5, -0.3))
+		est1.add_quad_cell_data(indices, splat_weights_2, splat_weights_1, splat_weights_2, splat_weights_1)
 		_estuaries.commit_primitive(est1)
 		
 		var est2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 		est2.add_triangle_perturbed_vertices(e1.v3, e2.v2, e2.v4)
 		est2.add_triangle_uv1(Vector2(0, 0), Vector2(1, 1), Vector2(1, 1))
 		est2.add_triangle_uv2(Vector2(0.5, -0.3), Vector2(0, 0), Vector2(1, 0))
+		est2.add_triangle_cell_data(indices, splat_weights_1, splat_weights_2, splat_weights_2)
 		_estuaries.commit_primitive(est2)
 		
 		var est3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		est3.add_quad_perturbed_vertices(e1.v3, e1.v4, e2.v4, e2.v5)
 		est3.add_quad_uv1_vectors(Vector2(0, 0), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1))
 		est3.add_quad_uv2_vectors(Vector2(0.5, -0.3), Vector2(0.7, -0.35), Vector2(1, 0), Vector2(1.5, -0.2))
+		est3.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_estuaries.commit_primitive(est3)
 	
 
