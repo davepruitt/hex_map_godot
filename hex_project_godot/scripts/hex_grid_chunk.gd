@@ -271,7 +271,8 @@ func _triangulate_with_river_begin_or_end (
 	#Triangulate the river quads
 	if (not cell.is_underwater):
 		var reversed: bool = cell.has_incoming_river
-		_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
+		var indices: Vector3 = Vector3(cell.index, cell.index, cell.index)
+		_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed, indices)
 		
 		center.y = cell.river_surface_y
 		m.v2.y = cell.river_surface_y
@@ -284,6 +285,7 @@ func _triangulate_with_river_begin_or_end (
 			var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 			r1.add_triangle_perturbed_vertices(center, m.v2, m.v4)
 			r1.add_triangle_uv1(uv1, uv2, uv3)
+			r1.add_triangle_cell_data_uniform(indices, splat_weights_1)
 			_rivers.commit_primitive(r1)
 		else:
 			var uv1: Vector2 = Vector2(0.5, 0.4)
@@ -293,6 +295,7 @@ func _triangulate_with_river_begin_or_end (
 			var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 			r1.add_triangle_perturbed_vertices(center, m.v2, m.v4)
 			r1.add_triangle_uv1(uv1, uv2, uv3)
+			r1.add_triangle_cell_data_uniform(indices, splat_weights_1)
 			_rivers.commit_primitive(r1)
 
 func _triangulate_with_river (
@@ -370,8 +373,8 @@ func _triangulate_with_river (
 	#Form the river quads
 	if (not cell.is_underwater):
 		var reversed: bool = (cell.incoming_river_direction == direction)
-		_triangulate_river_quad_1(center_l, center_r, m.v2, m.v4, cell.river_surface_y, 0.4, reversed)
-		_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed)
+		_triangulate_river_quad_1(center_l, center_r, m.v2, m.v4, cell.river_surface_y, 0.4, reversed, indices)
+		_triangulate_river_quad_1(m.v2, m.v4, e.v2, e.v4, cell.river_surface_y, 0.6, reversed, indices)
 
 func _triangulate_adjacent_to_river (
 	direction: HexDirectionsClass.HexDirections, cell: HexCell,
@@ -432,19 +435,21 @@ func _triangulate_connection (
 	if (has_river):
 		e2.v3.y = neighbor_cell.stream_bed_y
 		
+		var indices: Vector3 = Vector3(cell.index, neighbor_cell.index, cell.index)
+		
 		if (not cell.is_underwater):
 			if (not neighbor_cell.is_underwater):
 				var reversed: bool = (cell.has_incoming_river and (cell.incoming_river_direction == direction))
 				_triangulate_river_quad_2(e1.v2, e1.v4, e2.v2, e2.v4,
 					cell.river_surface_y, neighbor_cell.river_surface_y,
-					0.8, reversed)
+					0.8, reversed, indices)
 			elif (cell.elevation > neighbor_cell.water_level):
 				_triangulate_waterfall_in_water(e1.v2, e1.v4, e2.v2, e2.v4,
 					cell.river_surface_y, neighbor_cell.river_surface_y,
-					neighbor_cell.water_surface_y)
+					neighbor_cell.water_surface_y, indices)
 		elif (not neighbor_cell.is_underwater) and (neighbor_cell.elevation > cell.water_level):
 			_triangulate_waterfall_in_water(e2.v4, e2.v2, e1.v4, e1.v2, 
-				neighbor_cell.river_surface_y, cell.river_surface_y, cell.water_surface_y)
+				neighbor_cell.river_surface_y, cell.river_surface_y, cell.water_surface_y, indices)
 	
 	if (cell.get_edge_type_from_direction(direction) == Enums.HexEdgeType.Slope):
 		_triangulate_edge_terraces(e1, cell, e2, neighbor_cell, has_road)
@@ -734,14 +739,16 @@ func _triangulate_edge_strip (
 
 func _triangulate_river_quad_1 (v1: Vector3, v2: Vector3, 
 	v3: Vector3, v4: Vector3, 
-	y1: float, v: float, reversed: bool
+	y1: float, v: float, 
+	reversed: bool, indices: Vector3
 ) -> void:
 	
-	_triangulate_river_quad_2(v1, v2, v3, v4, y1, y1, v, reversed)
+	_triangulate_river_quad_2(v1, v2, v3, v4, y1, y1, v, reversed, indices)
 
 func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3, 
 	v3: Vector3, v4: Vector3, 
-	y1: float, y2: float, v: float, reversed: bool
+	y1: float, y2: float, v: float, 
+	reversed: bool, indices: Vector3
 ) -> void:
 	v1.y = y1
 	v2.y = y1
@@ -753,11 +760,13 @@ func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3,
 		var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		r1.add_quad_perturbed_vertices(v1, v2, v3, v4)
 		r1.add_quad_uv1_floats(1, 0, 0.8 - v, 0.6 - v)
+		r1.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_rivers.commit_primitive(r1)
 	else:
 		var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		r1.add_quad_perturbed_vertices(v1, v2, v3, v4)
 		r1.add_quad_uv1_floats(0, 1, v, v + 0.2)
+		r1.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_rivers.commit_primitive(r1)
 
 func _triangulate_road_segment (v1: Vector3, v2: Vector3, v3: Vector3,
@@ -1092,7 +1101,7 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		_water_shore.commit_primitive(ws_tri)
 
 func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
-	y1: float, y2: float, water_y: float) -> void:
+	y1: float, y2: float, water_y: float, indices: Vector3) -> void:
 	
 	v1.y = y1
 	v2.y = y1
@@ -1111,6 +1120,7 @@ func _triangulate_waterfall_in_water (v1: Vector3, v2: Vector3, v3: Vector3, v4:
 	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	r1.add_quad_unperturbed_vertices(v1, v2, v3, v4)
 	r1.add_quad_uv1_floats(0, 1, 0.8, 1)
+	r1.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 	_rivers.commit_primitive(r1)
 
 func _triangulate_estuary (e1: EdgeVertices, e2: EdgeVertices, incoming_river: bool, indices: Vector3) -> void:
