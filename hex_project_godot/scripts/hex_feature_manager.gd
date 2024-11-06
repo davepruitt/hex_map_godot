@@ -134,6 +134,7 @@ func add_feature (cell: HexCell, pos: Vector3) -> void:
 	var feature: MeshInstance3D = MeshInstance3D.new()
 	feature.mesh = prefab
 	feature.position = HexMetrics.perturb(pos)
+	feature.set_instance_shader_parameter("_index", float(cell.index))
 	
 	#Increase the height so the entire feature is above-ground
 	var feature_height = feature.mesh.get_aabb().size.y
@@ -156,18 +157,18 @@ func add_wall (near: EdgeVertices, near_cell: HexCell,
 		(near_cell.get_edge_type_from_other_cell(far_cell) != Enums.HexEdgeType.Cliff)):
 		
 		#First wall segment
-		_add_wall_segment(near.v1, far.v1, near.v2, far.v2)
+		_add_wall_segment(near_cell, near.v1, far.v1, near.v2, far.v2)
 		
 		if (has_river or has_road):
-			_add_wall_cap(near.v2, far.v2)
-			_add_wall_cap(far.v4, near.v4)
+			_add_wall_cap(near_cell, near.v2, far.v2)
+			_add_wall_cap(near_cell, far.v4, near.v4)
 		else:
 			#Add these wall segments if no river or road
-			_add_wall_segment(near.v2, far.v2, near.v3, far.v3)
-			_add_wall_segment(near.v3, far.v3, near.v4, far.v4)
+			_add_wall_segment(near_cell, near.v2, far.v2, near.v3, far.v3)
+			_add_wall_segment(near_cell, near.v3, far.v3, near.v4, far.v4)
 			
 		#Last wall segment
-		_add_wall_segment(near.v4, far.v4, near.v5, far.v5)
+		_add_wall_segment(near_cell, near.v4, far.v4, near.v5, far.v5)
 
 func add_wall_three_cells (c1: Vector3, cell1: HexCell, 
 	c2: Vector3, cell2: HexCell,
@@ -190,7 +191,7 @@ func add_wall_three_cells (c1: Vector3, cell1: HexCell,
 		_add_wall_segment_with_pivot(c3, cell3, c1, cell1, c2, cell2)
 	
 
-func add_bridge (road_center_1: Vector3, road_center_2: Vector3) -> void:
+func add_bridge (cell: HexCell, road_center_1: Vector3, road_center_2: Vector3) -> void:
 	road_center_1 = HexMetrics.perturb(road_center_1)
 	road_center_2 = HexMetrics.perturb(road_center_2)
 	
@@ -205,6 +206,13 @@ func add_bridge (road_center_1: Vector3, road_center_2: Vector3) -> void:
 	bridge_instance.position = (road_center_1 + road_center_2) * 0.5
 	bridge_instance.quaternion = Quaternion(bridge_instance.global_transform.basis.z, road_center_2 - road_center_1)
 	
+	#Set the cell index on each child of the feature's primary Node3D object
+	for N in bridge_instance.get_children():
+		for Nc in N.get_children():
+			var N_geom3d: GeometryInstance3D = Nc as GeometryInstance3D
+			if (N_geom3d != null):
+				N_geom3d.set_instance_shader_parameter("_index", float(cell.index))
+	
 	var bridge_length: float = road_center_1.distance_to(road_center_2)
 	bridge_instance.scale = Vector3(1.0, 1.0, bridge_length * (1.0 / HexMetrics.BRIDGE_DESIGN_LENGTH))
 	
@@ -216,6 +224,12 @@ func add_special_feature (cell: HexCell, pos: Vector3) -> void:
 	
 	#Give it a position
 	instance.position = HexMetrics.perturb(pos)
+	
+	#Set the cell index on each child of the feature's primary Node3D object
+	for N in instance.get_children():
+		var N_geom3d: GeometryInstance3D = N as GeometryInstance3D
+		if (N_geom3d != null):
+			N_geom3d.set_instance_shader_parameter("_index", float(cell.index))
 	
 	#Give it an orientation
 	var hash: HexHash = HexMetrics.sample_hash_grid(pos)
@@ -256,18 +270,18 @@ func _add_wall_segment_with_pivot (
 				var hash: HexHash = HexMetrics.sample_hash_grid((pivot + left + right) / (1.0 / 3.0))
 				has_tower = (hash.e < HexMetrics.WALL_TOWER_THRESHOLD)
 			
-			_add_wall_segment(pivot, left, pivot, right, has_tower)
+			_add_wall_segment(pivot_cell, pivot, left, pivot, right, has_tower)
 		elif (left_cell.elevation < right_cell.elevation):
-			_add_wall_wedge(pivot, left, right)
+			_add_wall_wedge(pivot_cell, pivot, left, right)
 		else:
-			_add_wall_cap(pivot, left)
+			_add_wall_cap(pivot_cell, pivot, left)
 	elif (has_right_wall):
 		if (right_cell.elevation < left_cell.elevation):
-			_add_wall_wedge(right, pivot, left)
+			_add_wall_wedge(pivot_cell, right, pivot, left)
 		else:
-			_add_wall_cap(right, pivot)
+			_add_wall_cap(pivot_cell, right, pivot)
 
-func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vector3, far_right: Vector3, 
+func _add_wall_segment (cell: HexCell, near_left: Vector3, far_left: Vector3, near_right: Vector3, far_right: Vector3, 
 	add_tower: bool = false) -> void:
 	
 	#Perturb the vertices
@@ -292,8 +306,11 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	v3.y = left_top
 	v4.y = right_top
 	
+	var indices: Vector3 = Vector3(cell.index, cell.index, cell.index)
+	
 	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	w1.add_quad_unperturbed_vertices(v1, v2, v3, v4)
+	w1.add_quad_cell_data_unified(indices, Color.BLACK)
 	walls.commit_primitive(w1)
 	
 	#Wall top
@@ -310,15 +327,23 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 	
 	var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	w2.add_quad_unperturbed_vertices(v2, v1, v4, v3)
+	w2.add_quad_cell_data_unified(indices, Color.BLACK)
 	walls.commit_primitive(w2)
 	
 	var w3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	w3.add_quad_unperturbed_vertices(t1, t2, v3, v4)
+	w3.add_quad_cell_data_unified(indices, Color.BLACK)
 	walls.commit_primitive(w3)
 	
 	if (add_tower):
 		var tower_instance: Node3D = wall_tower_prefab.instantiate() as Node3D
 		tower_instance.position = (left + right) * 0.5
+		
+		#Set the cell index on each child of the feature's primary Node3D object
+		for N in tower_instance.get_children():
+			var N_geom3d: GeometryInstance3D = N as GeometryInstance3D
+			if (N_geom3d != null):
+				N_geom3d.set_instance_shader_parameter("_index", float(cell.index))
 		
 		var right_direction: Vector3 = right - left
 		right_direction.y = 0
@@ -326,7 +351,7 @@ func _add_wall_segment (near_left: Vector3, far_left: Vector3, near_right: Vecto
 		
 		add_child(tower_instance)
 
-func _add_wall_cap (near: Vector3, far: Vector3) -> void:
+func _add_wall_cap (cell: HexCell, near: Vector3, far: Vector3) -> void:
 	near = HexMetrics.perturb(near)
 	far = HexMetrics.perturb(far)
 	
@@ -346,11 +371,14 @@ func _add_wall_cap (near: Vector3, far: Vector3) -> void:
 	v3.y = center.y + HexMetrics.WALL_HEIGHT
 	v4.y = v3.y
 	
+	var indices: Vector3 = Vector3(cell.index, cell.index, cell.index)
+	
 	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	w1.add_quad_unperturbed_vertices(v1, v2, v3, v4)
+	w1.add_quad_cell_data_unified(indices, Color.BLACK)
 	walls.commit_primitive(w1)
 
-func _add_wall_wedge (near: Vector3, far: Vector3, point: Vector3) -> void:
+func _add_wall_wedge (cell: HexCell, near: Vector3, far: Vector3, point: Vector3) -> void:
 	near = HexMetrics.perturb(near)
 	far = HexMetrics.perturb(far)
 	point = HexMetrics.perturb(point)
@@ -375,16 +403,21 @@ func _add_wall_wedge (near: Vector3, far: Vector3, point: Vector3) -> void:
 	v4.y = v3.y
 	point_top.y = v3.y
 	
+	var indices: Vector3 = Vector3(cell.index, cell.index, cell.index)
+	
 	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	w1.add_quad_unperturbed_vertices(v1, point, v3, point_top)
+	w1.add_quad_cell_data_unified(indices, Color.BLACK)
 	walls.commit_primitive(w1)
 
 	var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	w2.add_quad_unperturbed_vertices(point, v2, point_top, v4)
+	w2.add_quad_cell_data_unified(indices, Color.BLACK)
 	walls.commit_primitive(w2)
 	
 	var w3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	w3.add_triangle_unperturbed_vertices(point_top, v3, v4)
+	w3.add_triangle_cell_data_uniform(indices, Color.BLACK)
 	walls.commit_primitive(w3)
 
 #endregion

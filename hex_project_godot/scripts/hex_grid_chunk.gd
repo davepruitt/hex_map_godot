@@ -29,7 +29,7 @@ var _road_shader_material: ShaderMaterial
 var _water_shader_material: ShaderMaterial
 var _water_shore_shader_material: ShaderMaterial
 var _estuaries_shader_material: ShaderMaterial
-var _walls_material: StandardMaterial3D
+var _walls_material: ShaderMaterial
 
 #endregion
 
@@ -94,7 +94,7 @@ func set_estuaries_mesh_material (mat: ShaderMaterial) -> void:
 	_estuaries_shader_material = mat
 	_estuaries_shader_material.set_render_priority(1)
 
-func set_walls_mesh_material (mat: StandardMaterial3D) -> void:
+func set_walls_mesh_material (mat: ShaderMaterial) -> void:
 	_walls_material = mat
 
 func request_refresh () -> void:
@@ -166,6 +166,7 @@ func _triangulate_cells () -> void:
 	_features.walls.use_uv_coordinates = false
 	_features.walls.use_uv2_coordinates = false
 	_features.walls.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	_features.walls.use_cell_data = true
 	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
@@ -889,7 +890,7 @@ func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirec
 			)
 		):
 			
-			_features.add_bridge(road_center, center - (corner * 0.5))
+			_features.add_bridge(cell, road_center, center - (corner * 0.5))
 		
 		center += corner * 0.25
 	elif (cell.incoming_river_direction == HexDirectionsClass.previous(cell.outgoing_river_direction)):
@@ -923,7 +924,7 @@ func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirec
 		road_center += offset * 0.25
 		
 		if (direction == middle) and (cell.has_road_through_edge(HexDirectionsClass.opposite(direction))):
-			_features.add_bridge(road_center, center - offset * (HexMetrics.INNER_TO_OUTER * 0.7))
+			_features.add_bridge(cell, road_center, center - offset * (HexMetrics.INNER_TO_OUTER * 0.7))
 		
 	
 	var mL: Vector3 = road_center.lerp(e.v1, interpolators.x)

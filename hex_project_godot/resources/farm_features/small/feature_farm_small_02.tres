@@ -1,7 +1,7 @@
 [gd_resource type="BoxMesh" load_steps=2 format=3 uid="uid://bdiqbi7pxd47i"]
 
-[ext_resource type="Material" uid="uid://qlvxmnnju5ty" path="res://resources/farm_features/farm_material.tres" id="1_ea02r"]
+[ext_resource type="Material" uid="uid://qomnw4uofjg4" path="res://resources/farm_features/farm_shader_material.tres" id="1_aiw87"]
 
 [resource]
-material = ExtResource("1_ea02r")
+material = ExtResource("1_aiw87")
 size = Vector3(1.5, 0.1, 0.75)

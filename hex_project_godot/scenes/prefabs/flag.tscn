@@ -1,19 +1,15 @@
-[gd_scene load_steps=5 format=3 uid="uid://c4iw74q8wbu6f"]
+[gd_scene load_steps=4 format=3 uid="uid://c4iw74q8wbu6f"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_46sc4"]
-albedo_color = Color(0.843184, 0.843184, 0.843184, 1)
+[ext_resource type="Material" uid="uid://crqu67hbnmjg2" path="res://resources/urban_features/urban_shader_material.tres" id="1_htbg8"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_i73pj"]
-material = SubResource("StandardMaterial3D_46sc4")
+material = ExtResource("1_htbg8")
 top_radius = 0.25
 bottom_radius = 0.25
 height = 4.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y1nf"]
-albedo_color = Color(1, 0, 0, 1)
-
 [sub_resource type="PrismMesh" id="PrismMesh_qqpmp"]
-material = SubResource("StandardMaterial3D_5y1nf")
+material = ExtResource("1_htbg8")
 size = Vector3(2, 2.5, 0.5)
 
 [node name="Flag" type="Node3D"]

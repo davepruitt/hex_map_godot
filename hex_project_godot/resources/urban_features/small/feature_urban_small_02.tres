@@ -1,7 +1,7 @@
 [gd_resource type="BoxMesh" load_steps=2 format=3 uid="uid://c7ydl35j6236e"]
 
-[ext_resource type="Material" uid="uid://cg7r03ilrwfg4" path="res://resources/urban_features/urban_material.tres" id="1_qcvhr"]
+[ext_resource type="Material" uid="uid://crqu67hbnmjg2" path="res://resources/urban_features/urban_shader_material.tres" id="1_2b1ul"]
 
 [resource]
-material = ExtResource("1_qcvhr")
+material = ExtResource("1_2b1ul")
 size = Vector3(1.75, 1, 1)

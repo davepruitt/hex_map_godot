@@ -1,33 +1,33 @@
 [gd_scene load_steps=9 format=3 uid="uid://b2fdxh6j02qk0"]
 
-[ext_resource type="Material" uid="uid://ct84lia5g456p" path="res://resources/plant_features/plant_material.tres" id="1_qr38k"]
+[ext_resource type="Material" uid="uid://dut26j1c0x5ic" path="res://resources/plant_features/plant_shader_material.tres" id="1_xesb8"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_70ujk"]
-material = ExtResource("1_qr38k")
+material = ExtResource("1_xesb8")
 size = Vector3(3, 10, 3)
 
 [sub_resource type="BoxMesh" id="BoxMesh_6vl4g"]
-material = ExtResource("1_qr38k")
+material = ExtResource("1_xesb8")
 size = Vector3(2, 8, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_nrjv2"]
-material = ExtResource("1_qr38k")
+material = ExtResource("1_xesb8")
 size = Vector3(3, 6, 3)
 
 [sub_resource type="BoxMesh" id="BoxMesh_3rwq4"]
-material = ExtResource("1_qr38k")
+material = ExtResource("1_xesb8")
 size = Vector3(3, 4, 3)
 
 [sub_resource type="BoxMesh" id="BoxMesh_64hnn"]
-material = ExtResource("1_qr38k")
+material = ExtResource("1_xesb8")
 size = Vector3(2, 3, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_u58fv"]
-material = ExtResource("1_qr38k")
+material = ExtResource("1_xesb8")
 size = Vector3(1.5, 7, 1.5)
 
 [sub_resource type="BoxMesh" id="BoxMesh_w1oaf"]
-material = ExtResource("1_qr38k")
+material = ExtResource("1_xesb8")
 size = Vector3(1.5, 4, 1.5)
 
 [node name="Megaflora" type="Node3D"]

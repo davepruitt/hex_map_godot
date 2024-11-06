@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://b0jwbdlrgt1g2"]
+[gd_scene load_steps=18 format=3 uid="uid://b0jwbdlrgt1g2"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_sv3ps"]
 [ext_resource type="Script" path="res://scripts/hex_map_camera.gd" id="2_roenc"]
@@ -12,6 +12,7 @@
 [ext_resource type="Shader" path="res://shaders/hex_cell_terrain_shader.gdshader" id="11_c2ox1"]
 [ext_resource type="Texture2D" uid="uid://ca20grb2upor5" path="res://assets/grid.png" id="12_gv3gu"]
 [ext_resource type="CompressedTexture2DArray" uid="uid://bktbwtk345agh" path="res://assets/terrain.png" id="12_lmpao"]
+[ext_resource type="Shader" path="res://shaders/wall_shader.gdshader" id="13_hgmmo"]
 [ext_resource type="PackedScene" uid="uid://dstaybgovslw2" path="res://scenes/hex_map_editor_ui.tscn" id="14_ll164"]
 [ext_resource type="PackedScene" uid="uid://gucv0pvo4683" path="res://scenes/hex_game_ui.tscn" id="15_ohjg2"]
 
@@ -21,6 +22,11 @@ shader = ExtResource("11_c2ox1")
 shader_parameter/grid_on = false
 shader_parameter/terrain_texture_2d_array = ExtResource("12_lmpao")
 shader_parameter/grid_texture = ExtResource("12_gv3gu")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_36krm"]
+render_priority = 0
+shader = ExtResource("13_hgmmo")
+shader_parameter/color = Color(1, 0, 0, 1)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_sv3ps")
@@ -53,6 +59,7 @@ hex_textures = Array[Texture2D]([ExtResource("5_cf5ki"), ExtResource("6_tasjk"),
 cell_count_x = 20
 cell_count_z = 15
 textured_terrain_shader_material = SubResource("ShaderMaterial_gdj22")
+walls_material = SubResource("ShaderMaterial_36krm")
 
 [node name="UI" type="Node3D" parent="."]
 

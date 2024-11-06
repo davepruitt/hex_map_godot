@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dut26j1c0x5ic"]
+
+[ext_resource type="Shader" path="res://shaders/feature_shader.gdshader" id="1_dtd51"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_dtd51")
+shader_parameter/color = Color(0.176471, 0.580392, 0.12549, 1)

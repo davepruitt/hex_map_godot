@@ -45,7 +45,7 @@ extends Node3D
 @export var estuaries_shader_material: ShaderMaterial
 
 ## This is the default material for walls
-@export var walls_material: StandardMaterial3D
+@export var walls_material: ShaderMaterial
 
 #endregion
 

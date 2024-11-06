@@ -9,6 +9,7 @@
 [ext_resource type="Shader" path="res://shaders/water_shader.gdshader" id="7_vp3mt"]
 [ext_resource type="Shader" path="res://shaders/water_shore_shader.gdshader" id="8_vthjl"]
 [ext_resource type="Shader" path="res://shaders/estuaries_shader.gdshader" id="9_4roe3"]
+[ext_resource type="Material" uid="uid://crqu67hbnmjg2" path="res://resources/urban_features/urban_shader_material.tres" id="10_tl11e"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6crjs"]
 render_priority = 0
@@ -40,16 +41,17 @@ shader = ExtResource("9_4roe3")
 shader_parameter/base_color = Color(0.243137, 0.470588, 1, 0.658824)
 shader_parameter/noise_texture = ExtResource("5_cm4mn")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vab8m"]
-albedo_color = Color(1, 0, 0, 1)
-
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
 unit_prefab = ExtResource("2_od4dn")
+hex_colors = null
+hex_textures = null
+cell_count_x = null
+cell_count_z = null
 hex_cell_prefab = ExtResource("2_ud45i")
 river_shader_material = SubResource("ShaderMaterial_6crjs")
 road_shader_material = SubResource("ShaderMaterial_lf52a")
 water_shader_material = SubResource("ShaderMaterial_q2oyx")
 water_shore_shader_material = SubResource("ShaderMaterial_wcv8b")
 estuaries_shader_material = SubResource("ShaderMaterial_ar328")
-walls_material = SubResource("StandardMaterial3D_vab8m")
+walls_material = ExtResource("10_tl11e")

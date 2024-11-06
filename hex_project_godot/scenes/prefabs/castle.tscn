@@ -1,25 +1,25 @@
 [gd_scene load_steps=7 format=3 uid="uid://k3ndxbyn70jl"]
 
-[ext_resource type="Material" uid="uid://cg7r03ilrwfg4" path="res://resources/urban_features/urban_material.tres" id="1_qmk23"]
+[ext_resource type="Material" uid="uid://crqu67hbnmjg2" path="res://resources/urban_features/urban_shader_material.tres" id="1_lwptv"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_xkt5f"]
-material = ExtResource("1_qmk23")
+material = ExtResource("1_lwptv")
 size = Vector3(6, 4, 6)
 
 [sub_resource type="BoxMesh" id="BoxMesh_kmjgj"]
-material = ExtResource("1_qmk23")
+material = ExtResource("1_lwptv")
 size = Vector3(2, 6, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_le3q8"]
-material = ExtResource("1_qmk23")
+material = ExtResource("1_lwptv")
 size = Vector3(2, 6, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_p1v8l"]
-material = ExtResource("1_qmk23")
+material = ExtResource("1_lwptv")
 size = Vector3(2, 6, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_hjjd3"]
-material = ExtResource("1_qmk23")
+material = ExtResource("1_lwptv")
 size = Vector3(2, 6, 2)
 
 [node name="Castle" type="Node3D"]

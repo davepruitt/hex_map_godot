@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://crqu67hbnmjg2"]
+
+[ext_resource type="Shader" path="res://shaders/feature_shader.gdshader" id="1_wsb1j"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_wsb1j")
+shader_parameter/color = Color(1, 0, 0, 1)
