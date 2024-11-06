@@ -122,6 +122,7 @@ func _triangulate_cells () -> void:
 	_rivers.use_collider = false
 	_rivers.use_uv_coordinates = true
 	_rivers.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_rivers.use_cell_data = true
 	
 	#Begin creation of the roads mesh
 	_roads.begin()
@@ -129,6 +130,7 @@ func _triangulate_cells () -> void:
 	_roads.use_uv_coordinates = true
 	_roads.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_roads.set_sorting_offset(10.0)
+	_roads.use_cell_data = true
 	
 	#Begin creation of the water mesh
 	_water.begin()
@@ -136,6 +138,7 @@ func _triangulate_cells () -> void:
 	_water.use_uv_coordinates = true
 	_water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_water.set_sorting_offset(10.0)
+	_water.use_cell_data = true
 	
 	#Begin creation of the shore water mesh
 	_water_shore.begin()
@@ -143,6 +146,7 @@ func _triangulate_cells () -> void:
 	_water_shore.use_uv_coordinates = true
 	_water_shore.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_water_shore.set_sorting_offset(10.0)
+	_water_shore.use_cell_data = true
 	
 	#Begin creation of the estuaries water mesh
 	_estuaries.begin()
@@ -151,6 +155,7 @@ func _triangulate_cells () -> void:
 	_estuaries.use_uv2_coordinates = true
 	_estuaries.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_estuaries.set_sorting_offset(10.0)
+	_estuaries.use_cell_data = true
 	
 	#Clear the features for the hex grid chunk
 	_features.clear()
@@ -724,7 +729,8 @@ func _triangulate_edge_strip (
 	
 	if (has_road):
 		_triangulate_road_segment(e1.v2, e1.v3, e1.v4, 
-			e2.v2, e2.v3, e2.v4)
+			e2.v2, e2.v3, e2.v4, 
+			w1, w2, indices)
 
 func _triangulate_river_quad_1 (v1: Vector3, v2: Vector3, 
 	v3: Vector3, v4: Vector3, 
@@ -755,8 +761,9 @@ func _triangulate_river_quad_2 (v1: Vector3, v2: Vector3,
 		_rivers.commit_primitive(r1)
 
 func _triangulate_road_segment (v1: Vector3, v2: Vector3, v3: Vector3,
-	v4: Vector3, v5: Vector3, v6: Vector3) -> void:
+	v4: Vector3, v5: Vector3, v6: Vector3, w1: Color, w2: Color, indices: Vector3) -> void:
 	
+	#Raise the height of the road just a little bit above the terrain
 	v1.y += 0.01;
 	v2.y += 0.01;
 	v3.y += 0.01;
@@ -767,19 +774,23 @@ func _triangulate_road_segment (v1: Vector3, v2: Vector3, v3: Vector3,
 	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	r1.add_quad_perturbed_vertices(v1, v2, v4, v5)
 	r1.add_quad_uv1_floats(0, 1, 0, 0)
+	r1.add_quad_cell_data_dual(indices, w1, w2)
 	_roads.commit_primitive(r1)
 
 	var r2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 	r2.add_quad_perturbed_vertices(v2, v3, v5, v6)
 	r2.add_quad_uv1_floats(1, 0, 0, 0)
+	r2.add_quad_cell_data_dual(indices, w1, w2)
 	_roads.commit_primitive(r2)
 
 func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertices,
-	has_road_through_cell_edge: bool) -> void:
+	has_road_through_cell_edge: bool, index: float) -> void:
 	
 	if (has_road_through_cell_edge):
+		var indices: Vector3 = Vector3(index, index, index)
+		
 		var mC: Vector3 = mL.lerp(mR, 0.5)
-		_triangulate_road_segment(mL, mC, mR, e.v2, e.v3, e.v4)
+		_triangulate_road_segment(mL, mC, mR, e.v2, e.v3, e.v4, splat_weights_1, splat_weights_1, indices)
 		
 		#Raise the road from the terrain slightly
 		center.y += 0.1;
@@ -791,15 +802,17 @@ func _triangulate_road (center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertic
 		var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 		r1.add_triangle_perturbed_vertices(center, mL, mC)
 		r1.add_triangle_uv1(Vector2(1, 0), Vector2(0, 0), Vector2(1, 0))
+		r1.add_triangle_cell_data_uniform(indices, splat_weights_1)
 		_roads.commit_primitive(r1)
 		
 		var r2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 		r2.add_triangle_perturbed_vertices(center, mC, mR)
 		r2.add_triangle_uv1(Vector2(1, 0), Vector2(1, 0), Vector2(0, 0))
+		r2.add_triangle_cell_data_uniform(indices, splat_weights_1)
 		_roads.commit_primitive(r2)
 
 	else:
-		_triangulate_road_edge(center, mL, mR)
+		_triangulate_road_edge(center, mL, mR, index)
 
 func _triangulate_without_river (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell, center: Vector3, e: EdgeVertices) -> void:
@@ -813,17 +826,21 @@ func _triangulate_without_river (direction: HexDirectionsClass.HexDirections,
 			center.lerp(e.v1, interpolators.x),
 			center.lerp(e.v5, interpolators.y),
 			e,
-			cell.has_road_through_edge(direction))
+			cell.has_road_through_edge(direction),
+			cell.index)
 
-func _triangulate_road_edge (center: Vector3, mL: Vector3, mR: Vector3) -> void:
+func _triangulate_road_edge (center: Vector3, mL: Vector3, mR: Vector3, index: float) -> void:
 	#Raise the road from the terrain slightly
 	center.y += 0.1;
 	mR.y += 0.1;
 	mL.y += 0.1;
 	
+	var indices: Vector3 = Vector3(index, index, index)
+	
 	var r1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	r1.add_triangle_perturbed_vertices(center, mL, mR)
 	r1.add_triangle_uv1(Vector2(1, 0), Vector2(0, 0), Vector2(0, 0))
+	r1.add_triangle_cell_data_uniform(indices, splat_weights_1)
 	_roads.commit_primitive(r1)
 
 func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirections,
@@ -903,15 +920,15 @@ func _triangulate_road_adjacent_to_river (direction: HexDirectionsClass.HexDirec
 	var mL: Vector3 = road_center.lerp(e.v1, interpolators.x)
 	var mR: Vector3 = road_center.lerp(e.v5, interpolators.y)
 	
-	_triangulate_road(road_center, mL, mR, e, has_road_through_edge)
+	_triangulate_road(road_center, mL, mR, e, has_road_through_edge, cell.index)
 	
 	var previous_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.previous(direction)
 	var next_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.next(direction)
 	
 	if (previous_has_river):
-		_triangulate_road_edge(road_center, center, mL)
+		_triangulate_road_edge(road_center, center, mL, cell.index)
 	if (next_has_river):
-		_triangulate_road_edge(road_center, mR, center)
+		_triangulate_road_edge(road_center, mR, center, cell.index)
 
 func _get_road_interpolators (direction: HexDirectionsClass.HexDirections,
 	cell: HexCell) -> Vector2:

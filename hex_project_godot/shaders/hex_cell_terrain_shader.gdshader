@@ -36,8 +36,6 @@ void vertex() {
 	//Get the terrain visibility
 	terrain_visibility = vec3(cell0.x, cell1.x, cell2.x);
 	
-	
-	
 	//Limit the range of cell visibility to be from 0.25 to 1
 	//So "invisible cells" still have some limited visibility
 	terrain_visibility.x = mix(0.25, 1, terrain_visibility.x);
