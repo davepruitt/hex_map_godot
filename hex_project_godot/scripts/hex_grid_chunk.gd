@@ -971,9 +971,12 @@ func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
 	
 	var c1: Vector3 = center + HexMetrics.get_first_water_corner(direction)
 	var c2: Vector3 = center + HexMetrics.get_second_water_corner(direction)
+	
+	var indices: Vector3 = Vector3(cell.index, cell.index, cell.index)
 
 	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	w1.add_triangle_perturbed_vertices(center, c1, c2)
+	w1.add_triangle_cell_data_uniform(indices, splat_weights_1)
 	_water.commit_primitive(w1)
 	
 	if (direction <= HexDirectionsClass.HexDirections.SE) and (neighbor != null):
@@ -981,20 +984,26 @@ func _triangulate_open_water (direction: HexDirectionsClass.HexDirections,
 		var e1: Vector3 = c1 + bridge
 		var e2: Vector3 = c2 + bridge
 		
+		indices.y = neighbor.index
+		
 		var wquad: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		wquad.add_quad_perturbed_vertices(c1, c2, e1, e2)
+		wquad.add_quad_cell_data_dual(indices, splat_weights_1, splat_weights_2)
 		_water.commit_primitive(wquad)
 		
 		if (direction <= HexDirectionsClass.HexDirections.E):
 			var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
 			if (next_neighbor == null) or (not next_neighbor.is_underwater):
 				return
+				
+			indices.z = next_neighbor.index
 			
 			var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 			w2.add_triangle_perturbed_vertices(c2,
 				e2,
 				c2 + HexMetrics.get_water_bridge(HexDirectionsClass.next(direction))
 			)
+			w2.add_triangle_cell_data(indices, splat_weights_1, splat_weights_2, splat_weights_3)
 			_water.commit_primitive(w2)
 
 func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
@@ -1005,20 +1014,26 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		center + HexMetrics.get_second_water_corner(direction)
 	)
 	
+	var indices: Vector3 = Vector3(cell.index, cell.index, cell.index)
+	
 	var w1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	w1.add_triangle_perturbed_vertices(center, e1.v1, e1.v2)
+	w1.add_triangle_cell_data_uniform(indices, splat_weights_1)
 	_water.commit_primitive(w1)
 
 	var w2: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	w2.add_triangle_perturbed_vertices(center, e1.v2, e1.v3)
+	w2.add_triangle_cell_data_uniform(indices, splat_weights_1)
 	_water.commit_primitive(w2)
 	
 	var w3: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	w3.add_triangle_perturbed_vertices(center, e1.v3, e1.v4)
+	w3.add_triangle_cell_data_uniform(indices, splat_weights_1)
 	_water.commit_primitive(w3)
 	
 	var w4: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.TRIANGLE)
 	w4.add_triangle_perturbed_vertices(center, e1.v4, e1.v5)
+	w4.add_triangle_cell_data_uniform(indices, splat_weights_1)
 	_water.commit_primitive(w4)
 	
 	var center2: Vector3 = neighbor.position
