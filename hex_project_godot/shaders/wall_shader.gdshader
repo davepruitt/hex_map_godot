@@ -18,13 +18,13 @@ void vertex() {
 
 	//Set the visibility
 	visibility = cell0.x;
-	//visibility = mix(0.25, 1, visibility);
+	visibility = mix(0.25, 1, visibility);
 }
 
 void fragment() {
 	vec4 c = color;
 	
-	ALBEDO = c.rgb;// * visibility;
+	ALBEDO = c.rgb * visibility;
 	ALPHA = c.a;
 }
 

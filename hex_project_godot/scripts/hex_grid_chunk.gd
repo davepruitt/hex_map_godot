@@ -162,11 +162,11 @@ func _triangulate_cells () -> void:
 	
 	#Begin creation of the walls mesh
 	_features.walls.begin()
+	_features.walls.use_cell_data = true
 	_features.walls.use_collider = false
 	_features.walls.use_uv_coordinates = false
 	_features.walls.use_uv2_coordinates = false
 	_features.walls.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-	_features.walls.use_cell_data = true
 	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):

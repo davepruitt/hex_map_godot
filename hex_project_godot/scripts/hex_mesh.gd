@@ -33,8 +33,7 @@ func begin () -> void:
 	_surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES);
 	
 	#Set the first custom channel to be RGB float
-	if (use_cell_data):
-		_surface_tool.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT);
+	_surface_tool.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT);
 	
 	#Set the smooth group to -1, which produces flat normals for the mesh
 	_surface_tool.set_smooth_group(-1)
