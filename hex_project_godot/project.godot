@@ -56,3 +56,7 @@ _HexCellData_TexelSize={
 "type": "vec4",
 "value": Vector4(0, 0, 0, 0)
 }
+HEX_MAP_EDIT_MODE={
+"type": "bool",
+"value": true
+}

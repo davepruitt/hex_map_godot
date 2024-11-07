@@ -93,7 +93,13 @@ func _handle_edit_mode_enabled () -> void:
 	_toggle_edit_mode(true)
 
 func _toggle_edit_mode (toggled: bool) -> void:
+	#Set the edit_mode flag
 	edit_mode = toggled
+	
+	#Set the "HEX_MAP_EDIT_MODE" global shader flag
+	RenderingServer.global_shader_parameter_set("HEX_MAP_EDIT_MODE", edit_mode)
+	
+	#Enable or disable various UI elements based on the edit mode setting
 	if (edit_mode):
 		edit_mode_ui.enable()
 		game_mode_ui.disable()

@@ -40,7 +40,7 @@ void vertex() {
 	//So "invisible cells" still have some limited visibility
 	terrain_visibility.x = mix(0.25, 1, terrain_visibility.x);
 	terrain_visibility.y = mix(0.25, 1, terrain_visibility.y);
-	terrain_visibility.z = mix(0.25, 1, terrain_visibility.z);
+	terrain_visibility.z = mix(0.25, 1, terrain_visibility.z);		
 }
 
 void fragment() {
