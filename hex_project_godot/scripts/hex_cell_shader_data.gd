@@ -53,7 +53,11 @@ func refresh_terrain (cell: HexCell) -> void:
 	_requires_update = true
 	
 func refresh_visibility (cell: HexCell) -> void:
-	_cell_texture_data[cell.index].r = int(cell.is_visible_in_game)
+	var index: int = cell.index
+	
+	_cell_texture_data[index].r = int(cell.is_visible_in_game)
+	_cell_texture_data[index].g = int(cell.is_explored)
+	
 	_requires_update = true
 
 func late_update () -> void:

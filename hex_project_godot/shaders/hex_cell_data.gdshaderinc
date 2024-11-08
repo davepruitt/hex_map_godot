@@ -9,6 +9,7 @@ vec4 FilterCellData (vec4 data)
 	{
 		//If so, set the "x" value (the visibility value) to be 1
 		data.x = 1.0;
+		data.y = 1.0;
 	}
 	
 	return data;

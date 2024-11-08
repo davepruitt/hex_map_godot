@@ -7,18 +7,13 @@ uniform sampler2D grid_texture:source_color;
 uniform bool grid_on = false;
 varying vec3 world_position;
 varying vec3 terrain_index;
-varying vec3 terrain_visibility;
+varying vec4 terrain_visibility;
 
 vec4 get_terrain_color (vec4 color, vec3 wp, int index)
 {
-	vec2 uv = wp.xz * 0.02;
-	vec3 uvw = vec3(uv, terrain_index[index]);
+	vec3 uvw = vec3(wp.xz * 0.02, terrain_index[index]);
 	vec4 c = texture(terrain_texture_2d_array, uvw);
-	c *= color[index];
-	c.r *= terrain_visibility[index];
-	c.g *= terrain_visibility[index];
-	c.b *= terrain_visibility[index];
-	return c;
+	return vec4(c.rgb * color[index] * terrain_visibility[index], c.a);
 }
 
 void vertex() {
@@ -34,13 +29,14 @@ void vertex() {
 	terrain_index = vec3(cell0.w, cell1.w, cell2.w);
 	
 	//Get the terrain visibility
-	terrain_visibility = vec3(cell0.x, cell1.x, cell2.x);
+	terrain_visibility = vec4(cell0.x, cell1.x, cell2.x, 1.0);
 	
 	//Limit the range of cell visibility to be from 0.25 to 1
 	//So "invisible cells" still have some limited visibility
 	terrain_visibility.x = mix(0.25, 1, terrain_visibility.x);
 	terrain_visibility.y = mix(0.25, 1, terrain_visibility.y);
-	terrain_visibility.z = mix(0.25, 1, terrain_visibility.z);		
+	terrain_visibility.z = mix(0.25, 1, terrain_visibility.z);
+	terrain_visibility.w = (cell0.y + COLOR.x) * (cell1.y + COLOR.y) * (cell2.y + COLOR.z);
 }
 
 void fragment() {
@@ -48,20 +44,18 @@ void fragment() {
 		get_terrain_color(COLOR, world_position, 1) +
 		get_terrain_color(COLOR, world_position, 2);
 	
+	vec4 grid = vec4(1, 1, 1, 1);
 	if (grid_on)
 	{
 		vec2 grid_uv = world_position.xz;
 		grid_uv.x *= 1.0 / (4.0 * 8.66025404);
 		grid_uv.y *= 1.0 / (2.0 * 15.0);
 
-		vec4 grid = texture(grid_texture, grid_uv);
-
-		ALBEDO = c.rgb * grid.rgb;
+		grid = texture(grid_texture, grid_uv);
 	}
-	else
-	{
-		ALBEDO = c.rgb;
-	}
-
+	
+	//float explored = terrain_visibility.w;
+	float explored = clamp(terrain_visibility.w, 0, 1);
+	ALBEDO = c.rgb * grid.rgb * explored;
 	ALPHA = c.a;
 }

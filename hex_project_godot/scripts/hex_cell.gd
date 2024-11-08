@@ -54,6 +54,8 @@ var _special_index: int = 0
 ## Distance from the selected cell to this cell
 var _distance: int = 0
 
+var _visibility_in_game: int = 0
+
 #endregion
 
 #region Public data members
@@ -81,7 +83,7 @@ var shader_data: HexCellShaderData = null
 
 var index: int = 0
 
-var _visibility_in_game: int = 0
+var is_explored: bool = false
 
 #endregion
 
@@ -522,6 +524,7 @@ func increase_visibility_in_game () -> void:
 	_visibility_in_game += 1
 	
 	if (_visibility_in_game == 1):
+		is_explored = true
 		shader_data.refresh_visibility(self)
 
 func decrease_visibility_in_game () -> void:
