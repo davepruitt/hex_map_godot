@@ -36,7 +36,7 @@ void vertex() {
 	terrain_visibility.x = mix(0.25, 1, terrain_visibility.x);
 	terrain_visibility.y = mix(0.25, 1, terrain_visibility.y);
 	terrain_visibility.z = mix(0.25, 1, terrain_visibility.z);
-	terrain_visibility.w = (cell0.y + COLOR.x) * (cell1.y + COLOR.y) * (cell2.y + COLOR.z);
+	terrain_visibility.w = (cell0.y * COLOR.x) + (cell1.y * COLOR.y) + (cell2.y * COLOR.z);
 }
 
 void fragment() {
