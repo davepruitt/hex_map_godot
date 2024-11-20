@@ -58,4 +58,7 @@ void fragment() {
 	float explored = clamp(terrain_visibility.w, 0, 1);
 	ALBEDO = c.rgb * grid.rgb * explored;
 	ALPHA = c.a;
+	SPECULAR = 0.2 * explored;
+	AO = explored;
+	EMISSION = vec3(0, 0, 0) * (1.0 - explored);
 }
