@@ -55,6 +55,7 @@ script = ExtResource("3_8bvhd")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 100000, 0)
 
 [node name="HexGrid" parent="." instance=ExtResource("3_t3wo0")]
+hex_colors = Array[Color]([Color(1, 1, 0, 1), Color(0, 1, 0, 1), Color(0, 0, 1, 1), Color(1, 0.647059, 0, 1), Color(1, 1, 1, 1)])
 hex_textures = Array[Texture2D]([ExtResource("5_cf5ki"), ExtResource("6_tasjk"), ExtResource("7_gix1s"), ExtResource("8_lvkr7"), ExtResource("9_gg6k1")])
 cell_count_x = 20
 cell_count_z = 15

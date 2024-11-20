@@ -44,10 +44,6 @@ shader_parameter/noise_texture = ExtResource("5_cm4mn")
 [node name="HexGrid" type="Node3D"]
 script = ExtResource("1_byfya")
 unit_prefab = ExtResource("2_od4dn")
-hex_colors = null
-hex_textures = null
-cell_count_x = null
-cell_count_z = null
 hex_cell_prefab = ExtResource("2_ud45i")
 river_shader_material = SubResource("ShaderMaterial_6crjs")
 road_shader_material = SubResource("ShaderMaterial_lf52a")

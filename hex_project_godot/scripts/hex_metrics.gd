@@ -2,6 +2,9 @@ class_name HexMetrics
 
 #region Constants
 
+## The current map file version
+const MAP_FILE_VERSION: int = 3
+
 ## Ratio of outer to inner radius of a hex
 const OUTER_TO_INNER: float = 0.866025404
 

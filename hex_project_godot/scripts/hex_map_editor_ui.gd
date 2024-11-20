@@ -684,7 +684,7 @@ func _save_map_file (file_path_and_name: String) -> void:
 	var save_file: FileAccess = FileAccess.open(file_path_and_name, FileAccess.WRITE)
 	
 	#File version
-	save_file.store_32(2)
+	save_file.store_32(HexMetrics.MAP_FILE_VERSION)
 	
 	#Save the hex grid
 	hex_grid.save_hex_grid(save_file)
@@ -700,7 +700,7 @@ func _load_map_file (file_path_and_name: String) -> void:
 	var file_version: int = load_file.get_32()
 	
 	#If the file version is 0...
-	if (file_version <= 2):
+	if (file_version <= HexMetrics.MAP_FILE_VERSION):
 		#Load the hex grid
 		hex_grid.load_hex_grid(load_file, file_version)
 		

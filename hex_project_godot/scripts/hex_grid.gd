@@ -284,7 +284,7 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 	
 	#Load each cell
 	for i in range(0, len(_hex_cells)):
-		_hex_cells[i].load_hex_cell(file_reader)
+		_hex_cells[i].load_hex_cell(file_reader, file_version)
 	
 	#Refresh each cell
 	for i in range(0, len(_hex_cells)):

@@ -476,8 +476,10 @@ func save_hex_cell (file_writer: FileAccess) -> void:
 		if (_roads[i]):
 			road_flags |= 1 << i
 	file_writer.store_8(road_flags)
+	
+	file_writer.store_8(is_explored)
 
-func load_hex_cell (file_reader: FileAccess) -> void:
+func load_hex_cell (file_reader: FileAccess, file_version: int) -> void:
 	_terrain_type_index = file_reader.get_8()
 	shader_data.refresh_terrain(self)
 	
@@ -509,6 +511,13 @@ func load_hex_cell (file_reader: FileAccess) -> void:
 	var road_flags: int = file_reader.get_8()
 	for i in range(0, len(_roads)):
 		_roads[i] = ((road_flags & (1 << i)) != 0)
+	
+	if (file_version >= 3):
+		is_explored = bool(file_reader.get_8())
+	else:
+		is_explored = false
+	
+	shader_data.refresh_visibility(self)
 
 func enable_highlight (highlight_color: Color) -> void:
 	cell_selection_outline.visible = true
