@@ -6,6 +6,7 @@ uniform vec4 color: source_color;
 
 varying vec3 world_position;
 varying float visibility;
+varying float explored;
 
 void vertex() {
 	//Get the world position
@@ -19,6 +20,7 @@ void vertex() {
 	//Set the visibility
 	visibility = cell0.x;
 	visibility = mix(0.25, 1, visibility);
+	explored = (cell0.y * COLOR.x) + (cell1.y * COLOR.y) + (cell2.y * COLOR.z);
 }
 
 void fragment() {
@@ -26,5 +28,8 @@ void fragment() {
 	
 	ALBEDO = c.rgb * visibility;
 	ALPHA = c.a;
+	SPECULAR = 0.2 * explored;
+	AO = explored;
+	EMISSION = vec3(0, 0, 0) * (1.0 - explored);
 }
 

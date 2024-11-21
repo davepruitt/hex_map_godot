@@ -7,6 +7,7 @@ uniform vec4 base_color : source_color;
 uniform sampler2D noise_texture;
 
 varying float visibility;
+varying float explored;
 
 void vertex()
 {
@@ -15,6 +16,7 @@ void vertex()
 	
 	visibility = (cell0.x * COLOR.x) + (cell1.x * COLOR.y);
 	visibility = mix(0.25, 1, visibility);
+	explored = (cell0.y * COLOR.x) + (cell1.y * COLOR.y);
 }
 
 void fragment()
@@ -22,7 +24,9 @@ void fragment()
 	float river = compute_river(UV, noise_texture);
 	vec4 c = clamp(base_color + river, 0.0, 1.0);
 	ALBEDO = c.rgb * visibility;
-	ALPHA = c.a;
+	ALPHA = c.a * explored;
+	SPECULAR *= explored;
+	AO = explored;
 }
 
 //void light() {
