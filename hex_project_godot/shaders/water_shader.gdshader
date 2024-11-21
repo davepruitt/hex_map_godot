@@ -8,6 +8,7 @@ uniform sampler2D noise_texture;
 
 varying vec3 world_position;
 varying float visibility;
+varying float explored;
 
 void vertex()
 {
@@ -19,6 +20,7 @@ void vertex()
 	
 	visibility = (cell0.x * COLOR.x) + (cell1.x * COLOR.y) + (cell2.x * COLOR.z);
 	visibility = mix(0.25, 1, visibility);
+	explored = (cell0.y * COLOR.x) + (cell1.y * COLOR.y) + (cell2.y * COLOR.z);
 }
 
 void fragment()
@@ -27,7 +29,9 @@ void fragment()
 
 	vec4 c = clamp(base_color + waves, 0.0, 1.0);
 	ALBEDO = c.rgb * visibility;
-	ALPHA = c.a;
+	ALPHA = c.a * explored;
+	SPECULAR *= explored;
+	AO = explored;
 }
 
 //void light() {
