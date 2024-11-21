@@ -299,7 +299,7 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 		for i in range(0, unit_count):
 			HexUnit.load_from_file(file_reader, self)
 
-func find_path (from_cell: HexCell, to_cell: HexCell, speed: int) -> void:
+func find_path (from_cell: HexCell, to_cell: HexCell, unit: HexUnit) -> void:
 	#Return immediatley if either the start or destination is null
 	if (from_cell == null) or (to_cell == null):
 		return
@@ -310,10 +310,10 @@ func find_path (from_cell: HexCell, to_cell: HexCell, speed: int) -> void:
 	#Run the path finding algorithm
 	_current_path_from = from_cell
 	_current_path_to = to_cell
-	_current_path_exists = _dijkstra_search_from_to(from_cell, to_cell, speed)
+	_current_path_exists = _dijkstra_search_from_to(from_cell, to_cell, unit)
 	
 	#If a path was found, display the visualization on the hex map
-	_show_path(speed)
+	_show_path(unit.speed)
 
 func clear_path () -> void:
 	if (_current_path_exists):
@@ -517,7 +517,9 @@ func _show_path (speed: int) -> void:
 	_current_path_from.enable_highlight(Color.BLUE)
 	_current_path_to.enable_highlight(Color.RED)
 
-func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int) -> bool:
+func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, unit: HexUnit) -> bool:
+	var speed: int = unit.speed
+	
 	_search_frontier_phase += 2
 	
 	#Instantiate the search frontier
@@ -558,33 +560,12 @@ func _dijkstra_search_from_to (from_cell: HexCell, to_cell: HexCell, speed: int)
 			if (neighbor == null) or (neighbor.search_phase > _search_frontier_phase):
 				continue
 			
-			if (neighbor.is_underwater) or (neighbor.unit):
-				continue
-
-			var edge_type: Enums.HexEdgeType = current.get_edge_type_from_other_cell(neighbor)
-			if (edge_type == Enums.HexEdgeType.Cliff):
+			if (not unit.is_valid_destination(neighbor)):
 				continue
 			
-			var movement_cost: int = 0
-			
-			#If there is a road going through the edge of the direction of travel, 
-			#then increase the distance by 1 (roads provide fast travel)
-			if (current.has_road_through_edge(d)):
-				movement_cost = 1
-			elif (current.walled != neighbor.walled):
-				#Walls block movement if there is no road
+			var movement_cost:int = unit.get_move_cost(current, neighbor, d)
+			if (movement_cost < 0):
 				continue
-			else:
-				if (edge_type == Enums.HexEdgeType.Flat):
-					#If the terrain is flat, increase distance by 5
-					movement_cost = 5
-				else:
-					#Otherwise, increase the distance by 10 (slower travel)
-					movement_cost = 10
-				
-				#If there are any terrain features (buildings, trees, etc), then add
-				#some extra distance for traversing through that cell
-				movement_cost += neighbor.urban_level + neighbor.farm_level + neighbor.plant_level
 			
 			var distance: int = current.distance + movement_cost
 			var turn: int = (distance - 1) / speed

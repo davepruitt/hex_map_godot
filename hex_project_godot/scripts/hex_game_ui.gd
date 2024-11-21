@@ -71,7 +71,7 @@ func _do_move () -> void:
 func _do_pathfinding () -> void:
 	if (_update_current_cell()):
 		if (_current_cell) and (_selected_unit) and (_selected_unit.is_valid_destination(_current_cell)):
-			grid.find_path(_selected_unit.location, _current_cell, 24)
+			grid.find_path(_selected_unit.location, _current_cell, _selected_unit)
 		else:
 			grid.clear_path()
 			_selected_unit.location.enable_highlight(Color.BLUE)

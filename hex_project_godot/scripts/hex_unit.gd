@@ -82,6 +82,10 @@ var orientation: float:
 		_orientation = value
 		self.quaternion = Quaternion.from_euler(Vector3(0, value, 0))
 
+var speed: int:
+	get:
+		return 24
+
 #endregion
 
 #region Methods
@@ -117,7 +121,28 @@ func save_to_file (writer: FileAccess) -> void:
 	writer.store_float(orientation)
 
 func is_valid_destination (cell: HexCell) -> bool:
-	return (not cell.is_underwater) and (not cell.unit)
+	return (cell.is_explored) and (not cell.is_underwater) and (not cell.unit)
+
+func get_move_cost (from_cell: HexCell, to_cell: HexCell, direction: HexDirectionsClass.HexDirections) -> int:
+	
+	var edge_type: Enums.HexEdgeType = from_cell.get_edge_type_from_other_cell(to_cell)
+	if (edge_type == Enums.HexEdgeType.Cliff):
+		return -1
+	
+	var move_cost: int = 0
+	if (from_cell.has_road_through_edge(direction)):
+		move_cost = 1
+	elif  (from_cell.walled != to_cell.walled):
+		return -1
+	else:
+		if (edge_type == Enums.HexEdgeType.Flat):
+			move_cost = 5
+		else:
+			move_cost = 10
+		
+		move_cost += to_cell.urban_level + to_cell.farm_level + to_cell.plant_level
+	
+	return move_cost
 
 #endregion
 
