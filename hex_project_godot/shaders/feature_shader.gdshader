@@ -8,6 +8,7 @@ instance uniform float _index = 0.0;
 
 varying vec3 world_position;
 varying float visibility;
+varying float explored;
 
 void vertex() {
 	//Get the world position
@@ -17,12 +18,16 @@ void vertex() {
 	
 	visibility = cell_data.x;
 	visibility = mix(0.25, 1, visibility);
+	explored = cell_data.y;
 }
 
 void fragment() {
 	vec4 c = color;
 	
-	ALBEDO = c.rgb * visibility;
+	ALBEDO = c.rgb * visibility * explored;
 	ALPHA = c.a;
+	SPECULAR = 0.2 * explored;
+	AO = explored;
+	EMISSION = vec3(0, 0, 0) * (1.0 - explored);
 }
 
