@@ -56,6 +56,8 @@ var _distance: int = 0
 
 var _visibility_in_game: int = 0
 
+var _is_explored: bool = false
+
 #endregion
 
 #region Public data members
@@ -83,7 +85,7 @@ var shader_data: HexCellShaderData = null
 
 var index: int = 0
 
-var is_explored: bool = false
+var explorable: bool = true
 
 #endregion
 
@@ -116,9 +118,17 @@ var elevation: int:
 		#Check to see if the new value is different from the existing value
 		if (_elevation == value):
 			return
+			
+		#Get the original view elevation
+		var original_view_elevation: int = view_elevation
 		
 		#Set the elevation value for this cell
 		_elevation = value
+		
+		#Execute the function within the shader data that handles when the view
+		#elevation has changed
+		if (view_elevation != original_view_elevation):
+			shader_data.view_elevation_changed()
 		
 		#Refresh the position
 		_refresh_position()
@@ -135,6 +145,13 @@ var elevation: int:
 		
 		#Refresh this hex's chunk
 		_refresh()
+		
+var view_elevation: int:
+	get:
+		if (elevation >= water_level):
+			return elevation
+		else:
+			return water_level
 		
 ## This is the color of this hex
 var hex_color: Color:
@@ -208,12 +225,25 @@ var water_level: int:
 	get:
 		return _water_level
 	set(value):
+		#Check if a change has occurred
 		if (_water_level == value):
 			return
+			
+		#Store the original view elevation
+		var original_view_elevation: int = view_elevation
 		
+		#Set the new water level
 		_water_level = value
 		
+		#Call the handler function on the shader data class if the view elevation
+		#has changed
+		if (view_elevation != original_view_elevation):
+			shader_data.view_elevation_changed()
+		
+		#Validate the rivers
 		_validate_rivers()
+		
+		#Refresh the cell
 		_refresh()
 
 ## A boolean value indicating whether this cell is underwater
@@ -289,7 +319,13 @@ var search_priority: int:
 
 var is_visible_in_game: bool:
 	get:
-		return (_visibility_in_game > 0)
+		return ((_visibility_in_game > 0) and explorable)
+
+var is_explored: bool:
+	get:
+		return (_is_explored and explorable)
+	set(value):
+		_is_explored = value
 
 #endregion
 
@@ -540,6 +576,11 @@ func decrease_visibility_in_game () -> void:
 	_visibility_in_game -= 1
 	
 	if (_visibility_in_game <= 0):
+		shader_data.refresh_visibility(self)
+
+func reset_visibility() -> void:
+	if (_visibility_in_game > 0):
+		_visibility_in_game = 0
 		shader_data.refresh_visibility(self)
 
 #endregion

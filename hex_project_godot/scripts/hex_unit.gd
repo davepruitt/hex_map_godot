@@ -86,6 +86,10 @@ var speed: int:
 	get:
 		return 24
 
+var vision_range: int:
+	get:
+		return 3
+
 #endregion
 
 #region Methods

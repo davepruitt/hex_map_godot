@@ -178,6 +178,7 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 	if (_cell_shader_data == null):
 		_cell_shader_data = HexCellShaderData.new()
 	_cell_shader_data.initialize(cell_count_x, cell_count_z)
+	_cell_shader_data.hex_grid = self
 	
 	_create_chunks()
 	_create_cells()
@@ -387,6 +388,16 @@ func decrease_visibility_in_game (from_cell: HexCell, visibility_range: int) -> 
 	for i in range(0, len(cells)):
 		cells[i].decrease_visibility_in_game()
 
+func reset_visibility () -> void:
+	for i in range(0, len(_hex_cells)):
+		_hex_cells[i].reset_visibility()
+	
+	for i in range(0, len(_units)):
+		var unit: HexUnit = _units[i]
+		increase_visibility_in_game(unit.location, unit.vision_range)
+	
+	
+	
 #endregion
 
 #region Private methods
@@ -471,6 +482,9 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	
 	#Set the shader data
 	hex_cell.shader_data = _cell_shader_data
+	
+	#Set whether the cell is explorable
+	hex_cell.explorable = (x > 0) and (z > 0) and (x < (cell_count_x - 1)) and (z < (cell_count_z - 1))
 	
 	#Set the initial distance value to max int
 	hex_cell.distance = GodotConstants.MAX_INT
@@ -602,9 +616,12 @@ func _dijkstra_get_visible_cells (from_cell: HexCell, vision_range: int) -> Arra
 	else:
 		_search_frontier.clear()
 	
+	vision_range += from_cell.view_elevation
 	from_cell.search_phase = _search_frontier_phase
 	from_cell.distance = 0
 	_search_frontier.enqueue(from_cell)
+	
+	var from_coordinates: HexCoordinates = from_cell.hex_coordinates
 	
 	#Iterate over the frontier
 	while (_search_frontier.count > 0):
@@ -621,11 +638,13 @@ func _dijkstra_get_visible_cells (from_cell: HexCell, vision_range: int) -> Arra
 			var neighbor: HexCell = current.get_neighbor(d) as HexCell
 			
 			#Exit the loop if no neighbor exists, or if this is beyond the search phase
-			if (neighbor == null) or (neighbor.search_phase > _search_frontier_phase):
+			if (neighbor == null) or (neighbor.search_phase > _search_frontier_phase) or (not neighbor.explorable):
 				continue
 			
 			var distance: int = current.distance + 1
-			if (distance > vision_range):
+			if (((distance + neighbor.view_elevation) > vision_range) or 
+				(distance > from_coordinates.DistanceTo(neighbor.hex_coordinates))):
+				
 				continue
 			
 			if (neighbor.search_phase < _search_frontier_phase):

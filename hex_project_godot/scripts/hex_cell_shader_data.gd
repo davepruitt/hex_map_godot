@@ -9,6 +9,14 @@ var _cell_texture_data: PackedColorArray
 
 var _requires_update: bool = false
 
+var _requires_visibility_reset: bool = false
+
+#endregion
+
+#region Public data members
+
+var hex_grid: HexGrid = null
+
 #endregion
 
 #region Constructor
@@ -61,6 +69,10 @@ func refresh_visibility (cell: HexCell) -> void:
 	_requires_update = true
 
 func late_update () -> void:
+	if (_requires_visibility_reset and hex_grid):
+		_requires_visibility_reset = false
+		hex_grid.reset_visibility()
+	
 	if _requires_update:
 		_requires_update = false
 		
@@ -71,5 +83,8 @@ func late_update () -> void:
 		_cell_texture_source_image.set_data(x, z, false, Image.FORMAT_RGBAF, temp_byte_array)
 		_cell_texture.update(_cell_texture_source_image)
 	
+func view_elevation_changed () -> void:
+	_requires_visibility_reset = true
+	_requires_update = true
 
 #endregion
