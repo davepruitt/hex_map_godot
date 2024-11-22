@@ -2,10 +2,16 @@ shader_type spatial;
 
 #include "hex_cell_data.gdshaderinc"
 
+//This is the primary wall color
 uniform vec4 color: source_color;
 
+//This is the world position of the wall
 varying vec3 world_position;
+
+//This is whether the wall is currently visible by the player
 varying float visibility;
+
+//This is whether the wall sits in a cell that has been explored by the player
 varying float explored;
 
 void vertex() {
@@ -20,13 +26,13 @@ void vertex() {
 	//Set the visibility
 	visibility = cell0.x;
 	visibility = mix(0.25, 1, visibility);
-	explored = (cell0.y * COLOR.x) + (cell1.y * COLOR.y) + (cell2.y * COLOR.z);
+	explored = cell0.y;
 }
 
 void fragment() {
 	vec4 c = color;
 	
-	ALBEDO = c.rgb * visibility;
+	ALBEDO = c.rgb * visibility * explored;
 	ALPHA = c.a;
 	SPECULAR = 0.2 * explored;
 	AO = explored;

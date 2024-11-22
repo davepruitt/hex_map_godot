@@ -3,6 +3,6 @@
 [ext_resource type="Shader" path="res://shaders/feature_shader.gdshader" id="1_dtd51"]
 
 [resource]
-render_priority = 0
+render_priority = 1
 shader = ExtResource("1_dtd51")
 shader_parameter/color = Color(0.176471, 0.580392, 0.12549, 1)

@@ -96,6 +96,7 @@ func set_estuaries_mesh_material (mat: ShaderMaterial) -> void:
 
 func set_walls_mesh_material (mat: ShaderMaterial) -> void:
 	_walls_material = mat
+	_walls_material.set_render_priority(1)
 
 func request_refresh () -> void:
 	#Set the "update needed" flag
@@ -167,6 +168,7 @@ func _triangulate_cells () -> void:
 	_features.walls.use_uv_coordinates = false
 	_features.walls.use_uv2_coordinates = false
 	_features.walls.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	_features.walls.set_sorting_offset(10.0)
 	
 	#Iterate over each hex cell and triangulate the mesh for that hex
 	for i in range(0, len(_hex_cells)):
