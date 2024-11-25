@@ -203,6 +203,12 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 	#Return true, indicating the map was created successfully
 	return true
 
+func get_cell_from_offset (x_offset: int, z_offset: int) -> HexCell:
+	return _hex_cells[x_offset + (z_offset * cell_count_x)]
+
+func get_cell_from_index (cell_index: int) -> HexCell:
+	return _hex_cells[cell_index]
+
 func get_cell_from_coordinates (coordinates: HexCoordinates) -> HexCell:
 	var z: int = coordinates.Z
 	if (z < 0) or (z >= cell_count_z):

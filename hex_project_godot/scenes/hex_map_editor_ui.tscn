@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://dstaybgovslw2"]
+[gd_scene load_steps=7 format=3 uid="uid://dstaybgovslw2"]
 
 [ext_resource type="Script" path="res://scripts/hex_map_editor_ui.gd" id="1_1s8xx"]
 
@@ -13,6 +13,9 @@ resource_name = "RoadsButtonGroup"
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_n8ipb"]
 resource_name = "WallsButtonGroup"
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_22asi"]
+resource_name = "MapSizeButtonGroup"
 
 [node name="HexMapEditorUi" type="Node3D"]
 script = ExtResource("1_1s8xx")
@@ -535,19 +538,6 @@ theme_override_constants/margin_right = 15
 layout_mode = 2
 text = "Exit Edit Mode"
 
-[node name="PopupMenu" type="PopupMenu" parent="CanvasLayer"]
-auto_translate_mode = 1
-initial_position = 1
-size = Vector2i(100, 116)
-item_count = 4
-item_0/text = "Small"
-item_1/text = "Medium"
-item_1/id = 1
-item_2/text = "Large"
-item_2/id = 2
-item_3/text = "Cancel"
-item_3/id = 3
-
 [node name="SaveFileDialog" type="FileDialog" parent="CanvasLayer"]
 auto_translate_mode = 1
 size = Vector2i(303, 180)
@@ -562,6 +552,81 @@ ok_button_text = "Open"
 file_mode = 0
 access = 1
 use_native_dialog = true
+
+[node name="PopupPanel" type="PopupPanel" parent="CanvasLayer"]
+initial_position = 1
+size = Vector2i(352, 335)
+visible = true
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PopupPanel"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 348.0
+offset_bottom = 331.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PopupPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="GenerateMap_CheckBox" type="CheckBox" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+text = "Generate Random Terrain"
+
+[node name="MarginContainer3" type="MarginContainer" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 20
+
+[node name="Label" type="Label" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Map Size:"
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 25
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="CheckBox_SmallMap" type="CheckBox" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_22asi")
+text = "Small"
+
+[node name="CheckBox_MediumMap" type="CheckBox" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_22asi")
+text = "Medium"
+
+[node name="CheckBox_LargeMap" type="CheckBox" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+button_group = SubResource("ButtonGroup_22asi")
+text = "Large"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Cancel_Button" type="Button" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+focus_mode = 0
+text = "Cancel"
+
+[node name="Confirm_Button" type="Button" parent="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+focus_mode = 0
+text = "OK"
 
 [connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_NoColor" to="." method="_on_check_box_no_color_pressed"]
 [connection signal="pressed" from="CanvasLayer/HBoxContainer/PanelContainer/VBoxContainer/GridContainer/CheckBox_ColorYellow" to="." method="_on_check_box_color_yellow_pressed"]
@@ -596,8 +661,13 @@ use_native_dialog = true
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer4/GridContainer/SaveButton" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer5/NewMapButton" to="." method="_on_new_map_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer6/ExitEditModeButton" to="." method="_on_exit_edit_mode_button_pressed"]
-[connection signal="index_pressed" from="CanvasLayer/PopupMenu" to="." method="_on_popup_menu_index_pressed"]
 [connection signal="canceled" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_canceled"]
 [connection signal="file_selected" from="CanvasLayer/SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]
 [connection signal="canceled" from="CanvasLayer/LoadFileDialog" to="." method="_on_load_file_dialog_canceled"]
 [connection signal="file_selected" from="CanvasLayer/LoadFileDialog" to="." method="_on_load_file_dialog_file_selected"]
+[connection signal="toggled" from="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/GenerateMap_CheckBox" to="." method="_on_generate_map_check_box_toggled"]
+[connection signal="pressed" from="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/MarginContainer/VBoxContainer/CheckBox_SmallMap" to="." method="_on_check_box_small_map_pressed"]
+[connection signal="pressed" from="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/MarginContainer/VBoxContainer/CheckBox_MediumMap" to="." method="_on_check_box_medium_map_pressed"]
+[connection signal="pressed" from="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/MarginContainer/VBoxContainer/CheckBox_LargeMap" to="." method="_on_check_box_large_map_pressed"]
+[connection signal="pressed" from="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/HBoxContainer/Cancel_Button" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/PopupPanel/MarginContainer/VBoxContainer/HBoxContainer/Confirm_Button" to="." method="_on_confirm_button_pressed"]

@@ -489,7 +489,7 @@ func get_elevation_difference (direction: HexDirectionsClass.HexDirections) -> i
 
 func save_hex_cell (file_writer: FileAccess) -> void:
 	file_writer.store_8(_terrain_type_index)
-	file_writer.store_8(_elevation)
+	file_writer.store_8(_elevation + 127)
 	file_writer.store_8(_water_level)
 	file_writer.store_8(_urban_level)
 	file_writer.store_8(_farm_level)
@@ -519,7 +519,10 @@ func load_hex_cell (file_reader: FileAccess, file_version: int) -> void:
 	_terrain_type_index = file_reader.get_8()
 	shader_data.refresh_terrain(self)
 	
-	_elevation = file_reader.get_8()
+	if (file_version >= 4):
+		_elevation = int(file_reader.get_8()) - 127
+	else:
+		_elevation = file_reader.get_8()
 	_refresh_position()
 	
 	_water_level = file_reader.get_8()

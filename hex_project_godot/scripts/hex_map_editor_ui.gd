@@ -81,12 +81,14 @@ var walls_mode: Enums.OptionalToggle = Enums.OptionalToggle.Ignore
 @onready var check_button_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_SpecialFeature
 @onready var drop_down_special_feature := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/OptionButton_SpecialFeature
 
-@onready var new_map_popup_menu := $CanvasLayer/PopupMenu
+@onready var new_map_popup_panel := $CanvasLayer/PopupPanel
 @onready var save_map_file_dialog := $CanvasLayer/SaveFileDialog
 @onready var load_map_file_dialog := $CanvasLayer/LoadFileDialog
 
 @onready var current_camera_value_label := $CanvasLayer/HBoxContainer/PanelContainer3/MarginContainer/VBoxContainer/HBoxContainer/CurrentCameraValueLabel
 @onready var check_button_edit_mode := $CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/CheckButton_EditMode
+
+
 
 #endregion
 
@@ -101,6 +103,11 @@ var _is_left_shift_pressed: bool = false
 
 var _enabled: bool = false
 
+var _hex_map_generator: HexMapGenerator = HexMapGenerator.new()
+
+var _selected_map_size: int = 0
+var _should_generate_random_map: bool = false
+
 #endregion
 
 #region Overrides
@@ -109,6 +116,9 @@ var _enabled: bool = false
 func _ready() -> void:
 	#Initialize the user interface
 	_initialize_ui()
+	
+	#Set the hex grid on the map generator
+	_hex_map_generator.hex_grid = hex_grid
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -344,7 +354,7 @@ func _on_load_button_pressed() -> void:
 
 func _on_new_map_button_pressed() -> void:
 	#Show the popup menu
-	new_map_popup_menu.show()
+	new_map_popup_panel.show()
 	
 	#Lock the cameras
 	main_camera_assembly.locked = true
@@ -352,25 +362,53 @@ func _on_new_map_button_pressed() -> void:
 	
 	return
 
-
-func _on_popup_menu_index_pressed(index: int) -> void:
-	#Create the map based on the user's selection
-	if (index == 0):
-		hex_grid.create_map(20, 15)
-	elif (index == 1):
-		hex_grid.create_map(40, 30)
-	elif (index == 2):
-		hex_grid.create_map(80, 60)
-	elif (index == 3):
-		return
-		
+func _on_cancel_button_pressed() -> void:
+	new_map_popup_panel.hide()
+	
 	#Unlock the cameras
 	main_camera_assembly.locked = false
 	debug_camera.locked = false
+
+
+func _on_confirm_button_pressed() -> void:
+	#Hide the popup panel
+	new_map_popup_panel.hide()
 	
+	#Unlock the cameras
+	main_camera_assembly.locked = false
+	debug_camera.locked = false
+
+	#Determine the map size
+	var x: int = 20
+	var z: int = 15
+	if (_selected_map_size == 1):
+		x = 40
+		z = 30
+	elif (_selected_map_size == 2):
+		x = 80
+		z = 60
+
+	#Generate the map
+	if (_should_generate_random_map):
+		_hex_map_generator.hex_grid = hex_grid
+		_hex_map_generator.generate_map(x, z)
+	else:
+		hex_grid.create_map(x, z)
+
 	#Validate the position of the main camera
 	main_camera_assembly.validate_position()
 
+func _on_check_box_small_map_pressed() -> void:
+	_selected_map_size = 0
+
+func _on_check_box_medium_map_pressed() -> void:
+	_selected_map_size = 1
+
+func _on_check_box_large_map_pressed() -> void:
+	_selected_map_size = 2
+
+func _on_generate_map_check_box_toggled(toggled_on: bool) -> void:
+	_should_generate_random_map = toggled_on
 
 func _on_save_file_dialog_file_selected(path: String) -> void:
 	#Save the map to the file that was chosen by the user
