@@ -586,6 +586,9 @@ func reset_visibility() -> void:
 		_visibility_in_game = 0
 		shader_data.refresh_visibility(self)
 
+func set_map_data (data: float) -> void:
+	shader_data.set_map_data(self, data)
+
 #endregion
 
 #region Private methods

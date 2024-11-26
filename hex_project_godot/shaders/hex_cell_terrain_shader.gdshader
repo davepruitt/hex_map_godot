@@ -5,9 +5,12 @@ shader_type spatial;
 uniform sampler2DArray terrain_texture_2d_array:source_color;
 uniform sampler2D grid_texture:source_color;
 uniform bool grid_on = false;
+uniform bool show_map_data = true;
+
 varying vec3 world_position;
 varying vec3 terrain_index;
 varying vec4 terrain_visibility;
+varying float map_data;
 
 vec4 get_terrain_color (vec4 color, vec3 wp, int index)
 {
@@ -37,6 +40,9 @@ void vertex() {
 	terrain_visibility.y = mix(0.25, 1, terrain_visibility.y);
 	terrain_visibility.z = mix(0.25, 1, terrain_visibility.z);
 	terrain_visibility.w = (cell0.y * COLOR.x) + (cell1.y * COLOR.y) + (cell2.y * COLOR.z);
+	
+	//Get the map data
+	map_data = (cell0.z * COLOR.x) + (cell1.z * COLOR.y) + (cell2.z * COLOR.z);
 }
 
 void fragment() {
@@ -54,9 +60,17 @@ void fragment() {
 		grid = texture(grid_texture, grid_uv);
 	}
 	
-	//float explored = terrain_visibility.w;
 	float explored = clamp(terrain_visibility.w, 0, 1);
-	ALBEDO = c.rgb * grid.rgb * explored;
+	
+	if (show_map_data)
+	{
+		ALBEDO = grid.rgb * map_data;
+	}
+	else
+	{
+		ALBEDO = c.rgb * grid.rgb * explored;	
+	}
+	
 	ALPHA = c.a;
 	SPECULAR = 0.2 * explored;
 	AO = explored;

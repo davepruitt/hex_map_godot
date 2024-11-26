@@ -87,4 +87,21 @@ func view_elevation_changed () -> void:
 	_requires_visibility_reset = true
 	_requires_update = true
 
+func set_map_data (cell: HexCell, data: float) -> void:
+	var val: float = 0
+	#if (data < 0.0):
+		#val = 0
+	#else:
+		#if (data < 1.0):
+			##val = data * 255.0
+			#pass
+		#else:
+			#val = 1.0
+			##val = 255.0;
+			
+	val = clampf(data, 0.0, 1.0)
+			
+	_cell_texture_data[cell.index].b = val
+	_requires_update = true
+
 #endregion

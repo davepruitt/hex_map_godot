@@ -20,6 +20,7 @@
 render_priority = 0
 shader = ExtResource("11_c2ox1")
 shader_parameter/grid_on = false
+shader_parameter/show_map_data = true
 shader_parameter/terrain_texture_2d_array = ExtResource("12_lmpao")
 shader_parameter/grid_texture = ExtResource("12_gv3gu")
 

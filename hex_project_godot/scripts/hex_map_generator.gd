@@ -1,12 +1,16 @@
 class_name HexMapGenerator
 
-#region Private class accessible only to the map generator
+#region Private classes accessible only to the map generator
 
 class MapRegion:
 	var x_min: int = 0
 	var x_max: int = 0
 	var z_min: int = 0
 	var z_max: int = 0
+
+class ClimateData:
+	var clouds: float = 0.0
+	var moisture: float = 0.0
 
 #endregion
 
@@ -20,6 +24,9 @@ var _search_frontier: HexCellPriorityQueue = HexCellPriorityQueue.new()
 var _search_frontier_phase: int = 0
 
 var _regions: Array[MapRegion] = []
+
+var _climate: Array[ClimateData] = []
+var _next_climate: Array[ClimateData] = []
 
 #endregion
 
@@ -67,9 +74,26 @@ var region_count: int = 3
 @export_range(0, 100)
 var erosion_percentage: int = 50
 
+@export_range(0.0, 1.0)
+var evaporation_factor: float = 0.5
+
+@export_range(0.0, 1.0)
+var precipitation_factor: float = 0.25
+
+@export_range(0.0, 1.0)
+var runoff_factor: float = 0.25
+
+@export_range(0.0, 1.0)
+var seepage_factor: float = 0.125
+
+@export_range(1.0, 10.0)
+var wind_strength: float = 4.0
+
 #endregion
 
 #region Public data members
+
+var wind_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NW
 
 var hex_grid: HexGrid = null
 
@@ -95,6 +119,7 @@ func generate_map (x: int, z: int) -> void:
 	_create_regions()
 	_create_land()
 	_erode_land()
+	_create_climate()
 	_set_terrain_type()
 	
 	#Reset the search phases of all cells to 0
@@ -235,6 +260,7 @@ func _set_terrain_type () -> void:
 		var cell: HexCell = hex_grid.get_cell_from_index(i)
 		if (not cell.is_underwater):
 			cell.terrain_type_index = cell.elevation - cell.water_level
+			cell.set_map_data(_climate[i].moisture)
 
 func _raise_terrain (chunk_size: int, budget: int, region: MapRegion) -> int:
 	_search_frontier_phase += 1
@@ -363,7 +389,6 @@ func _erode_land () -> void:
 				
 				erodible_cells.erase(neighbor)
 	
-
 func _is_erodible (cell: HexCell) -> bool:
 	var erodible_elevation: int = cell.elevation - 2
 	for d in range(0, 6):
@@ -384,5 +409,79 @@ func _get_erosion_target (cell: HexCell) -> HexCell:
 	
 	var target: HexCell = candidates[_rng.randi_range(0, len(candidates) - 1)]
 	return target
+
+func _create_climate () -> void:
+	#Clear the list
+	_climate.clear()
+	
+	#Add an empty climate object for each cell
+	for i in range(0, _cell_count):
+		var initial_data: ClimateData = ClimateData.new()
+		_climate.append(initial_data)
+		
+		var initial_data_02: ClimateData = ClimateData.new()
+		_next_climate.append(initial_data_02)
+	
+	#Evolve the climate of each cell
+	for cycle in range(0, 40):
+		for i in range(0, _cell_count):
+			_evolve_climate(i)
+		
+		var swap_list: Array[ClimateData] = _climate
+		_climate = _next_climate
+		_next_climate = swap_list
+
+func _evolve_climate (cell_index: int) -> void:
+	var cell: HexCell = hex_grid.get_cell_from_index(cell_index)
+	var cell_climate: ClimateData = _climate[cell_index]
+	
+	if (cell.is_underwater):
+		cell_climate.clouds += evaporation_factor
+	else:
+		var evaporation: float = cell_climate.moisture * evaporation_factor
+		cell_climate.moisture -= evaporation
+		cell_climate.clouds += evaporation
+		
+	var precipitation: float = cell_climate.clouds * precipitation_factor
+	cell_climate.clouds -= precipitation
+	cell_climate.moisture += precipitation
+	
+	var cloud_maximum: float = 1.0 - float(cell.view_elevation / float(elevation_maximum + 1.0))
+	if (cell_climate.clouds > cloud_maximum):
+		cell_climate.moisture += cell_climate.clouds - cloud_maximum
+		cell_climate.clouds = cloud_maximum
+	
+	var main_dispersal_direction: HexDirectionsClass.HexDirections = HexDirectionsClass.opposite(wind_direction)
+	var cloud_dispersal: float = cell_climate.clouds * (1.0 / (5.0 + wind_strength))
+	var runoff: float = cell_climate.moisture * runoff_factor * (1.0 / 6.0)
+	var seepage: float = cell_climate.moisture * seepage_factor * (1.0 / 6.0) 
+	for d in range(0, 6):
+		var neighbor: HexCell = cell.get_neighbor(d)
+		if (neighbor == null):
+			continue
+		
+		var neighbor_climate: ClimateData = _next_climate[neighbor.index]
+		if (d == main_dispersal_direction):
+			neighbor_climate.clouds += cloud_dispersal * wind_strength
+		else:
+			neighbor_climate.clouds += cloud_dispersal
+		
+		var elevation_data: int = neighbor.view_elevation - cell.view_elevation
+		if (elevation_data < 0):
+			cell_climate.moisture -= runoff
+			neighbor_climate.moisture += runoff
+		elif (elevation_data == 0):
+			cell_climate.moisture -= seepage
+			neighbor_climate.moisture += seepage
+		
+		_next_climate[neighbor.index] = neighbor_climate
+	
+	cell_climate.clouds = 0.0
+	
+	var next_cell_climate: ClimateData = _next_climate[cell_index]
+	next_cell_climate.moisture += minf(cell_climate.moisture, 1.0)
+	_next_climate[cell_index] = next_cell_climate
+	_climate[cell_index] = ClimateData.new()
+
 
 #endregion
