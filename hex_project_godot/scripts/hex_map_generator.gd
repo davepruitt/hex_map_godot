@@ -89,6 +89,9 @@ var seepage_factor: float = 0.125
 @export_range(1.0, 10.0)
 var wind_strength: float = 4.0
 
+@export_range(0.0, 1.0)
+var starting_moisture: float = 0.1
+
 #endregion
 
 #region Public data members
@@ -258,9 +261,22 @@ func _create_land () -> void:
 func _set_terrain_type () -> void:
 	for i in range(0, _cell_count):
 		var cell: HexCell = hex_grid.get_cell_from_index(i)
+		var moisture: float = _climate[i].moisture
 		if (not cell.is_underwater):
-			cell.terrain_type_index = cell.elevation - cell.water_level
-			cell.set_map_data(_climate[i].moisture)
+			if (moisture < 0.05):
+				cell.terrain_type_index = 4
+			elif (moisture < 0.12):
+				cell.terrain_type_index = 0
+			elif (moisture < 0.28):
+				cell.terrain_type_index = 3
+			elif (moisture < 0.85):
+				cell.terrain_type_index = 1
+			else:
+				cell.terrain_type_index = 2
+		else:
+			cell.terrain_type_index = 2
+			
+		cell.set_map_data(moisture)
 
 func _raise_terrain (chunk_size: int, budget: int, region: MapRegion) -> int:
 	_search_frontier_phase += 1
@@ -417,6 +433,7 @@ func _create_climate () -> void:
 	#Add an empty climate object for each cell
 	for i in range(0, _cell_count):
 		var initial_data: ClimateData = ClimateData.new()
+		initial_data.moisture = starting_moisture
 		_climate.append(initial_data)
 		
 		var initial_data_02: ClimateData = ClimateData.new()
