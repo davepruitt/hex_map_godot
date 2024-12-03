@@ -1056,7 +1056,7 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	)
 	
 	if (cell.has_river_through_edge(direction)):
-		_triangulate_estuary(e1, e2, cell.incoming_river_direction == direction, indices)
+		_triangulate_estuary(e1, e2, cell.has_incoming_river and cell.incoming_river_direction == direction, indices)
 	else:
 		var ws1: HexMeshPrimitive = HexMeshPrimitive.new(HexMeshPrimitive.PrimitiveType.QUAD)
 		ws1.add_quad_perturbed_vertices(e1.v1, e1.v2, e2.v1, e2.v2)

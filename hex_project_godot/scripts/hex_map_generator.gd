@@ -19,6 +19,7 @@ class ClimateData:
 var _rng = RandomNumberGenerator.new()
 
 var _cell_count: int = 0
+var _land_cells: int = 0
 
 var _search_frontier: HexCellPriorityQueue = HexCellPriorityQueue.new()
 var _search_frontier_phase: int = 0
@@ -27,6 +28,8 @@ var _regions: Array[MapRegion] = []
 
 var _climate: Array[ClimateData] = []
 var _next_climate: Array[ClimateData] = []
+
+var _flow_directions: Array[HexDirectionsClass.HexDirections] = []
 
 #endregion
 
@@ -42,7 +45,7 @@ var chunk_size_min: int = 30
 var chunk_size_max: int = 100
 
 @export_range(5, 95)
-var land_percentage: int = 50
+var land_percentage: int = 75
 
 @export_range(1, 5)
 var water_level: int = 3
@@ -69,7 +72,7 @@ var map_border_z: int = 5
 var region_border: int = 5
 
 @export_range(1, 4)
-var region_count: int = 3
+var region_count: int = 1
 
 @export_range(0, 100)
 var erosion_percentage: int = 50
@@ -91,6 +94,12 @@ var wind_strength: float = 4.0
 
 @export_range(0.0, 1.0)
 var starting_moisture: float = 0.1
+
+@export_range(0, 20)
+var river_percentage: int = 10
+
+@export_range(0.0, 1.0)
+var extra_lake_probability: float = 0.25
 
 #endregion
 
@@ -123,6 +132,7 @@ func generate_map (x: int, z: int) -> void:
 	_create_land()
 	_erode_land()
 	_create_climate()
+	_create_rivers()
 	_set_terrain_type()
 	
 	#Reset the search phases of all cells to 0
@@ -239,6 +249,7 @@ func _create_regions () -> void:
 
 func _create_land () -> void:
 	var land_budget: int = roundi(_cell_count * land_percentage * 0.01)
+	_land_cells = land_budget
 	
 	for guard in range(0, 10000):
 		#Generate a value indicating whether we should sink or raise land
@@ -257,6 +268,7 @@ func _create_land () -> void:
 		
 	if (land_budget > 0):
 		print_debug("Failed to use up " + str(land_budget) + " land budget.")
+		_land_cells -= land_budget
 
 func _set_terrain_type () -> void:
 	for i in range(0, _cell_count):
@@ -275,8 +287,7 @@ func _set_terrain_type () -> void:
 				cell.terrain_type_index = 2
 		else:
 			cell.terrain_type_index = 2
-			
-		cell.set_map_data(moisture)
+		
 
 func _raise_terrain (chunk_size: int, budget: int, region: MapRegion) -> int:
 	_search_frontier_phase += 1
@@ -500,5 +511,104 @@ func _evolve_climate (cell_index: int) -> void:
 	_next_climate[cell_index] = next_cell_climate
 	_climate[cell_index] = ClimateData.new()
 
+func _create_river (origin: HexCell) -> int:
+	var river_length: int = 0
+	var cell: HexCell = origin
+	var direction: HexDirectionsClass.HexDirections = HexDirectionsClass.HexDirections.NE
+	
+	while (not cell.is_underwater):
+		var min_neighbor_elevation: int = GodotConstants.MAX_INT
+		_flow_directions.clear()
+		for d in range(0, 6):
+			var neighbor: HexCell = cell.get_neighbor(d)
+			
+			if (not neighbor):
+				continue
+			
+			if (neighbor.elevation <= min_neighbor_elevation):
+				min_neighbor_elevation = neighbor.elevation
+			
+			if (neighbor == origin) or (neighbor.has_incoming_river):
+				continue
+			
+			var delta: int = neighbor.elevation - cell.elevation
+			if (delta > 0):
+				continue
+				
+			if (neighbor.has_outgoing_river):
+				cell.set_outgoing_river(d)
+				return river_length
+			
+			if (delta < 0):
+				_flow_directions.append(d)
+				_flow_directions.append(d)
+				_flow_directions.append(d)
+			
+			if ((river_length == 1) or 
+				(d != HexDirectionsClass.next2(direction) and d != HexDirectionsClass.previous2(direction))):
+				
+				_flow_directions.append(d)
+			
+			_flow_directions.append(d)
+			
+		if (len(_flow_directions) == 0):
+			if (river_length == 1):
+				return 0
+			
+			if (min_neighbor_elevation >= cell.elevation):
+				cell.water_level = min_neighbor_elevation
+				if (min_neighbor_elevation == cell.elevation):
+					cell.elevation = min_neighbor_elevation - 1
+			
+			break
+		
+		direction = _flow_directions[_rng.randi_range(0, len(_flow_directions) - 1)]
+		cell.set_outgoing_river(direction)
+		river_length += 1
+		
+		if (min_neighbor_elevation >= cell.elevation) and (_rng.randf() < extra_lake_probability):
+			cell.water_level = cell.elevation
+			cell.elevation -= 1
+		
+		cell = cell.get_neighbor(direction)
+	
+	return river_length
+
+func _create_rivers () -> void:
+	var river_origins: Array[HexCell] = []
+	
+	for i in range(0, _cell_count):
+		var cell: HexCell = hex_grid.get_cell_from_index(i)
+		if (cell.is_underwater):
+			continue
+		
+		var data: ClimateData = _climate[i]
+		var weight: float = data.moisture * (cell.elevation - water_level) / (elevation_maximum - water_level)
+		if (weight > 0.75):
+			river_origins.append(cell)
+			river_origins.append(cell)
+		if (weight > 0.5):
+			river_origins.append(cell)
+		if (weight > 0.25):
+			river_origins.append(cell)
+	
+	var river_budget: int = roundi(_land_cells * river_percentage * 0.01)
+	while (river_budget > 0 and len(river_origins) > 0):
+		var index: int = _rng.randi_range(0, len(river_origins) - 1)
+		var last_index: int = len(river_origins) - 1
+		var origin: HexCell = river_origins[index]
+		river_origins[index] = river_origins[last_index]
+		river_origins.remove_at(last_index)
+		
+		if (not origin.has_river):
+			var is_valid_origin: bool = true
+			for d in range(0, 6):
+				var neighbor: HexCell = origin.get_neighbor(d)
+				if (neighbor) and (neighbor.has_river or neighbor.is_underwater):
+					is_valid_origin = false
+					break
+			
+			if (is_valid_origin):
+				river_budget -= _create_river(origin)
 
 #endregion
