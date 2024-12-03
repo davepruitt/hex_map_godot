@@ -1,5 +1,11 @@
 class_name HexMapGenerator
 
+#region Private enumerations used only in the map generator
+
+enum HemisphereMode { Both, North, South }
+
+#endregion
+
 #region Private classes accessible only to the map generator
 
 class MapRegion:
@@ -30,6 +36,8 @@ var _climate: Array[ClimateData] = []
 var _next_climate: Array[ClimateData] = []
 
 var _flow_directions: Array[HexDirectionsClass.HexDirections] = []
+
+var _temperature_jitter_channel: int = 0
 
 #endregion
 
@@ -100,6 +108,18 @@ var river_percentage: int = 10
 
 @export_range(0.0, 1.0)
 var extra_lake_probability: float = 0.25
+
+@export_range(0.0, 1.0)
+var low_temperature: float = 0.0
+
+@export_range(0.0, 1.0)
+var high_temperature: float = 1.0
+
+@export_range(0.0, 1.0)
+var temperature_jitter: float = 0.1
+
+@export
+var hemisphere_mode: HemisphereMode = HemisphereMode.Both
 
 #endregion
 
@@ -271,8 +291,11 @@ func _create_land () -> void:
 		_land_cells -= land_budget
 
 func _set_terrain_type () -> void:
+	_temperature_jitter_channel = _rng.randi_range(0, 3)
 	for i in range(0, _cell_count):
 		var cell: HexCell = hex_grid.get_cell_from_index(i)
+		var temperature: float = _determine_temperature(cell)
+		cell.set_map_data(temperature)
 		var moisture: float = _climate[i].moisture
 		if (not cell.is_underwater):
 			if (moisture < 0.05):
@@ -287,7 +310,6 @@ func _set_terrain_type () -> void:
 				cell.terrain_type_index = 2
 		else:
 			cell.terrain_type_index = 2
-		
 
 func _raise_terrain (chunk_size: int, budget: int, region: MapRegion) -> int:
 	_search_frontier_phase += 1
@@ -610,5 +632,24 @@ func _create_rivers () -> void:
 			
 			if (is_valid_origin):
 				river_budget -= _create_river(origin)
+
+func _determine_temperature (cell: HexCell) -> float:
+	var latitude: float = float(cell.hex_coordinates.Z) / hex_grid.cell_count_z
+	if (hemisphere_mode == HemisphereMode.Both):
+		latitude *= 2.0
+		if (latitude > 1.0):
+			latitude = 2.0 - latitude
+	elif (hemisphere_mode == HemisphereMode.North):
+		latitude = 1.0 - latitude
+	
+	var temperature: float = lerpf(low_temperature, high_temperature, latitude)
+	
+	temperature *= 1.0 - (cell.view_elevation - water_level) / (elevation_maximum - water_level + 1.0)
+	
+	var jitter_vector: Vector4 = HexMetrics.sample_noise(cell.position * 0.1)
+	var jitter: float = jitter_vector[_temperature_jitter_channel]
+	temperature += (jitter * 2.0 - 1.0) * temperature_jitter
+	
+	return temperature
 
 #endregion
