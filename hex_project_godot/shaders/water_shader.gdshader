@@ -13,11 +13,11 @@ varying float explored;
 void vertex()
 {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	
+
 	vec4 cell0 = GetCellData(CUSTOM0.xyz, 0);
 	vec4 cell1 = GetCellData(CUSTOM0.xyz, 1);
 	vec4 cell2 = GetCellData(CUSTOM0.xyz, 2);
-	
+
 	visibility = (cell0.x * COLOR.x) + (cell1.x * COLOR.y) + (cell2.x * COLOR.z);
 	visibility = mix(0.25, 1, visibility);
 	explored = (cell0.y * COLOR.x) + (cell1.y * COLOR.y) + (cell2.y * COLOR.z);

@@ -5,7 +5,7 @@ shader_type spatial;
 uniform sampler2DArray terrain_texture_2d_array:source_color;
 uniform sampler2D grid_texture:source_color;
 uniform bool grid_on = false;
-uniform bool show_map_data = true;
+uniform bool show_map_data = false;
 
 varying vec3 world_position;
 varying vec3 terrain_index;
@@ -62,15 +62,15 @@ void fragment() {
 	
 	float explored = clamp(terrain_visibility.w, 0, 1);
 	
-	//ALBEDO = c.rgb * grid.rgb * explored;
-	if (show_map_data)
+	ALBEDO = c.rgb * grid.rgb * explored;
+	/*if (show_map_data)
 	{
 		ALBEDO = grid.rgb * map_data;
 	}
 	else
 	{
 		ALBEDO = c.rgb * grid.rgb * explored;
-	}
+	}*/
 	
 	ALPHA = c.a;
 	SPECULAR = 0.2 * explored;

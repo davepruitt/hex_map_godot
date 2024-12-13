@@ -6,6 +6,21 @@ enum HemisphereMode { Both, North, South }
 
 #endregion
 
+#region Static members
+
+static var temperature_bands: Array[float] = [0.1, 0.3, 0.6]
+
+static var moisture_bands: Array[float] = [0.12, 0.28, 0.85]
+
+static var biomes: Array[Biome] = [
+	Biome.new(0, 0), Biome.new(4, 0), Biome.new(4, 0), Biome.new(4, 0),
+	Biome.new(0, 0), Biome.new(2, 0), Biome.new(2, 1), Biome.new(2, 2),
+	Biome.new(0, 0), Biome.new(1, 0), Biome.new(1, 1), Biome.new(1, 2),
+	Biome.new(0, 0), Biome.new(1, 1), Biome.new(1, 2), Biome.new(1, 3)
+]
+
+#endregion
+
 #region Private classes accessible only to the map generator
 
 class MapRegion:
@@ -17,6 +32,14 @@ class MapRegion:
 class ClimateData:
 	var clouds: float = 0.0
 	var moisture: float = 0.0
+	
+class Biome:
+	var terrain: int = 0
+	var plant: int = 0
+	
+	func _init(terrain_type: int, plant_type: int) -> void:
+		terrain = terrain_type
+		plant = plant_type
 
 #endregion
 
@@ -53,7 +76,7 @@ var chunk_size_min: int = 30
 var chunk_size_max: int = 100
 
 @export_range(5, 95)
-var land_percentage: int = 75
+var land_percentage: int = 50
 
 @export_range(1, 5)
 var water_level: int = 3
@@ -292,24 +315,76 @@ func _create_land () -> void:
 
 func _set_terrain_type () -> void:
 	_temperature_jitter_channel = _rng.randi_range(0, 3)
+	var rock_desert_elevation: int = elevation_maximum - ((elevation_maximum - water_level) / 2)
+	
 	for i in range(0, _cell_count):
 		var cell: HexCell = hex_grid.get_cell_from_index(i)
 		var temperature: float = _determine_temperature(cell)
-		cell.set_map_data(temperature)
 		var moisture: float = _climate[i].moisture
 		if (not cell.is_underwater):
-			if (moisture < 0.05):
-				cell.terrain_type_index = 4
-			elif (moisture < 0.12):
-				cell.terrain_type_index = 0
-			elif (moisture < 0.28):
-				cell.terrain_type_index = 3
-			elif (moisture < 0.85):
-				cell.terrain_type_index = 1
-			else:
-				cell.terrain_type_index = 2
+			var t: int = 0
+			while (t < len(temperature_bands)):
+				if (temperature < temperature_bands[t]):
+					break
+				t += 1
+			
+			var m: int = 0
+			while (m < len(moisture_bands)):
+				if (moisture < moisture_bands[m]):
+					break
+				m += 1
+			
+			var cell_biome: Biome = biomes[t * 4 + m]
+			var terrain_type_to_use: int = cell_biome.terrain
+			if (terrain_type_to_use == 0):
+				if (cell.elevation >= rock_desert_elevation):
+					terrain_type_to_use = 3
+			elif (cell.elevation == elevation_maximum):
+				terrain_type_to_use = 4
+			
+			var plant_type_to_use: int = cell_biome.plant
+			if (terrain_type_to_use == 4):
+				plant_type_to_use = 0
+			elif (cell_biome.plant < 3) and (cell.has_river):
+				plant_type_to_use += 1
+			
+			cell.terrain_type_index = terrain_type_to_use
+			cell.plant_level = plant_type_to_use
 		else:
-			cell.terrain_type_index = 2
+			var terrain: int = 0
+			if (cell.elevation == water_level - 1):
+				var cliffs: int = 0
+				var slopes: int = 0
+				for d in range(0, 6):
+					var neighbor: HexCell = cell.get_neighbor(d)
+					if (not neighbor):
+						continue
+					
+					var delta: int = neighbor.elevation - cell.water_level
+					if (delta == 0):
+						slopes += 1
+					elif (delta > 0):
+						cliffs += 1
+				
+				if ((cliffs + slopes) > 3):
+					terrain = 1
+				elif (cliffs > 0):
+					terrain = 3
+				elif (slopes > 0):
+					terrain = 0
+				else:
+					terrain = 1
+			elif (cell.elevation >= water_level):
+				terrain = 1
+			elif (cell.elevation < 0):
+				terrain = 3
+			else:
+				terrain = 2
+			
+			if (terrain == 1) and (temperature < temperature_bands[0]):
+				terrain = 2
+			
+			cell.terrain_type_index = terrain
 
 func _raise_terrain (chunk_size: int, budget: int, region: MapRegion) -> int:
 	_search_frontier_phase += 1
