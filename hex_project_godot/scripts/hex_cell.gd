@@ -87,6 +87,8 @@ var index: int = 0
 
 var explorable: bool = true
 
+var column_index: int = 0
+
 #endregion
 
 #region Public properties

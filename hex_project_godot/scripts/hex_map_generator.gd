@@ -197,13 +197,14 @@ func _create_regions () -> void:
 	else:
 		_regions.clear()
 	
+	var border_x: int = region_border if hex_grid.wrapping else map_border_x
 	
 	match region_count:
 		2:
 			if (randf() < 0.5):
 				#Set the x/z min/max values (the borders of the terrain generation region)
 				var region: MapRegion = MapRegion.new()
-				region.x_min = map_border_x
+				region.x_min = border_x
 				region.x_max = (hex_grid.cell_count_x / 2) - region_border
 				region.z_min = map_border_z
 				region.z_max = hex_grid.cell_count_z - map_border_z
@@ -211,28 +212,31 @@ func _create_regions () -> void:
 				
 				var region_02: MapRegion = MapRegion.new()
 				region_02.x_min = (hex_grid.cell_count_x / 2) + region_border
-				region_02.x_max = hex_grid.cell_count_x - map_border_x
+				region_02.x_max = hex_grid.cell_count_x - border_x
 				region_02.z_min = map_border_z
 				region_02.z_max = hex_grid.cell_count_z - map_border_z
 				_regions.append(region_02)
 			else:
+				if (hex_grid.wrapping):
+					border_x = 0
+				
 				#Set the x/z min/max values (the borders of the terrain generation region)
 				var region: MapRegion = MapRegion.new()
-				region.x_min = map_border_x
-				region.x_max = hex_grid.cell_count_x - map_border_x
+				region.x_min = border_x
+				region.x_max = hex_grid.cell_count_x - border_x
 				region.z_min = map_border_z
 				region.z_max = (hex_grid.cell_count_z / 2) - region_border
 				_regions.append(region)
 				
 				var region_02: MapRegion = MapRegion.new()
-				region.x_min = map_border_x
-				region.x_max = hex_grid.cell_count_x - map_border_x
+				region.x_min = border_x
+				region.x_max = hex_grid.cell_count_x - border_x
 				region_02.z_min = (hex_grid.cell_count_z / 2) + region_border
 				region_02.z_max = hex_grid.cell_count_z - map_border_z
 				_regions.append(region_02)
 		3:
 			var region_01: MapRegion = MapRegion.new()
-			region_01.x_min = map_border_x
+			region_01.x_min = border_x
 			region_01.x_max = (hex_grid.cell_count_x / 3) - region_border
 			region_01.z_min = map_border_z
 			region_01.z_max = hex_grid.cell_count_z - map_border_z
@@ -247,14 +251,14 @@ func _create_regions () -> void:
 			
 			var region_03: MapRegion = MapRegion.new()
 			region_03.x_min = (hex_grid.cell_count_x * 2 / 3) + region_border
-			region_03.x_max = hex_grid.cell_count_x - map_border_x
+			region_03.x_max = hex_grid.cell_count_x - border_x
 			region_03.z_min = map_border_z
 			region_03.z_max = hex_grid.cell_count_z - map_border_z
 			_regions.append(region_03)
 			
 		4:
 			var region_01: MapRegion = MapRegion.new()
-			region_01.x_min = map_border_x
+			region_01.x_min = border_x
 			region_01.x_max = (hex_grid.cell_count_x / 2) - region_border
 			region_01.z_min = map_border_z
 			region_01.z_max = (hex_grid.cell_count_z / 2) - map_border_z
@@ -262,20 +266,20 @@ func _create_regions () -> void:
 			
 			var region_02: MapRegion = MapRegion.new()
 			region_02.x_min = hex_grid.cell_count_x / 2 + region_border
-			region_02.x_max = hex_grid.cell_count_x - map_border_x
+			region_02.x_max = hex_grid.cell_count_x - border_x
 			region_02.z_min = map_border_z
 			region_02.z_max = (hex_grid.cell_count_z / 2) - map_border_z
 			_regions.append(region_02)
 			
 			var region_03: MapRegion = MapRegion.new()
 			region_03.x_min = hex_grid.cell_count_x / 2 + region_border
-			region_03.x_max = hex_grid.cell_count_x - map_border_x
+			region_03.x_max = hex_grid.cell_count_x - border_x
 			region_03.z_min = hex_grid.cell_count_z / 2 + region_border
 			region_03.z_max = hex_grid.cell_count_z - map_border_z
 			_regions.append(region_03)
 			
 			var region_04: MapRegion = MapRegion.new()
-			region_04.x_min = map_border_x
+			region_04.x_min = border_x
 			region_04.x_max = (hex_grid.cell_count_x / 2) - region_border
 			region_04.z_min = hex_grid.cell_count_z / 2 + region_border
 			region_04.z_max = hex_grid.cell_count_z - map_border_z
@@ -283,9 +287,12 @@ func _create_regions () -> void:
 			
 			pass
 		_:
+			if (hex_grid.wrapping):
+				border_x = 0
+			
 			var region: MapRegion = MapRegion.new()
-			region.x_min = map_border_x
-			region.x_max = hex_grid.cell_count_x - map_border_x
+			region.x_min = border_x
+			region.x_max = hex_grid.cell_count_x - border_x
 			region.z_min = map_border_z
 			region.z_max = hex_grid.cell_count_z - map_border_z
 			_regions.append(region)

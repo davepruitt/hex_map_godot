@@ -1,3 +1,5 @@
+#include "hex_metrics.gdshaderinc"
+
 float compute_river (vec2 river_uv, sampler2D noise_texture)
 {
 	vec2 uv = river_uv;
@@ -19,7 +21,7 @@ float compute_foam (float shore, vec2 world_xz, sampler2D noise_texture)
 	shore = sqrt(shore) * 0.9;
 
 	vec2 noise_uv = world_xz + TIME * 0.25;
-	vec4 noise = texture(noise_texture, noise_uv * 0.015);
+	vec4 noise = texture(noise_texture, noise_uv * (2.0 * TILING_SCALE));
 
 	float distortion1 = noise.x * (1.0 - shore);
 	float foam1 = sin((shore + distortion1) * 10.0 - TIME);
@@ -38,11 +40,11 @@ float compute_waves (vec2 world_xz, sampler2D noise_texture)
 {
 	vec2 uv1 = world_xz;
 	uv1.y += TIME * 0.25;
-	vec4 noise1 = texture(noise_texture, uv1 * 0.025);
+	vec4 noise1 = texture(noise_texture, uv1 * (3.0 * TILING_SCALE));
 
 	vec2 uv2 = world_xz;
 	uv2.x += TIME * 0.25;
-	vec4 noise2 = texture(noise_texture, uv2 * 0.025);
+	vec4 noise2 = texture(noise_texture, uv2 * (3.0 * TILING_SCALE));
 
 	float blend_wave = sin((world_xz.x + world_xz.y) * 0.1f + (noise1.z + noise2.z) + TIME);
 	blend_wave *= blend_wave;

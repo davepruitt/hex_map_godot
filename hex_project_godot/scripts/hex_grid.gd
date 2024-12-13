@@ -244,14 +244,8 @@ func get_cell (position: Vector3) -> HexCell:
 	#Convert the position in the hex grid to a set of coordinates within the hex grid
 	var coordinates: HexCoordinates = HexCoordinates.FromPosition(inverse_transform_point)
 	
-	#Find the index into the _hex_cells list for which hex object we want
-	var index = coordinates.X + coordinates.Z * cell_count_x + coordinates.Z / 2.0
-	
-	#Get the selected hex cell object
-	var cell = _hex_cells[index] as HexCell
-	
 	#Return the cell
-	return cell
+	return get_cell_from_coordinates(coordinates)
 	
 func set_all_cell_label_modes (label_mode: HexCell.CellInformationLabelMode) -> void:
 	for i in range(0, len(_hex_cells)):
@@ -495,6 +489,9 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	#Set the west neighbor of the hex cell
 	if (x > 0):
 		hex_cell.set_neighbor(HexDirectionsClass.HexDirections.W, _hex_cells[i - 1])
+		
+		if (wrapping) and (x == cell_count_x - 1):
+			hex_cell.set_neighbor(HexDirectionsClass.HexDirections.E, _hex_cells[i - x])
 	
 	#Set the south-east and south-west neighbors of the hex cell
 	if (z > 0):
@@ -507,6 +504,8 @@ func _create_cell(z: int, x: int, i: int) -> void:
 			if (x > 0):
 				#Set the south-west neighbor of the hex cell
 				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - cell_count_x - 1])
+			elif (wrapping):
+				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SW, _hex_cells[i - 1])
 		else:
 			#If this is an odd row...
 			
@@ -516,6 +515,8 @@ func _create_cell(z: int, x: int, i: int) -> void:
 			if (x < cell_count_x - 1):
 				#Set the south-east neighbor of the hex cell
 				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - cell_count_x + 1])
+			elif (wrapping):
+				hex_cell.set_neighbor(HexDirectionsClass.HexDirections.SE, _hex_cells[i - cell_count_x * 2 + 1])
 	
 	#Set the position of the hex cell in the scene
 	hex_cell.position = hex_position
@@ -528,6 +529,9 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	
 	#Set the cell index
 	hex_cell.index = i
+	
+	#Set the cell's column index
+	hex_cell.column_index = x / HexMetrics.CHUNK_SIZE_X
 	
 	#Set the shader data
 	hex_cell.shader_data = _cell_shader_data

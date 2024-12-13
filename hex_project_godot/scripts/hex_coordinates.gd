@@ -13,6 +13,13 @@ var Z: int = 0
 #region Constructor
 
 func _init(x: int, z: int) -> void:
+	if (HexMetrics.wrapping):
+		var oX: int = x + z / 2
+		if (oX < 0):
+			x += HexMetrics.wrap_size
+		elif (oX >= HexMetrics.wrap_size):
+			x -= HexMetrics.wrap_size
+	
 	X = x
 	Z = z
 
@@ -38,13 +45,60 @@ func _to_string() -> String:
 #region Methods
 
 func DistanceTo (other: HexCoordinates) -> int:
-	var result_x: int = abs(X - other.X)
-	var result_y: int = abs(Y - other.Y)
-	var result_z: int = abs(Z - other.Z)
+	var op1: int = 0
+	if (X < other.X):
+		op1 = other.X - X
+	else:
+		op1 = X - other.X
 	
-	var result: int = (result_x + result_y + result_z) / 2
+	var op2: int = 0
+	if (Y < other.Y):
+		op2 = other.Y - Y
+	else:
+		op2 = Y - other.Y
 	
-	return result
+	var xy: int = op1 + op2
+	
+	if (HexMetrics.wrapping):
+		other.X += HexMetrics.wrap_size
+
+		if (X < other.X):
+			op1 = other.X - X
+		else:
+			op1 = X - other.X
+		
+		if (Y < other.Y):
+			op2 = other.Y - Y
+		else:
+			op2 = Y - other.Y
+		
+		var xy_wrapped: int = op1 + op2
+		if (xy_wrapped < xy):
+			xy = xy_wrapped
+		else:
+			other.X -= 2 * HexMetrics.wrap_size
+			
+			if (X < other.X):
+				op1 = other.X - X
+			else:
+				op1 = X - other.X
+			
+			if (Y < other.Y):
+				op2 = other.Y - Y
+			else:
+				op2 = Y - other.Y
+			
+			xy_wrapped = op1 + op2
+			if (xy_wrapped < xy):
+				xy = xy_wrapped
+	
+	var op_z: int = 0
+	if (Z < other.Z):
+		op_z = other.Z - Z
+	else:
+		op_z = Z - other.Z
+	
+	return (xy + op_z) / 2
 
 func ToStringOnSeparateLines () -> String:
 	#Same as the _to_string function, except each value is seperated by a new-line character

@@ -164,6 +164,16 @@ static func sample_noise (position: Vector3) -> Vector4:
 		)
 		sample[i] = s_i
 	
+	if (wrapping) and (position.x < (INNER_DIAMETER * 1.5)):
+		var sample2: Vector4 = Vector4.ZERO
+		for i in range(0, len(noise_generator)):
+			var s_i: float = noise_generator[i].get_noise_2d(
+				(position.x + wrap_size * INNER_DIAMETER) * NOISE_SCALE,
+				position.z * NOISE_SCALE
+			)
+		
+		sample = sample2.lerp(sample, position.x * (1.0 / INNER_DIAMETER) - 0.5)
+	
 	return sample
 
 static func initialize_hash_grid () -> void:

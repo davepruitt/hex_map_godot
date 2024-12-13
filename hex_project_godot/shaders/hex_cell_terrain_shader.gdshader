@@ -1,5 +1,6 @@
 shader_type spatial;
 
+#include "hex_metrics.gdshaderinc"
 #include "hex_cell_data.gdshaderinc"
 
 uniform sampler2DArray terrain_texture_2d_array:source_color;
@@ -14,7 +15,7 @@ varying float map_data;
 
 vec4 get_terrain_color (vec4 color, vec3 wp, int index)
 {
-	vec3 uvw = vec3(wp.xz * 0.02, terrain_index[index]);
+	vec3 uvw = vec3(wp.xz * (2.0 * TILING_SCALE), terrain_index[index]);
 	vec4 c = texture(terrain_texture_2d_array, uvw);
 	return vec4(c.rgb * color[index] * terrain_visibility[index], c.a);
 }

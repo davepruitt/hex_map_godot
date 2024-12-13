@@ -1050,6 +1050,11 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 	
 	var center2: Vector3 = neighbor.position
 	center2.y = center.y
+	if (neighbor.column_index < cell.column_index - 1):
+		center2.x += HexMetrics.wrap_size * HexMetrics.INNER_DIAMETER
+	elif (neighbor.column_index > cell.column_index + 1):
+		center2.x -= HexMetrics.wrap_size * HexMetrics.INNER_DIAMETER
+	
 	var e2: EdgeVertices = EdgeVertices.new(
 		center2 + HexMetrics.get_second_solid_corner(HexDirectionsClass.opposite(direction)),
 		center2 + HexMetrics.get_first_solid_corner(HexDirectionsClass.opposite(direction))
@@ -1084,7 +1089,13 @@ func _triangulate_shore_water (direction: HexDirectionsClass.HexDirections,
 		
 	var next_neighbor: HexCell = cell.get_neighbor(HexDirectionsClass.next(direction))
 	if (next_neighbor != null):
-		var v3: Vector3 = next_neighbor.position
+		var center3: Vector3 = next_neighbor.position
+		if (next_neighbor.column_index < cell.column_index - 1):
+			center3.x += HexMetrics.wrap_size * HexMetrics.INNER_DIAMETER
+		elif (next_neighbor.column_index > cell.column_index + 1):
+			center3.x -= HexMetrics.wrap_size * HexMetrics.INNER_DIAMETER
+		
+		var v3: Vector3 = center3
 		if (next_neighbor.is_underwater):
 			v3 += HexMetrics.get_first_water_corner(HexDirectionsClass.previous(direction))
 		else:
