@@ -156,7 +156,7 @@ var hex_grid: HexGrid = null
 
 #region Public methods
 
-func generate_map (x: int, z: int) -> void:
+func generate_map (x: int, z: int, wrapping: bool) -> void:
 	#Set the seed to 0 for reproducibility
 	_rng.set_seed(0)
 	
@@ -164,7 +164,7 @@ func generate_map (x: int, z: int) -> void:
 	_cell_count = x * z
 	
 	#Create a blank map
-	hex_grid.create_map(x, z)
+	hex_grid.create_map(x, z, wrapping)
 	
 	#Set the water level for the map
 	for i in range(0, _cell_count):

@@ -64,7 +64,7 @@ static func FromOffsetCoordinates (x: int, z: int) -> HexCoordinates:
 	
 static func FromPosition(position: Vector3) -> HexCoordinates:
 	#This function determines hex coordinates from a Vector3 position within the local hex grid
-	var x = position.x / (HexMetrics.INNER_RADIUS * 2.0)
+	var x = position.x / HexMetrics.INNER_DIAMETER
 	var y = -x
 	
 	var offset = position.z / (HexMetrics.OUTER_RADIUS * 3.0)

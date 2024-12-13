@@ -107,6 +107,7 @@ var _hex_map_generator: HexMapGenerator = HexMapGenerator.new()
 
 var _selected_map_size: int = 0
 var _should_generate_random_map: bool = false
+var _should_use_wrapping: bool = false
 
 #endregion
 
@@ -391,9 +392,9 @@ func _on_confirm_button_pressed() -> void:
 	#Generate the map
 	if (_should_generate_random_map):
 		_hex_map_generator.hex_grid = hex_grid
-		_hex_map_generator.generate_map(x, z)
+		_hex_map_generator.generate_map(x, z, _should_use_wrapping)
 	else:
-		hex_grid.create_map(x, z)
+		hex_grid.create_map(x, z, _should_use_wrapping)
 
 	#Validate the position of the main camera
 	main_camera_assembly.validate_position()
@@ -409,6 +410,9 @@ func _on_check_box_large_map_pressed() -> void:
 
 func _on_generate_map_check_box_toggled(toggled_on: bool) -> void:
 	_should_generate_random_map = toggled_on
+
+func _on_use_wrapping_check_box_toggled(toggled_on: bool) -> void:
+	_should_use_wrapping = toggled_on
 
 func _on_save_file_dialog_file_selected(path: String) -> void:
 	#Save the map to the file that was chosen by the user

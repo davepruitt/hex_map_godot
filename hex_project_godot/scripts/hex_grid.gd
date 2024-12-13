@@ -23,6 +23,9 @@ extends Node3D
 ## The number of cells in the Z direction
 @export var cell_count_z: int = 0
 
+## Whether the grid is wrapped
+@export var wrapping: bool = false
+
 ## This is the scene that will be used for each hex cell in the grid
 @export var hex_cell_prefab: PackedScene
 
@@ -46,12 +49,6 @@ extends Node3D
 
 ## This is the default material for walls
 @export var walls_material: ShaderMaterial
-
-#endregion
-
-#region On-Ready variables
-
-#@onready var hex_texture: Texture2DArray = preload("res://assets/terrain.png")
 
 #endregion
 
@@ -87,6 +84,10 @@ var _units: Array[HexUnit] = []
 
 var _cell_shader_data: HexCellShaderData = null
 
+var _columns: Array[Node3D] = []
+
+var _current_center_column_index: int = -1
+
 #endregion
 
 #region Public data members
@@ -118,7 +119,7 @@ func _ready() -> void:
 	HexUnit.unit_prefab = unit_prefab
 	
 	#Create the map
-	create_map(cell_count_x, cell_count_z)
+	create_map(cell_count_x, cell_count_z, wrapping)
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -143,7 +144,7 @@ var has_path: bool:
 
 #region Public methods
 
-func create_map (map_size_x: int, map_size_z: int) -> bool:
+func create_map (map_size_x: int, map_size_z: int, should_wrap: bool) -> bool:
 	#Return immediately if this is an unsupported map size
 	if ((map_size_x <= 0) or 
 		(map_size_x % HexMetrics.CHUNK_SIZE_X != 0) or
@@ -158,18 +159,23 @@ func create_map (map_size_x: int, map_size_z: int) -> bool:
 	#Clear any existing units
 	_clear_units()
 	
-	#Destroy existing chunks
-	if (_hex_grid_chunks != null):
-		#Remove each chunk from the scene
-		for i in range(0, len(_hex_grid_chunks)):
-			remove_child(_hex_grid_chunks[i])
-			
-		#Clear the list of chunks
-		_hex_grid_chunks.clear()
+	#Destroy existing columns
+	if (_columns):
+		for i in range(0, len(_columns)):
+			remove_child(_columns[i])
 	
 	#Set the cell counts in each axis direction
 	cell_count_x = map_size_x
 	cell_count_z = map_size_z
+	
+	#Set the wrapping stauts
+	wrapping = should_wrap
+	
+	#Set the HexMetrics wrapping variable
+	HexMetrics.wrap_size = cell_count_x if wrapping else 0
+	
+	#Set the center column index
+	_current_center_column_index = -1
 	
 	#Calculate the chunk count count in the x and z directions
 	_chunk_count_x = cell_count_x / HexMetrics.CHUNK_SIZE_X
@@ -256,6 +262,9 @@ func save_hex_grid (file_writer: FileAccess) -> void:
 	file_writer.store_32(cell_count_x)
 	file_writer.store_32(cell_count_z)
 	
+	#Save the wrapping stauts
+	file_writer.store_8(wrapping)
+	
 	#Save each cell
 	for i in range(0, len(_hex_cells)):
 		_hex_cells[i].save_hex_cell(file_writer)
@@ -283,9 +292,13 @@ func load_hex_grid (file_reader: FileAccess, file_version: int) -> void:
 		new_map_size_x = file_reader.get_32()
 		new_map_size_z = file_reader.get_32()
 	
+	var should_wrap: bool = false
+	if (file_version >= 5):
+		should_wrap = bool(file_reader.get_8())
+	
 	#Create the map
-	if (new_map_size_x != cell_count_x) or (new_map_size_z != cell_count_z):
-		var create_map_success: bool = create_map(new_map_size_x, new_map_size_z)
+	if (new_map_size_x != cell_count_x) or (new_map_size_z != cell_count_z) or (wrapping != should_wrap):
+		var create_map_success: bool = create_map(new_map_size_x, new_map_size_z, should_wrap)
 		if (not create_map_success):
 			return
 	
@@ -401,14 +414,44 @@ func reset_visibility () -> void:
 	for i in range(0, len(_units)):
 		var unit: HexUnit = _units[i]
 		increase_visibility_in_game(unit.location, unit.vision_range)
+
+func center_map (x_position: float) -> void:
+	var center_column_index: int = int(x_position / (HexMetrics.INNER_DIAMETER * HexMetrics.CHUNK_SIZE_X))
 	
+	if (center_column_index == _current_center_column_index):
+		return
 	
+	_current_center_column_index = center_column_index
 	
+	var min_column_index: int = center_column_index - (_chunk_count_x / 2)
+	var max_column_index: int = center_column_index + (_chunk_count_x / 2)
+	
+	var pos: Vector3 = Vector3.ZERO
+	for i in range(0, len(_columns)):
+		if (i < min_column_index):
+			pos.x = _chunk_count_x * (HexMetrics.INNER_DIAMETER * HexMetrics.CHUNK_SIZE_X)
+		elif (i > max_column_index):
+			pos.x = _chunk_count_x * -(HexMetrics.INNER_DIAMETER * HexMetrics.CHUNK_SIZE_X)
+		else:
+			pos.x = 0.0
+		
+		_columns[i].position = pos
+
 #endregion
 
 #region Private methods
 
 func _create_chunks () -> void:
+	#Resize the columns array
+	if (_columns):
+		_columns.clear()
+	_columns.resize(_chunk_count_x)
+	
+	#Add each column's Node3D object to the scene hierarchy
+	for x in range(0, _chunk_count_x):
+		_columns[x] = Node3D.new()
+		add_child(_columns[x])
+	
 	#Clear the hex grid chunks array
 	_hex_grid_chunks = []
 	
@@ -422,7 +465,7 @@ func _create_chunks () -> void:
 			_hex_grid_chunks.append(chunk)
 			
 			#Add this chunk as a child of the hex grid
-			add_child(chunk)
+			_columns[x].add_child(chunk)
 
 func _create_cells () -> void:
 	#Clear the list of hex cells
@@ -441,7 +484,7 @@ func _create_cells () -> void:
 func _create_cell(z: int, x: int, i: int) -> void:
 	#Create a Vector3 to store the new hex's position
 	var hex_position: Vector3 = Vector3(
-		(x + z * 0.5 - (z / 2)) * (HexMetrics.INNER_RADIUS * 2.0), 
+		(x + z * 0.5 - (z / 2)) * HexMetrics.INNER_DIAMETER, 
 		0.0, 
 		z * (HexMetrics.OUTER_RADIUS * 1.5)
 	)

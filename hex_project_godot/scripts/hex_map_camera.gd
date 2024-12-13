@@ -37,8 +37,7 @@ var locked: bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass
-
+	validate_position()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -93,16 +92,33 @@ func _adjust_position (x_delta: float, z_delta: float, time_delta: float) -> voi
 	var movement_speed: float = lerpf(movement_speed_min_zoom, movement_speed_max_zoom, _zoom)
 	var distance: float = movement_speed * damping * time_delta
 	position += direction * distance
-	position = _clamp_position(position)
+	if (hex_grid.wrapping):
+		position = _wrap_position(position)
+	else:
+		position =  _clamp_position(position)
 
 func _clamp_position (pos: Vector3) -> Vector3:
-	var x_max: float = (hex_grid.cell_count_x - 0.5) * (2.0 * HexMetrics.INNER_RADIUS)
+	var x_max: float = (hex_grid.cell_count_x - 0.5) * HexMetrics.INNER_DIAMETER
 	pos.x = clampf(pos.x, 0.0, x_max)
 	
 	var z_max: float = (hex_grid.cell_count_z - 1.0) * (1.5 * HexMetrics.OUTER_RADIUS)
 	pos.z = clampf(pos.z, 0.0, z_max)
 	
 	return pos
+
+func _wrap_position (pos: Vector3) -> Vector3:
+	var width: float = hex_grid.cell_count_x * HexMetrics.INNER_DIAMETER
+	while (pos.x < 0.0):
+		pos.x += width
+	
+	while (pos.x > width):
+		pos.x -= width
+	
+	var z_max: float = (hex_grid.cell_count_z - 1.0) * (1.5 * HexMetrics.OUTER_RADIUS)
+	pos.z = clampf(pos.z, 0.0, z_max)
+
+	hex_grid.center_map(pos.x)
+	return pos	
 
 func _adjust_rotation (rotation_delta: float, time_delta: float) -> void:
 	_rotation_angle += rotation_delta * rotation_speed * time_delta

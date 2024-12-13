@@ -3,7 +3,7 @@ class_name HexMetrics
 #region Constants
 
 ## The current map file version
-const MAP_FILE_VERSION: int = 4
+const MAP_FILE_VERSION: int = 5
 
 ## Ratio of outer to inner radius of a hex
 const OUTER_TO_INNER: float = 0.866025404
@@ -16,6 +16,9 @@ const OUTER_RADIUS: float = 10.0
 
 ## The inner radius of a hex
 const INNER_RADIUS: float = OUTER_RADIUS * OUTER_TO_INNER
+
+## The inner diameter of a hex
+const INNER_DIAMETER: float = INNER_RADIUS * 2.0
 
 ## Relative positions of each hex corner from the center of a hex
 const CORNERS = [
@@ -129,6 +132,12 @@ static var feature_thresholds: Array[float] = [
 static var colors: Array[Color] = []
 
 static var display_mode: Enums.DisplayMode = Enums.DisplayMode.TerrainTextures
+
+static var wrap_size: int = 0
+
+static var wrapping: bool:
+	get:
+		return (wrap_size > 0)
 
 #endregion
 
