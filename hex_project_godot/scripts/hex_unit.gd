@@ -74,6 +74,9 @@ var location: HexCell:
 			
 			#Set the position of the unit to be the position of the hex cell location
 			self.position = value.position
+			
+			#Reparent the unit
+			hex_grid.make_child_of_column(self, value.column_index)
 
 var orientation: float:
 	get:
@@ -153,6 +156,13 @@ func get_move_cost (from_cell: HexCell, to_cell: HexCell, direction: HexDirectio
 #region Private Methods
 
 func _look_at (point: Vector3) -> void:
+	if (HexMetrics.wrapping):
+		var x_distance: float = point.x - position.x
+		if (x_distance < (-HexMetrics.INNER_RADIUS * HexMetrics.wrap_size)):
+			point.x += HexMetrics.INNER_DIAMETER * HexMetrics.wrap_size
+		elif (x_distance > (HexMetrics.INNER_RADIUS * HexMetrics.wrap_size)):
+			point.x -= HexMetrics.INNER_DIAMETER * HexMetrics.wrap_size
+	
 	point.y =  self.position.y
 	
 	var from_rotation: Quaternion = self.quaternion
@@ -205,10 +215,10 @@ func _travel_path () -> void:
 	await _look_at(_path_to_travel[1].position)
 	
 	#Decrease the visibility of the initial cell after we have looked away from it
-	if (_current_travel_location != null):
-		hex_grid.decrease_visibility_in_game(_current_travel_location, _VISION_RANGE)
-	else:
-		hex_grid.decrease_visibility_in_game(_path_to_travel[0], _VISION_RANGE)
+	if (_current_travel_location == null):
+		_current_travel_location = _path_to_travel[0]
+	hex_grid.decrease_visibility_in_game(_current_travel_location, _VISION_RANGE)
+	var current_column: int = _current_travel_location.column_index
 	
 	var t: float = 0.01
 	for i in range(1, len(_path_to_travel)):
@@ -218,9 +228,20 @@ func _travel_path () -> void:
 		#Get position information for the bezier curve generation
 		a = c
 		b = _path_to_travel[i - 1].position
-		c = (b + _current_travel_location.position) * 0.5
 		
-		#Increase visibility of the path to travel cell
+		var next_column: int = _current_travel_location.column_index
+		if (current_column != next_column):
+			if (next_column < current_column - 1):
+				a.x -= HexMetrics.INNER_DIAMETER * HexMetrics.wrap_size
+				b.x -= HexMetrics.INNER_DIAMETER * HexMetrics.wrap_size
+			elif (next_column > current_column + 1):
+				a.x += HexMetrics.INNER_DIAMETER * HexMetrics.wrap_size
+				b.x += HexMetrics.INNER_DIAMETER * HexMetrics.wrap_size
+			
+			hex_grid.make_child_of_column(self, next_column)
+			current_column = next_column
+		
+		c = (b + _current_travel_location.position) * 0.5
 		hex_grid.increase_visibility_in_game(_path_to_travel[i], _VISION_RANGE)
 		
 		while t < 1.0:

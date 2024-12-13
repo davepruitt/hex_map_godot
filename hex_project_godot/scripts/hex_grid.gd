@@ -377,15 +377,18 @@ func add_unit (unit: HexUnit, location: HexCell, orientation: float) -> void:
 	#Add the unit to the list of units for the hex map
 	_units.append(unit)
 	
-	#Add the unit as a child of the hex map scene
-	add_child(unit)
-	
 	#Set the grid property on the unit
 	unit.hex_grid = self
+	
+	#Add the unit as a child of the hex map scene
+	add_child(unit)
 	
 	#Set the location and orientation of the unit
 	unit.location = location
 	unit.orientation = orientation
+
+func make_child_of_column (child: Node3D, column_index: int) -> void:
+	child.reparent(_columns[column_index])
 
 func remove_unit (unit: HexUnit) -> void:
 	_units.erase(unit)
@@ -537,7 +540,10 @@ func _create_cell(z: int, x: int, i: int) -> void:
 	hex_cell.shader_data = _cell_shader_data
 	
 	#Set whether the cell is explorable
-	hex_cell.explorable = (x > 0) and (z > 0) and (x < (cell_count_x - 1)) and (z < (cell_count_z - 1))
+	if (wrapping):
+		hex_cell.explorable = (z > 0) and (z < cell_count_z - 1)
+	else:
+		hex_cell.explorable = (x > 0) and (z > 0) and (x < (cell_count_x - 1)) and (z < (cell_count_z - 1))
 	
 	#Set the initial distance value to max int
 	hex_cell.distance = GodotConstants.MAX_INT
